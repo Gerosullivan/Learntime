@@ -516,7 +516,11 @@ export const createSimpleAssistantMessage = async (
   const finalAssistantMessage: TablesInsert<"messages"> = {
     chat_id: currentChat.id,
     user_id: profile.user_id,
-    content: "Hello, welcome to your new workspace!",
+    content: `Let's create a topic together!
+You can:
+1) Describe the topic in chat below.
+2) Upload a file containing the topic material; select ⊕ below.
+3) Choose an existing file from the learnspace then choose the topic; type "#" to see list of files.`,
     model: modelData.modelId,
     role: "assistant",
     sequence_number: 0, // This could be set dynamically based on the current chat messages length if needed.

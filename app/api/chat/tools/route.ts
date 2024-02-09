@@ -1,5 +1,9 @@
 import { openapiToFunctions } from "@/lib/openapi-conversion"
-import { checkApiKey, getServerProfile } from "@/lib/server/server-chat-helpers"
+import {
+  checkApiKey,
+  getServerProfile,
+  updateChatName
+} from "@/lib/server/server-chat-helpers"
 import { Tables } from "@/supabase/types"
 import { ChatSettings } from "@/types"
 import { OpenAIStream, StreamingTextResponse } from "ai"
@@ -8,10 +12,11 @@ import { ChatCompletionCreateParamsBase } from "openai/resources/chat/completion
 
 export async function POST(request: Request) {
   const json = await request.json()
-  const { chatSettings, messages, selectedTools } = json as {
+  const { chatSettings, messages, selectedTools, chatId } = json as {
     chatSettings: ChatSettings
     messages: any[]
     selectedTools: Tables<"tools">[]
+    chatId: string
   }
 
   try {
@@ -54,6 +59,8 @@ export async function POST(request: Request) {
         request_in_body: selectedTool.request_in_body
       })
     }
+
+    console.log("Calling OpenAI with messages", messages, "and tools", allTools)
 
     const firstResponse = await openai.chat.completions.create({
       model: chatSettings.model as ChatCompletionCreateParamsBase["model"],
@@ -132,20 +139,25 @@ export async function POST(request: Request) {
 
           const bodyContent = parsedArgs.requestBody || parsedArgs
 
-          const requestInit = {
-            method: "POST",
-            headers,
-            body: JSON.stringify(bodyContent) // Use the extracted requestBody or the entire parsedArgs
-          }
-
-          const response = await fetch(fullUrl, requestInit)
-
-          if (!response.ok) {
-            data = {
-              error: response.statusText
-            }
+          if (bodyContent.new_topic_name) {
+            // Update the chat name in the database
+            data = await updateChatName(chatId, bodyContent.new_topic_name)
           } else {
-            data = await response.json()
+            const requestInit = {
+              method: "POST",
+              headers,
+              body: JSON.stringify(bodyContent) // Use the extracted requestBody or the entire parsedArgs
+            }
+
+            const response = await fetch(fullUrl, requestInit)
+
+            if (!response.ok) {
+              data = {
+                error: response.statusText
+              }
+            } else {
+              data = await response.json()
+            }
           }
         } else {
           // If the type is set to query

@@ -246,6 +246,12 @@ export const useChatHandler = () => {
           chatImages
         )
 
+        console.log("Calling /api/chat/tools with payload:", {
+          payload,
+          formattedMessages,
+          selectedTools
+        })
+
         const response = await fetch("/api/chat/tools", {
           method: "POST",
           headers: {
@@ -254,7 +260,9 @@ export const useChatHandler = () => {
           body: JSON.stringify({
             chatSettings: payload.chatSettings,
             messages: formattedMessages,
-            selectedTools
+            selectedTools,
+            // chat id
+            chatId: currentChat?.id
           })
         })
 

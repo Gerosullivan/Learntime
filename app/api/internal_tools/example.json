@@ -1,0 +1,66 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Topic Management API",
+    "description": "This API allows for updating the name of a topic.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000/api",
+      "description": "Main API server"
+    }
+  ],
+  "paths": {
+    "/internal_tools": {
+      "patch": {
+        "operationId": "updateTopicName",
+        "summary": "Updates a topic name.",
+        "description": "This endpoint updates the name of a specific topic by passing a new_topic_name parameter.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["new_topic_name"],
+                "properties": {
+                  "new_topic_name": {
+                    "type": "string",
+                    "description": "The new name to assign to the topic."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Topic name updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "new_topic_name": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request, e.g., missing new_topic_name parameter"
+          },
+          "404": {
+            "description": "Topic not found"
+          }
+        }
+      }
+    }
+  }
+}
