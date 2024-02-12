@@ -27,6 +27,7 @@ export const ChatUI: FC<ChatUIProps> = ({}) => {
 
   const {
     setChatMessages,
+    chatMessages,
     selectedChat,
     setSelectedChat,
     setChatSettings,
@@ -37,10 +38,14 @@ export const ChatUI: FC<ChatUIProps> = ({}) => {
     setChatFiles,
     setShowFilesDisplay,
     setUseRetrieval,
-    profile
+    profile,
+    topicDescription,
+    setTopicDescription,
+    newMessageFiles
   } = useContext(ChatbotUIContext)
 
-  const { handleNewChat, handleFocusChatInput } = useChatHandler()
+  const { handleNewChat, handleFocusChatInput, handleCreateAssistantMessage } =
+    useChatHandler()
 
   const {
     messagesStartRef,
@@ -74,6 +79,12 @@ export const ChatUI: FC<ChatUIProps> = ({}) => {
       setLoading(false)
     }
   }, [])
+
+  useEffect(() => {
+    if (chatMessages.length === 1 && newMessageFiles.length >= 1) {
+      handleCreateAssistantMessage("Great! Now name your topic.")
+    }
+  }, [chatMessages, newMessageFiles, handleCreateAssistantMessage])
 
   const fetchMessages = async () => {
     const fetchedMessages = await getMessagesByChatId(params.chatid as string)
@@ -161,6 +172,10 @@ export const ChatUI: FC<ChatUIProps> = ({}) => {
       if (assistant) {
         setSelectedAssistant(assistant)
       }
+    }
+
+    if (chat.topic_description) {
+      setTopicDescription(chat.topic_description)
     }
 
     setSelectedChat(chat)

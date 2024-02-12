@@ -12,6 +12,7 @@ import { CreateModel } from "./items/models/create-model"
 import { CreatePreset } from "./items/presets/create-preset"
 import { CreatePrompt } from "./items/prompts/create-prompt"
 import { CreateTool } from "./items/tools/create-tool"
+import { useRouter } from "next/navigation"
 
 interface SidebarCreateButtonsProps {
   contentType: ContentType
@@ -24,7 +25,9 @@ export const SidebarCreateButtons: FC<SidebarCreateButtonsProps> = ({
 }) => {
   const { profile, selectedWorkspace, folders, setFolders } =
     useContext(ChatbotUIContext)
-  const { handleNewChat } = useChatHandler()
+  const { handleCreateNewChat } = useChatHandler()
+
+  const router = useRouter()
 
   const [isCreatingPrompt, setIsCreatingPrompt] = useState(false)
   const [isCreatingPreset, setIsCreatingPreset] = useState(false)
@@ -52,7 +55,11 @@ export const SidebarCreateButtons: FC<SidebarCreateButtonsProps> = ({
     switch (contentType) {
       case "chats":
         return async () => {
-          handleNewChat()
+          if (!selectedWorkspace) return
+          // Create a new chat for the created workspace with a default message from the assistant
+          const newMessageId = await handleCreateNewChat(selectedWorkspace)
+
+          return router.push(`/${selectedWorkspace.id}/chat/${newMessageId}`)
         }
 
       case "presets":

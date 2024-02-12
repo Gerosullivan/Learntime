@@ -18,6 +18,7 @@ import {
   validateChatSettings,
   createSimpleAssistantMessage
 } from "../chat-helpers"
+import { getAssistantToolsByAssistantId } from "@/db/assistant-tools"
 
 export const useChatHandler = () => {
   const router = useRouter()
@@ -63,7 +64,9 @@ export const useChatHandler = () => {
     models,
     isPromptPickerOpen,
     isAtPickerOpen,
-    isToolPickerOpen
+    isToolPickerOpen,
+    setSelectedAssistant,
+    assistants
   } = useContext(ChatbotUIContext)
 
   const chatInputRef = useRef<HTMLTextAreaElement>(null)
@@ -235,6 +238,8 @@ export const useChatHandler = () => {
         chatFileItems: chatFileItems
       }
 
+      console.log("Payload:", payload)
+
       let generatedText = ""
 
       if (selectedTools.length > 0) {
@@ -362,9 +367,45 @@ export const useChatHandler = () => {
     }
   }
 
+  const handleSendEdit = async (
+    editedContent: string,
+    sequenceNumber: number
+  ) => {
+    if (!selectedChat) return
+
+    await deleteMessagesIncludingAndAfter(
+      selectedChat.user_id,
+      selectedChat.id,
+      sequenceNumber
+    )
+
+    const filteredMessages = chatMessages.filter(
+      chatMessage => chatMessage.message.sequence_number < sequenceNumber
+    )
+
+    setChatMessages(filteredMessages)
+
+    handleSendMessage(editedContent, filteredMessages, false)
+  }
+
   const handleCreateNewChat = async (
     createdWorkspace: Tables<"workspaces">
   ) => {
+    if (selectedPreset) {
+      setChatSettings({
+        model: selectedPreset.model as LLMID,
+        prompt: selectedPreset.prompt,
+        temperature: selectedPreset.temperature,
+        contextLength: selectedPreset.context_length,
+        includeProfileContext: selectedPreset.include_profile_context,
+        includeWorkspaceInstructions:
+          selectedPreset.include_workspace_instructions,
+        embeddingsProvider: selectedPreset.embeddings_provider as
+          | "openai"
+          | "local"
+      })
+    }
+
     if (!createdWorkspace || !profile) {
       console.log(
         "Missing data to create a new chat",
@@ -373,12 +414,27 @@ export const useChatHandler = () => {
       )
       return
     }
+    // set the default selected assistant where name = "Topic creation tutor"
+    const createTopicAssistant = assistants.find(
+      assistant => assistant.name === "Topic creation tutor"
+    )
+    setSelectedAssistant(createTopicAssistant || null)
+
+    // set selected tools to assistant's tools
+    if (createTopicAssistant) {
+      const assistantTools = (
+        await getAssistantToolsByAssistantId(createTopicAssistant.id)
+      ).tools
+      setSelectedTools(assistantTools)
+    } else {
+      console.error("No assistant found with the name 'Topic creation tutor'")
+    }
 
     const newWorkspaceChat = await handleCreateChat(
       chatSettings!,
       profile!,
       createdWorkspace!,
-      "Learnspace home chat",
+      "New topic",
       selectedAssistant!,
       newMessageFiles,
       setSelectedChat,
@@ -404,30 +460,48 @@ export const useChatHandler = () => {
       newWorkspaceChat,
       profile!,
       modelData!,
-      setChatMessages
+      setChatMessages,
+      0,
+      `Let's create a topic together!
+You can:
+1) Describe the topic in chat below.
+2) Upload a file containing the topic material; select ⊕ below.
+3) Choose an existing file from the learnspace then choose the topic; type "#" to see list of files.`
     )
     return newMessageId
   }
 
-  const handleSendEdit = async (
-    editedContent: string,
-    sequenceNumber: number
-  ) => {
-    if (!selectedChat) return
+  const handleCreateAssistantMessage = async (messageContent: string) => {
+    if (!profile || !selectedChat || !chatSettings || !chatSettings.model) {
+      console.log("Missing data to create a new message", { profile })
+      return
+    }
 
-    await deleteMessagesIncludingAndAfter(
-      selectedChat.user_id,
-      selectedChat.id,
-      sequenceNumber
+    const modelData = [
+      ...models.map(model => ({
+        modelId: model.model_id as LLMID,
+        modelName: model.name,
+        provider: "custom" as ModelProvider,
+        hostedId: model.id,
+        platformLink: "",
+        imageInput: false
+      })),
+      ...LLM_LIST,
+      ...availableLocalModels,
+      ...availableOpenRouterModels
+    ].find(llm => llm.modelId === chatSettings?.model)
+
+    const sequence_number = chatMessages.length
+
+    const newMessageId = await createSimpleAssistantMessage(
+      selectedChat,
+      profile,
+      modelData!,
+      setChatMessages,
+      sequence_number,
+      messageContent
     )
-
-    const filteredMessages = chatMessages.filter(
-      chatMessage => chatMessage.message.sequence_number < sequenceNumber
-    )
-
-    setChatMessages(filteredMessages)
-
-    handleSendMessage(editedContent, filteredMessages, false)
+    return newMessageId
   }
 
   return {
@@ -438,6 +512,7 @@ export const useChatHandler = () => {
     handleFocusChatInput,
     handleStopMessage,
     handleSendEdit,
-    handleCreateNewChat
+    handleCreateNewChat,
+    handleCreateAssistantMessage
   }
 }

@@ -71,7 +71,11 @@ export function checkApiKey(apiKey: string | null, keyName: string) {
   }
 }
 
-export async function updateChatName(chatId: string, newChatName: string) {
+export async function updateChatTopic(
+  chatId: string,
+  newChatName: string,
+  topic_description: string
+) {
   const cookieStore = cookies()
   const supabase = createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -87,7 +91,7 @@ export async function updateChatName(chatId: string, newChatName: string) {
 
   const { data, error } = await supabase
     .from("chats")
-    .update({ name: newChatName })
+    .update({ name: newChatName, topic_description })
     .eq("id", chatId)
 
   if (error) {

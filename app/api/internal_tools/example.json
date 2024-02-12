@@ -16,18 +16,22 @@
       "patch": {
         "operationId": "updateTopicName",
         "summary": "Updates a topic name.",
-        "description": "This endpoint updates the name of a specific topic by passing a new_topic_name parameter.",
+        "description": "This endpoint updates the name and description of a study topic.",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["new_topic_name"],
+                "required": ["topic_name", "topic_description"],
                 "properties": {
-                  "new_topic_name": {
+                  "topic_name": {
                     "type": "string",
                     "description": "The new name to assign to the topic."
+                  },
+                  "topic_description": {
+                    "type": "string",
+                    "description": "The longform topic description."
                   }
                 }
               }
@@ -45,7 +49,7 @@
                     "message": {
                       "type": "string"
                     },
-                    "new_topic_name": {
+                    "topic_name": {
                       "type": "string"
                     }
                   }
@@ -54,7 +58,7 @@
             }
           },
           "400": {
-            "description": "Bad request, e.g., missing new_topic_name parameter"
+            "description": "Bad request in updating topic"
           },
           "404": {
             "description": "Topic not found"

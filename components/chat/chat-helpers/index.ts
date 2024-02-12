@@ -154,6 +154,7 @@ export const handleLocalChat = async (
   setToolInUse: React.Dispatch<React.SetStateAction<string>>
 ) => {
   const formattedMessages = await buildFinalMessages(payload, profile, [])
+  console.log("formattedMessages", { formattedMessages })
 
   // Ollama API: https://github.com/jmorganca/ollama/blob/main/docs/api.md
   const response = await fetchChatResponse(
@@ -511,19 +512,17 @@ export const createSimpleAssistantMessage = async (
   currentChat: Tables<"chats">,
   profile: Tables<"profiles">,
   modelData: LLM,
-  setChatMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>
+  setChatMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>,
+  sequence_number: number,
+  messageContent: string
 ) => {
   const finalAssistantMessage: TablesInsert<"messages"> = {
     chat_id: currentChat.id,
     user_id: profile.user_id,
-    content: `Let's create a topic together!
-You can:
-1) Describe the topic in chat below.
-2) Upload a file containing the topic material; select ⊕ below.
-3) Choose an existing file from the learnspace then choose the topic; type "#" to see list of files.`,
+    content: messageContent,
     model: modelData.modelId,
     role: "assistant",
-    sequence_number: 0, // This could be set dynamically based on the current chat messages length if needed.
+    sequence_number,
     image_paths: []
   }
 

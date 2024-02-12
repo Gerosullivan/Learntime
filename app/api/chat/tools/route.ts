@@ -2,7 +2,7 @@ import { openapiToFunctions } from "@/lib/openapi-conversion"
 import {
   checkApiKey,
   getServerProfile,
-  updateChatName
+  updateChatTopic
 } from "@/lib/server/server-chat-helpers"
 import { Tables } from "@/supabase/types"
 import { ChatSettings } from "@/types"
@@ -139,9 +139,13 @@ export async function POST(request: Request) {
 
           const bodyContent = parsedArgs.requestBody || parsedArgs
 
-          if (bodyContent.new_topic_name) {
-            // Update the chat name in the database
-            data = await updateChatName(chatId, bodyContent.new_topic_name)
+          if (bodyContent.topic_name) {
+            // Update the chat/topic name & content in the database
+            data = await updateChatTopic(
+              chatId,
+              bodyContent.topic_name,
+              bodyContent.topic_description
+            )
           } else {
             const requestInit = {
               method: "POST",
