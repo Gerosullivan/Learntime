@@ -3,7 +3,7 @@ import { updateChat } from "@/db/chats"
 import { deleteMessagesIncludingAndAfter } from "@/db/messages"
 import { buildFinalMessages } from "@/lib/build-prompt"
 import { Tables } from "@/supabase/types"
-import { ChatMessage, ChatPayload, LLMID, ModelProvider } from "@/types"
+import { ChatMessage, ChatPayload, LLMID, ModelProvider, LLM } from "@/types"
 import { useRouter } from "next/navigation"
 import { useContext, useEffect, useRef } from "react"
 import { LLM_LIST } from "../../../lib/models/llm/llm-list"
@@ -96,55 +96,73 @@ export const useChatHandler = () => {
     setIsPromptPickerOpen(false)
     setIsAtPickerOpen(false)
 
-    setSelectedTools([])
-    setToolInUse("none")
+    // set the default selected assistant where name = "Topic creation tutor"
+    const createTopicAssistant = assistants.find(
+      assistant => assistant.name === "Topic creation tutor"
+    )
+    setSelectedAssistant(createTopicAssistant || null)
 
-    if (selectedAssistant) {
-      setChatSettings({
-        model: selectedAssistant.model as LLMID,
-        prompt: selectedAssistant.prompt,
-        temperature: selectedAssistant.temperature,
-        contextLength: selectedAssistant.context_length,
-        includeProfileContext: selectedAssistant.include_profile_context,
-        includeWorkspaceInstructions:
-          selectedAssistant.include_workspace_instructions,
-        embeddingsProvider: selectedAssistant.embeddings_provider as
-          | "openai"
-          | "local"
-      })
-    } else if (selectedPreset) {
-      setChatSettings({
-        model: selectedPreset.model as LLMID,
-        prompt: selectedPreset.prompt,
-        temperature: selectedPreset.temperature,
-        contextLength: selectedPreset.context_length,
-        includeProfileContext: selectedPreset.include_profile_context,
-        includeWorkspaceInstructions:
-          selectedPreset.include_workspace_instructions,
-        embeddingsProvider: selectedPreset.embeddings_provider as
-          | "openai"
-          | "local"
-      })
-    } else if (selectedWorkspace) {
-      setChatSettings({
-        model: (selectedWorkspace.default_model ||
-          "gpt-4-1106-preview") as LLMID,
-        prompt:
-          selectedWorkspace.default_prompt ||
-          "You are a friendly, helpful AI assistant.",
-        temperature: selectedWorkspace.default_temperature || 0.5,
-        contextLength: selectedWorkspace.default_context_length || 4096,
-        includeProfileContext:
-          selectedWorkspace.include_profile_context || true,
-        includeWorkspaceInstructions:
-          selectedWorkspace.include_workspace_instructions || true,
-        embeddingsProvider:
-          (selectedWorkspace.embeddings_provider as "openai" | "local") ||
-          "openai"
-      })
+    if (!createTopicAssistant) {
+      console.error("No assistant found with the name 'Topic creation tutor'")
+      return
     }
+    const assistantTools = (
+      await getAssistantToolsByAssistantId(createTopicAssistant.id)
+    ).tools
+    setSelectedTools(assistantTools)
 
-    return router.push(`/${selectedWorkspace.id}/chat`)
+    setChatSettings({
+      model: createTopicAssistant.model as LLMID,
+      prompt: createTopicAssistant.prompt,
+      temperature: createTopicAssistant.temperature,
+      contextLength: createTopicAssistant.context_length,
+      includeProfileContext: createTopicAssistant.include_profile_context,
+      includeWorkspaceInstructions:
+        createTopicAssistant.include_workspace_instructions,
+      embeddingsProvider: createTopicAssistant.embeddings_provider as
+        | "openai"
+        | "local"
+    })
+
+    const newWorkspaceChat = await handleCreateChat(
+      chatSettings!,
+      profile!,
+      selectedWorkspace!,
+      "New topic",
+      selectedAssistant!,
+      newMessageFiles,
+      setSelectedChat,
+      setChats,
+      setChatFiles
+    )
+
+    const modelData = [
+      ...models.map(model => ({
+        modelId: model.model_id as LLMID,
+        modelName: model.name,
+        provider: "custom" as ModelProvider,
+        hostedId: model.id,
+        platformLink: "",
+        imageInput: false
+      })),
+      ...LLM_LIST,
+      ...availableLocalModels,
+      ...availableOpenRouterModels
+    ].find(llm => llm.modelId === chatSettings?.model)
+
+    const newMessageId = await createSimpleAssistantMessage(
+      newWorkspaceChat,
+      profile!,
+      modelData as LLM,
+      setChatMessages,
+      0,
+      `Let's create a topic together!
+    You can:
+    1) Describe the topic in chat below.
+    2) Upload a file containing the topic material; select ⊕ below.
+    3) Choose an existing file from the learnspace then choose the topic; type "#" to see list of files.`
+    )
+    return router.push(`/${selectedWorkspace.id}/chat/${newMessageId}`)
   }
 
   const handleFocusChatInput = () => {
@@ -388,88 +406,94 @@ export const useChatHandler = () => {
     handleSendMessage(editedContent, filteredMessages, false)
   }
 
-  const handleCreateNewChat = async (
-    createdWorkspace: Tables<"workspaces">
-  ) => {
-    if (selectedPreset) {
-      setChatSettings({
-        model: selectedPreset.model as LLMID,
-        prompt: selectedPreset.prompt,
-        temperature: selectedPreset.temperature,
-        contextLength: selectedPreset.context_length,
-        includeProfileContext: selectedPreset.include_profile_context,
-        includeWorkspaceInstructions:
-          selectedPreset.include_workspace_instructions,
-        embeddingsProvider: selectedPreset.embeddings_provider as
-          | "openai"
-          | "local"
-      })
-    }
+  //   const handleCreateNewChat = async (
+  //     createdWorkspace: Tables<"workspaces">
+  //   ) => {
+  //     if (selectedPreset) {
+  //       setChatSettings({
+  //         model: selectedPreset.model as LLMID,
+  //         prompt: selectedPreset.prompt,
+  //         temperature: selectedPreset.temperature,
+  //         contextLength: selectedPreset.context_length,
+  //         includeProfileContext: selectedPreset.include_profile_context,
+  //         includeWorkspaceInstructions:
+  //           selectedPreset.include_workspace_instructions,
+  //         embeddingsProvider: selectedPreset.embeddings_provider as
+  //           | "openai"
+  //           | "local"
+  //       })
+  //     }
 
-    if (!createdWorkspace || !profile) {
-      console.log(
-        "Missing data to create a new chat",
-        { createdWorkspace },
-        { profile }
-      )
-      return
-    }
-    // set the default selected assistant where name = "Topic creation tutor"
-    const createTopicAssistant = assistants.find(
-      assistant => assistant.name === "Topic creation tutor"
-    )
-    setSelectedAssistant(createTopicAssistant || null)
+  //     if (!createdWorkspace || !profile) {
+  //       console.log(
+  //         "Missing data to create a new chat",
+  //         { createdWorkspace },
+  //         { profile }
+  //       )
+  //       return
+  //     }
+  //     // set the default selected assistant where name = "Topic creation tutor"
+  //     const createTopicAssistant = assistants.find(
+  //       assistant => assistant.name === "Topic creation tutor"
+  //     )
+  //     setSelectedAssistant(createTopicAssistant || null)
 
-    // set selected tools to assistant's tools
-    if (createTopicAssistant) {
-      const assistantTools = (
-        await getAssistantToolsByAssistantId(createTopicAssistant.id)
-      ).tools
-      setSelectedTools(assistantTools)
-    } else {
-      console.error("No assistant found with the name 'Topic creation tutor'")
-    }
+  //     // set selected tools to assistant's tools
+  //     if (createTopicAssistant) {
+  //       const assistantTools = (
+  //         await getAssistantToolsByAssistantId(createTopicAssistant.id)
+  //       ).tools
+  //       setSelectedTools(assistantTools)
+  //       // call setChatSettings and override prompt and chat settings with assistant's
+  //       setChatSettings(prevSettings => ({
+  //         ...prevSettings,
+  //         prompt: createTopicAssistant.prompt, // Pass the assistant prompt as an argument
+  //         model: createTopicAssistant.model as LLMID // Ensure the model is of type LLMID
+  //       }))
+  //     } else {
+  //       console.error("No assistant found with the name 'Topic creation tutor'")
+  //     }
 
-    const newWorkspaceChat = await handleCreateChat(
-      chatSettings!,
-      profile!,
-      createdWorkspace!,
-      "New topic",
-      selectedAssistant!,
-      newMessageFiles,
-      setSelectedChat,
-      setChats,
-      setChatFiles
-    )
+  //     const newWorkspaceChat = await handleCreateChat(
+  //       chatSettings!,
+  //       profile!,
+  //       createdWorkspace!,
+  //       "New topic",
+  //       selectedAssistant!,
+  //       newMessageFiles,
+  //       setSelectedChat,
+  //       setChats,
+  //       setChatFiles
+  //     )
 
-    const modelData = [
-      ...models.map(model => ({
-        modelId: model.model_id as LLMID,
-        modelName: model.name,
-        provider: "custom" as ModelProvider,
-        hostedId: model.id,
-        platformLink: "",
-        imageInput: false
-      })),
-      ...LLM_LIST,
-      ...availableLocalModels,
-      ...availableOpenRouterModels
-    ].find(llm => llm.modelId === chatSettings?.model)
+  //     const modelData = [
+  //       ...models.map(model => ({
+  //         modelId: model.model_id as LLMID,
+  //         modelName: model.name,
+  //         provider: "custom" as ModelProvider,
+  //         hostedId: model.id,
+  //         platformLink: "",
+  //         imageInput: false
+  //       })),
+  //       ...LLM_LIST,
+  //       ...availableLocalModels,
+  //       ...availableOpenRouterModels
+  //     ].find(llm => llm.modelId === chatSettings?.model)
 
-    const newMessageId = await createSimpleAssistantMessage(
-      newWorkspaceChat,
-      profile!,
-      modelData!,
-      setChatMessages,
-      0,
-      `Let's create a topic together!
-You can:
-1) Describe the topic in chat below.
-2) Upload a file containing the topic material; select ⊕ below.
-3) Choose an existing file from the learnspace then choose the topic; type "#" to see list of files.`
-    )
-    return newMessageId
-  }
+  //     const newMessageId = await createSimpleAssistantMessage(
+  //       newWorkspaceChat,
+  //       profile!,
+  //       modelData!,
+  //       setChatMessages,
+  //       0,
+  //       `Let's create a topic together!
+  // You can:
+  // 1) Describe the topic in chat below.
+  // 2) Upload a file containing the topic material; select ⊕ below.
+  // 3) Choose an existing file from the learnspace then choose the topic; type "#" to see list of files.`
+  //     )
+  //     return newMessageId
+  //   }
 
   const handleCreateAssistantMessage = async (messageContent: string) => {
     if (!profile || !selectedChat || !chatSettings || !chatSettings.model) {
@@ -512,7 +536,7 @@ You can:
     handleFocusChatInput,
     handleStopMessage,
     handleSendEdit,
-    handleCreateNewChat,
+    // handleCreateNewChat,
     handleCreateAssistantMessage
   }
 }

@@ -25,7 +25,7 @@ export const SidebarCreateButtons: FC<SidebarCreateButtonsProps> = ({
 }) => {
   const { profile, selectedWorkspace, folders, setFolders } =
     useContext(ChatbotUIContext)
-  const { handleCreateNewChat } = useChatHandler()
+  const { handleNewChat } = useChatHandler()
 
   const router = useRouter()
 
@@ -56,10 +56,7 @@ export const SidebarCreateButtons: FC<SidebarCreateButtonsProps> = ({
       case "chats":
         return async () => {
           if (!selectedWorkspace) return
-          // Create a new chat for the created workspace with a default message from the assistant
-          const newMessageId = await handleCreateNewChat(selectedWorkspace)
-
-          return router.push(`/${selectedWorkspace.id}/chat/${newMessageId}`)
+          await handleNewChat()
         }
 
       case "presets":
