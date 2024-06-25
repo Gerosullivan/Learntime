@@ -40,9 +40,15 @@ const callLLM = async (
   let chatStreamResponse
   let newStudyState: StudyState
 
-  const studentContext = `Here is how the student would like you to respond:
+  const studentContext =
+    profile_context.length > 0
+      ? `Here is how the student would like you to respond:
     """${profile_context}"""`
-  const mentor_system_message = `You are helpful, friendly study mentor who likes to use emojis. You help students remember facts on their own by providing hints and clues without giving away answers.${studentContext}`
+      : ""
+  const mentor_system_message = `You are helpful, friendly study mentor who likes to use emojis. 
+  ${studentContext}
+  IMPORTANT: When generating Corrections do not provide answers (additions) to ommited or forgotten facts. 
+  When generating Hints for Forgotten facts, provide hints and clues without giving away answers.`
 
   const finalFeedback = `Finally, ask the student if they wish to revisit the topic's source material to enhance understanding or clarify any uncertainties.`
   const mentor_shot_hint_response = `You've done a great job recalling some key facts about Venus! You're definitely on the right track. Let’s look at what you’ve got and fine-tune some details:
