@@ -21,6 +21,7 @@ import { formatDistanceToNow } from "date-fns/esm"
 import { registry } from "../registry"
 import { z } from "zod"
 import { tool } from "ai"
+import { createGoogleGenerativeAI } from "@ai-sdk/google"
 
 // export const runtime = "edge"
 export const dynamic = "force-dynamic"
@@ -70,7 +71,13 @@ const callLLM = async (
     const defaultModel: LanguageModel = registry.languageModel(
       "deepinfra:meta-llama/Meta-Llama-3-70B-Instruct"
     )
-    const frontierModel = registry.languageModel("openai:gpt-4o")
+
+    const google = createGoogleGenerativeAI({
+      apiKey: process.env.GOOGLE_GEMINI_API_KEY
+    })
+    const scoringModel: LanguageModel = google(
+      "models/gemini-1.5-flash-latest"
+    ) as LanguageModel
 
     switch (studyState) {
       case "topic_describe_upload":
@@ -154,7 +161,7 @@ const callLLM = async (
         })
 
         const result = await generateText({
-          model: frontierModel,
+          model: scoringModel,
           // temperature: 0.3,
           tools: {
             save_score_and_forgotten_facts
@@ -309,7 +316,7 @@ const callLLM = async (
         }
 
         chatStreamResponse = await streamText({
-          model: frontierModel,
+          model: scoringModel,
           messages: finalMessages
         })
 
