@@ -40,8 +40,8 @@ export const ChatItem: FC<ChatItemProps> = ({ chat }) => {
     <div
       ref={itemRef}
       className={cn(
-        "hover:bg-accent focus:bg-accent group flex w-full cursor-pointer items-center rounded p-2 hover:opacity-50 focus:outline-none",
-        isActive && "bg-accent"
+        "group flex w-full cursor-pointer items-center rounded p-2 focus:outline-none",
+        isActive ? "bg-accent" : "hover:bg-accent no-hover:hover:bg-transparent"
       )}
       tabIndex={0}
       onKeyDown={handleKeyDown}
@@ -61,7 +61,7 @@ export const ChatItem: FC<ChatItemProps> = ({ chat }) => {
           e.stopPropagation()
           e.preventDefault()
         }}
-        className={`ml-2 flex space-x-2 ${!isActive && "w-11 opacity-0 group-hover:opacity-100"}`}
+        className={`ml-2 flex space-x-2 ${!isActive && "no-hover:group-hover:opacity-0 w-11 opacity-0 group-hover:opacity-100"}`}
       >
         <UpdateChat chat={chat} />
 
