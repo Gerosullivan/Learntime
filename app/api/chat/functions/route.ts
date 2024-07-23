@@ -68,16 +68,10 @@ const callLLM = async (
   Take a moment to think about these hints and see if you can recall more about those specific points. You’re doing wonderfully so far, and digging a bit deeper will help solidify your understanding even more! 🚀💡`
   const quickQuizSystemMessage = `You are helpful, friendly quiz master. Generate short answer quiz questions based on a provided fact. Never give the answer to the question when generating the question text. Do not state which step of the instuctions you are on.${studentContext}`
   try {
-    const defaultModel: LanguageModel = registry.languageModel(
-      "deepinfra:meta-llama/Meta-Llama-3-70B-Instruct"
-    )
+    const defaultModel: LanguageModel =
+      registry.languageModel("openai:gpt-4o-mini")
 
-    const google = createGoogleGenerativeAI({
-      apiKey: process.env.GOOGLE_GEMINI_API_KEY
-    })
-    const scoringModel: LanguageModel = google(
-      "models/gemini-1.5-flash-latest"
-    ) as LanguageModel
+    const scoringModel: LanguageModel = defaultModel
 
     switch (studyState) {
       case "topic_describe_upload":
