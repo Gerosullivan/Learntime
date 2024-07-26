@@ -296,6 +296,9 @@ export const useChatHandler = () => {
           setNewMessageFiles([])
           setShowFilesDisplay(false)
         }
+        if (newStudyState === "recall_first_attempt") {
+          chatMessages = []
+        }
       }
 
       const score = response.headers.get("SCORE")
