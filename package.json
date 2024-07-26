@@ -26,8 +26,8 @@
     "test": "npm --prefix __tests__/playwright-test run test"
   },
   "dependencies": {
-    "@ai-sdk/google": "^0.0.24",
-    "@ai-sdk/openai": "^0.0.32",
+    "@ai-sdk/google": "^0.0.30",
+    "@ai-sdk/openai": "^0.0.40",
     "@anthropic-ai/sdk": "^0.18.0",
     "@apidevtools/json-schema-ref-parser": "^11.1.0",
     "@azure/openai": "^1.0.0-beta.8",

@@ -18,10 +18,9 @@ import {
   CoreAssistantMessage
 } from "ai"
 import { formatDistanceToNow } from "date-fns/esm"
-import { registry } from "../registry"
+import { openai, fireworks } from "../registry"
 import { z } from "zod"
 import { tool } from "ai"
-import { createGoogleGenerativeAI } from "@ai-sdk/google"
 
 // export const runtime = "edge"
 export const dynamic = "force-dynamic"
@@ -68,10 +67,20 @@ const callLLM = async (
   Take a moment to think about these hints and see if you can recall more about those specific points. You’re doing wonderfully so far, and digging a bit deeper will help solidify your understanding even more! 🚀💡`
   const quickQuizSystemMessage = `You are helpful, friendly quiz master. Generate short answer quiz questions based on a provided fact. Never give the answer to the question when generating the question text. Do not state which step of the instuctions you are on.${studentContext}`
   try {
-    const defaultModel: LanguageModel =
-      registry.languageModel("openai:gpt-4o-mini")
+    const scoringModel = fireworks(
+      "accounts/fireworks/models/llama-v3p1-70b-instruct"
+    ) as LanguageModel
 
-    const scoringModel: LanguageModel = defaultModel
+    // const defaultModel: LanguageModel = google(
+    //   "models/gemini-1.5-flash-latest"
+    // ) as LanguageModel
+
+    const hintingModel = scoringModel
+
+    const defaultModel = openai("gpt-4o-mini") as LanguageModel
+    // const defaultModel = registry.languageModel(
+    //   "deepinfra:meta-llama/Meta-Llama-3.1-70B-Instruct"
+    // )
 
     switch (studyState) {
       case "topic_describe_upload":
@@ -91,8 +100,6 @@ const callLLM = async (
                   List 10 to 30 key facts or components related to the topic. Each fact should be succinct and supported by one or two important details to aid understanding.
                 Structure and Organization:
                   Group related facts into categories or themes to maintain logical coherence and enhance navigability.
-                Common Applications or Implications:
-                  Explain how the knowledge of this topic can be applied in real-world scenarios or its relevance in related fields of study.
   
               Formatting Instructions:
                 Ensure the study sheet is clear and easy to read. Use bullet points for lists, bold headings for sections, and provide ample spacing for clarity.
@@ -334,7 +341,7 @@ const callLLM = async (
         }
 
         chatStreamResponse = await streamText({
-          model: defaultModel,
+          model: hintingModel,
           temperature: 0.3,
           messages: [
             {
