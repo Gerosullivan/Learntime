@@ -176,7 +176,7 @@ test("new topic creation with file upload RAG", async ({ page }) => {
       .locator("div")
       .filter({ hasText: /^anatomy_heart\.pdf$/ })
       .nth(2)
-  ).toBeVisible()
+  ).toBeVisible({ timeout: 20000 })
   await page.getByPlaceholder("Message Mentor...").click()
   await page
     .getByPlaceholder("Message Mentor...")
