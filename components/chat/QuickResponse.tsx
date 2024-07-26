@@ -1,4 +1,5 @@
-import { QuickResponse, getQuickResponses } from "@/lib/studyStates"
+import type { QuickResponse } from "@/lib/studyStates"
+import { getQuickResponses } from "@/lib/studyStates"
 import { useContext } from "react"
 import { ChatbotUIContext } from "@/context/context"
 import { useChatHandler } from "./chat-hooks/use-chat-handler"
