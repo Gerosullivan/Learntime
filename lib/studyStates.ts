@@ -13,8 +13,9 @@ export type StudyState =
   | "tutorial_2_hide_input"
   | "tutorial_3_hide_input"
   | "tutorial_4_hide_input"
-  | "recall_tutorial_first_attempt"
+  | "tutorial_restart_hide_input"
   | "tutorial_hinting_hide_input"
+  | "recall_tutorial_first_attempt"
   | "recall_tutorial_hinting"
   | "tutorial_final_stage_hide_input"
   | "tutorial_final_review_hide_input"
@@ -134,7 +135,7 @@ Let's start with 'States of matter' Click on it below.`,
     quickResponses: [
       {
         quickText: "States of matter.",
-        responseText: `If at this stage you've only entered a topic name, like now, I'll step in to help craft a suitable study sheet for you. Alternatively, you're more than welcome to add a description yourself, whether by uploading a document or typing directly into our chat. For the moment, I'll take care of generating the description for you. Please 'View topic.' now, and afterwards, 'Save topic.'`,
+        responseText: `If at this stage you've only entered a topic name, like now, I'll step in to help craft a suitable study sheet for you. Alternatively, you're more than welcome to add a description yourself, whether by uploading a document or typing directly into our chat. For the moment, I'll take care of generating the description for you. Please 'View topic.' now, and afterwards, 'Save...'`,
         newStudyState: "tutorial_3_hide_input"
       }
     ]
@@ -211,6 +212,16 @@ Now, you're all set to begin creating your own topics! Just click on the "+ New 
 And of course, feel free to dive back in to further solidify your mastery of States of matter!
 Enjoy your learning journey!`,
         newStudyState: "home"
+      }
+    ]
+  },
+  {
+    name: "tutorial_restart_hide_input",
+    quickResponses: [
+      {
+        quickText: "Restart tutorial.",
+        responseText: "{{topicDescription}}",
+        newStudyState: "tutorial_hide_input"
       }
     ]
   },

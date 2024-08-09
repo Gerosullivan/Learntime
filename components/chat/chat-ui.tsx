@@ -215,7 +215,12 @@ export const ChatUI: FC<ChatUIProps> = ({}) => {
     if (chat.topic_description) {
       setTopicDescription(chat.topic_description)
 
-      setChatStudyState("topic_default_hide_input")
+      if (chat.name === "Tutorial: States of matter") {
+        console.log("Restarting tutorial")
+        setChatStudyState("tutorial_restart_hide_input")
+      } else {
+        setChatStudyState("topic_default_hide_input")
+      }
 
       setChatMessages([
         {
