@@ -186,7 +186,8 @@ export const useChatHandler = () => {
 
       if (
         (newMessageFiles.length > 0 || chatFiles.length > 0) &&
-        useRetrieval
+        useRetrieval &&
+        messageContent !== "Save study sheet."
       ) {
         setToolInUse("retrieval")
 
