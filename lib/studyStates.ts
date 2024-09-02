@@ -1,3 +1,5 @@
+import { RecallResponse } from "@/app/api/chat/functions/recall_schema"
+
 export type StudyState =
   | "home"
   | "topic_new"
@@ -6,6 +8,9 @@ export type StudyState =
   | "topic_saved_hide_input"
   | "topic_default_hide_input"
   | "recall_first_attempt"
+  | "recall_final_feedback"
+  | "recall_show_hint_or_feedback_hide_input"
+  | "recall_generate_hints"
   | "recall_hinting"
   | "recall_finished_hide_input"
   | "reviewing"
@@ -14,6 +19,9 @@ export type StudyState =
   | "tutorial_3_hide_input"
   | "tutorial_4_hide_input"
   | "recall_tutorial_first_attempt"
+  | "tutorial_recall_show_hint_or_feedback_hide_input"
+  | "recall_tutorial_generate_hints"
+  | "recall_tutorial_final_feedback"
   | "tutorial_hinting_hide_input"
   | "recall_tutorial_hinting"
   | "tutorial_final_stage_hide_input"
@@ -38,6 +46,7 @@ interface StudyStateObject {
 export interface ChatRecallMetadata {
   score: number
   dueDateFromNow: string
+  factsFeedback: RecallResponse["topic_facts"]
 }
 
 export const studyStates: StudyStateObject[] = [
@@ -86,7 +95,25 @@ export const studyStates: StudyStateObject[] = [
     name: "recall_first_attempt"
   },
   {
+    name: "recall_show_hint_or_feedback_hide_input",
+    quickResponses: [
+      {
+        quickText: "Hint me.",
+        responseText: "{{LLM}}",
+        newStudyState: "recall_hinting"
+      },
+      {
+        quickText: "Just the feedback.",
+        responseText: "{{LLM}}",
+        newStudyState: "recall_finished_hide_input"
+      }
+    ]
+  },
+  {
     name: "recall_hinting"
+  },
+  {
+    name: "recall_generate_hints"
   },
   {
     name: "recall_finished_hide_input",

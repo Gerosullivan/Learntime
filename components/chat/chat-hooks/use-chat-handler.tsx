@@ -15,6 +15,7 @@ import {
   processResponse
 } from "../chat-helpers"
 import { StudyState } from "@/lib/studyStates"
+import { RecallResponse } from "@/app/api/chat/functions/recall_schema"
 
 export const useChatHandler = () => {
   const router = useRouter()
@@ -303,12 +304,16 @@ export const useChatHandler = () => {
 
       const score = response.headers.get("SCORE")
       if (score) {
-        // there will be a DUE-DATE-FROM-NOW
+        // there will be a DUE-DATE-FROM-NOW and FACTS-FEEDBACK
         const dueDateFromNow = response.headers.get("DUE-DATE-FROM-NOW")
+        const factsFeedback: RecallResponse["topic_facts"] = JSON.parse(
+          response.headers.get("FACTS-FEEDBACK")!
+        )
 
         setChatRecallMetadata({
           score: parseInt(score),
-          dueDateFromNow: dueDateFromNow!
+          dueDateFromNow: dueDateFromNow!,
+          factsFeedback: factsFeedback
         })
       }
 
