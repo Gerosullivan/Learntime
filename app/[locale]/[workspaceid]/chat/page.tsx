@@ -2,6 +2,7 @@
 
 import { ChatHelp } from "@/components/chat/chat-help"
 import { useChatHandler } from "@/components/chat/chat-hooks/use-chat-handler"
+import FeedbackButton from "@/components/chat/chat-ideas-bugs"
 import { ChatUI } from "@/components/chat/chat-ui"
 import { Brand } from "@/components/ui/brand"
 import { LearntimeContext } from "@/context/context"
@@ -9,6 +10,7 @@ import { updateProfile } from "@/db/profile"
 import useHotkey from "@/lib/hooks/use-hotkey"
 import { useTheme } from "next-themes"
 import { useContext, useEffect, useRef } from "react"
+import FeedbackAndHelp from "@/components/chat/feedback-and-help"
 
 export default function ChatPage() {
   useHotkey("o", () => handleNewChat())
@@ -82,6 +84,7 @@ export default function ChatPage() {
           <div className="absolute bottom-2 right-2 hidden md:block lg:bottom-4 lg:right-4">
             <ChatHelp />
           </div>
+          <FeedbackAndHelp />
         </div>
       ) : (
         <ChatUI />

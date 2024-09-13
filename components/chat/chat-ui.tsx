@@ -13,6 +13,11 @@ import { ChatScrollButtons } from "./chat-scroll-buttons"
 import { v4 as uuidv4 } from "uuid"
 import { AnimatePresence, motion } from "framer-motion"
 import { toast } from "sonner"
+import { ChatSecondaryButtons } from "./chat-secondary-buttons"
+import FeedbackButton from "./chat-ideas-bugs"
+import FeedbackAndHelp from "./feedback-and-help"
+
+interface ChatUIProps {}
 
 export const ChatUI: FC = () => {
   const {
@@ -217,9 +222,7 @@ export const ChatUI: FC = () => {
         <ChatInput files={files} setFiles={setFiles} />
       </div>
 
-      <div className="absolute bottom-2 right-2 hidden md:block lg:bottom-4 lg:right-4">
-        <ChatHelp />
-      </div>
+      <FeedbackAndHelp />
     </div>
   )
 }
