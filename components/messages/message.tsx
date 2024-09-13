@@ -157,7 +157,7 @@ export const Message: FC<MessageProps> = ({
               <div className="font-semibold">
                 {message.role === "assistant"
                   ? "Mentor"
-                  : profile?.display_name ?? profile?.username}
+                  : (profile?.display_name ?? profile?.username)}
               </div>
             </div>
           )}
