@@ -1,7 +1,6 @@
 import Loading from "@/app/[locale]/loading"
 import { useChatHandler } from "@/components/chat/chat-hooks/use-chat-handler"
 import { ChatbotUIContext } from "@/context/context"
-import { getAssistantToolsByAssistantId } from "@/db/assistant-tools"
 import { getChatFilesByChatId } from "@/db/chat-files"
 import { getChatById } from "@/db/chats"
 import { getMessageFileItemsByMessageId } from "@/db/message-file-items"
@@ -32,9 +31,7 @@ export const ChatUI: FC<ChatUIProps> = ({}) => {
     setSelectedChat,
     setChatSettings,
     setChatImages,
-    assistants,
-    setSelectedAssistant,
-    selectedAssistant,
+
     setChatFileItems,
     setChatFiles,
     setShowFilesDisplay,
@@ -88,7 +85,6 @@ export const ChatUI: FC<ChatUIProps> = ({}) => {
               role: "assistant",
               sequence_number: 0,
               updated_at: null,
-              assistant_id: selectedAssistant?.id || null,
               chat_id: "quick-quiz"
             },
             fileItems: []
@@ -197,21 +193,6 @@ export const ChatUI: FC<ChatUIProps> = ({}) => {
     const chat = await getChatById(params.chatid as string)
     if (!chat) return
 
-    if (chat.assistant_id) {
-      const assistant = assistants.find(
-        assistant => assistant.id === chat.assistant_id
-      )
-
-      if (assistant) {
-        setSelectedAssistant(assistant)
-
-        const assistantTools = (
-          await getAssistantToolsByAssistantId(assistant.id)
-        ).tools
-        setSelectedTools(assistantTools)
-      }
-    }
-
     if (chat.topic_description) {
       setTopicDescription(chat.topic_description)
 
@@ -249,7 +230,6 @@ Please select from the options below.`,
             role: "assistant",
             sequence_number: 0,
             updated_at: null,
-            assistant_id: selectedAssistant?.id || null,
             chat_id: chat.id
           },
           fileItems: []

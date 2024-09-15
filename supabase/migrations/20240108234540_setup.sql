@@ -30,8 +30,8 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION create_duplicate_messages_for_new_chat(old_chat_id UUID, new_chat_id UUID, new_user_id UUID)
 RETURNS VOID AS $$
 BEGIN
-    INSERT INTO messages (user_id, chat_id, content, role, model, sequence_number, tokens, created_at, updated_at)
-    SELECT new_user_id, new_chat_id, content, role, model, sequence_number, tokens, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+    INSERT INTO messages (user_id, chat_id, content, role, sequence_number, tokens, created_at, updated_at)
+    SELECT new_user_id, new_chat_id, content, role, sequence_number, tokens, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
     FROM messages
     WHERE chat_id = old_chat_id;
 END;

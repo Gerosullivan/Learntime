@@ -35,14 +35,10 @@ export const ChatInput: FC<ChatInputProps> = ({}) => {
   const [isTyping, setIsTyping] = useState<boolean>(false)
 
   const {
-    isAssistantPickerOpen,
-    focusAssistant,
-    setFocusAssistant,
     userInput,
     chatMessages,
     isGenerating,
     selectedPreset,
-    selectedAssistant,
     focusPrompt,
     setFocusPrompt,
     focusFile,
@@ -79,7 +75,7 @@ export const ChatInput: FC<ChatInputProps> = ({}) => {
     setTimeout(() => {
       handleFocusChatInput()
     }, 200) // FIX: hacky
-  }, [selectedPreset, selectedAssistant])
+  }, [selectedPreset])
 
   const handleKeyDown = (event: React.KeyboardEvent) => {
     if (!isTyping && event.key === "Enter" && !event.shiftKey) {
@@ -89,12 +85,7 @@ export const ChatInput: FC<ChatInputProps> = ({}) => {
     }
 
     // Consolidate conditions to avoid TypeScript error
-    if (
-      isPromptPickerOpen ||
-      isFilePickerOpen ||
-      isToolPickerOpen ||
-      isAssistantPickerOpen
-    ) {
+    if (isPromptPickerOpen || isFilePickerOpen || isToolPickerOpen) {
       if (
         event.key === "Tab" ||
         event.key === "ArrowUp" ||
@@ -105,7 +96,6 @@ export const ChatInput: FC<ChatInputProps> = ({}) => {
         if (isPromptPickerOpen) setFocusPrompt(!focusPrompt)
         if (isFilePickerOpen) setFocusFile(!focusFile)
         if (isToolPickerOpen) setFocusTool(!focusTool)
-        if (isAssistantPickerOpen) setFocusAssistant(!focusAssistant)
       }
     }
 
@@ -130,15 +120,7 @@ export const ChatInput: FC<ChatInputProps> = ({}) => {
       setNewMessageContentToNextUserMessage()
     }
 
-    if (
-      isAssistantPickerOpen &&
-      (event.key === "Tab" ||
-        event.key === "ArrowUp" ||
-        event.key === "ArrowDown")
-    ) {
-      event.preventDefault()
-      setFocusAssistant(!focusAssistant)
-    }
+    event.preventDefault()
   }
 
   const handlePaste = (event: React.ClipboardEvent) => {
@@ -203,10 +185,7 @@ export const ChatInput: FC<ChatInputProps> = ({}) => {
           <TextareaAutosize
             textareaRef={chatInputRef}
             className="ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring text-md flex w-full resize-none rounded-md border-none bg-transparent px-14 py-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-            placeholder={t(
-              // `Ask anything. Type "@" for assistants, "/" for prompts, "#" for files, and "!" for tools.`
-              `Message Mentor...`
-            )}
+            placeholder={t(`Message Mentor...`)}
             onValueChange={handleInputChange}
             value={userInput}
             minRows={1}

@@ -17,7 +17,6 @@ CREATE TABLE IF NOT EXISTS messages (
     -- REQUIRED
     content TEXT NOT NULL CHECK (char_length(content) <= 1000000),
     image_paths TEXT[] NOT NULL, -- file paths in message_images bucket
-    model TEXT NOT NULL CHECK (char_length(model) <= 1000),
     role TEXT NOT NULL CHECK (char_length(role) <= 1000),
     sequence_number INT NOT NULL,
 
@@ -38,12 +37,6 @@ CREATE POLICY "Allow full access to own messages"
     USING (user_id = auth.uid())
     WITH CHECK (user_id = auth.uid());
 
-CREATE POLICY "Allow view access to messages for non-private chats"
-    ON messages
-    FOR SELECT
-    USING (chat_id IN (
-        SELECT id FROM chats WHERE sharing <> 'private'
-    ));
 
 -- FUNCTIONS --
 
@@ -111,15 +104,8 @@ CREATE POLICY "Allow read access to own message images"
     USING (
         bucket_id = 'message_images' AND 
         (
-            (storage.foldername(name))[1] = auth.uid()::text OR
-            (
-                EXISTS (
-                    SELECT 1 FROM chats 
-                    WHERE id = (
-                        SELECT chat_id FROM messages WHERE id = (storage.foldername(name))[2]::uuid
-                    ) AND sharing <> 'private'
-                )
-            )
+            (storage.foldername(name))[1] = auth.uid()::text
+            -- Removed the condition checking for 'sharing' column
         )
     );
 
@@ -135,39 +121,3 @@ CREATE POLICY "Allow delete access to own message images"
     ON storage.objects FOR DELETE
     USING (bucket_id = 'message_images' AND (storage.foldername(name))[1] = auth.uid()::text);
 
---------------- MESSAGE FILE ITEMS ---------------
-
--- TABLE --
-
-CREATE TABLE IF NOT EXISTS message_file_items (
-    -- REQUIRED RELATIONSHIPS
-    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-    message_id UUID NOT NULL REFERENCES messages(id) ON DELETE CASCADE,
-    file_item_id UUID NOT NULL REFERENCES file_items(id) ON DELETE CASCADE,
-
-    PRIMARY KEY(message_id, file_item_id),
-
-    -- METADATA
-    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMPTZ
-);
-
--- INDEXES --
-
-CREATE INDEX idx_message_file_items_message_id ON message_file_items (message_id);
-
--- RLS --
-
-ALTER TABLE message_file_items ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Allow full access to own message_file_items"
-    ON message_file_items
-    USING (user_id = auth.uid())
-    WITH CHECK (user_id = auth.uid());
-
--- TRIGGERS --
-
-CREATE TRIGGER update_message_file_items_updated_at
-BEFORE UPDATE ON message_file_items 
-FOR EACH ROW 
-EXECUTE PROCEDURE update_updated_at_column();
