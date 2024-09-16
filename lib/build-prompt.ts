@@ -1,19 +1,14 @@
 import { Tables } from "@/supabase/types"
-import { ChatPayload, MessageImage } from "@/types"
+import { ChatMessage, ChatPayload } from "@/types"
 import { encode } from "gpt-tokenizer"
 import { getBase64FromDataURL, getMediaTypeFromDataURL } from "@/lib/utils"
 
 const buildBasePrompt = (
   prompt: string,
   profileContext: string,
-  workspaceInstructions: string,
-  assistant: Tables<"assistants"> | null
+  workspaceInstructions: string
 ) => {
   let fullPrompt = ""
-
-  if (assistant) {
-    fullPrompt += `<INJECT ROLE>\nYou are not an AI. You are ${assistant.name}.\n</INJECT ROLE>\n\n`
-  }
 
   fullPrompt += `Today is ${new Date().toLocaleDateString()}.\n\n`
 
@@ -32,23 +27,14 @@ const buildBasePrompt = (
 
 export async function buildFinalMessages(
   payload: ChatPayload,
-  profile: Tables<"profiles">,
-  chatImages: MessageImage[]
+  profile: Tables<"profiles">
 ) {
-  const {
-    chatSettings,
-    workspaceInstructions,
-    chatMessages,
-    assistant,
-    messageFileItems,
-    chatFileItems
-  } = payload
+  const { workspaceInstructions, chatMessages } = payload
 
   const BUILT_PROMPT = buildBasePrompt(
-    chatSettings.prompt,
+    prompt,
     chatSettings.includeProfileContext ? profile.profile_context || "" : "",
-    chatSettings.includeWorkspaceInstructions ? workspaceInstructions : "",
-    assistant
+    chatSettings.includeWorkspaceInstructions ? workspaceInstructions : ""
   )
 
   const CHUNK_SIZE = chatSettings.contextLength
@@ -105,18 +91,11 @@ export async function buildFinalMessages(
     }
   }
 
-  let tempSystemMessage: Tables<"messages"> = {
+  let tempSystemMessage: ChatMessage = {
     chat_id: "",
-    assistant_id: null,
     content: BUILT_PROMPT,
-    created_at: "",
-    id: processedChatMessages.length + "",
-    image_paths: [],
-    model: payload.chatSettings.model,
     role: "system",
-    sequence_number: processedChatMessages.length,
-    updated_at: "",
-    user_id: ""
+    sequence_number: processedChatMessages.length
   }
 
   finalMessages.unshift(tempSystemMessage)

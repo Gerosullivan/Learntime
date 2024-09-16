@@ -10,7 +10,7 @@ import {
 } from "@/lib/server/server-chat-helpers"
 import { streamText, LanguageModel, generateText } from "ai"
 import { formatDistanceToNow } from "date-fns/esm"
-import { openai } from "../registry"
+import { openai } from "../../registry"
 
 // export const runtime = "edge"
 export const dynamic = "force-dynamic"

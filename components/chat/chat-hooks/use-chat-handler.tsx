@@ -11,7 +11,6 @@ import {
   handleCreateAssistantMessage,
   handleCreateChat,
   handleCreateMessages,
-  handleRetrieval,
   processResponse
 } from "../chat-helpers"
 import { StudyState } from "@/lib/studyStates"
@@ -21,9 +20,7 @@ export const useChatHandler = () => {
 
   const {
     userInput,
-    chatFiles,
     setUserInput,
-    setNewMessageImages,
     profile,
     setIsGenerating,
     setChatMessages,
@@ -32,29 +29,9 @@ export const useChatHandler = () => {
     selectedWorkspace,
     setSelectedChat,
     setChats,
-    setSelectedTools,
     abortController,
     setAbortController,
-    chatSettings,
-    newMessageImages,
-    selectedAssistant,
     chatMessages,
-    chatImages,
-    setChatImages,
-    setChatFiles,
-    setNewMessageFiles,
-    setShowFilesDisplay,
-    newMessageFiles,
-    chatFileItems,
-    setChatFileItems,
-    setToolInUse,
-    useRetrieval,
-    sourceCount,
-    setIsPromptPickerOpen,
-    setIsFilePickerOpen,
-    isPromptPickerOpen,
-    isFilePickerOpen,
-    isToolPickerOpen,
     chatStudyState,
     setChatStudyState,
     topicDescription,
@@ -68,33 +45,16 @@ export const useChatHandler = () => {
 
   const chatInputRef = useRef<HTMLTextAreaElement>(null)
 
-  useEffect(() => {
-    if (!isPromptPickerOpen || !isFilePickerOpen || !isToolPickerOpen) {
-      chatInputRef.current?.focus()
-    }
-  }, [isPromptPickerOpen, isFilePickerOpen, isToolPickerOpen])
-
   const handleGoHome = async () => {
     if (!selectedWorkspace) return
 
     setUserInput("")
     setSelectedChat(null)
-    setChatFileItems([])
 
     setIsGenerating(false)
     setFirstTokenReceived(false)
 
-    setChatFiles([])
-    setChatImages([])
-    setNewMessageFiles([])
-    setNewMessageImages([])
-    setShowFilesDisplay(false)
-    setIsPromptPickerOpen(false)
-    setIsFilePickerOpen(false)
     setChatMessages([])
-
-    setSelectedTools([])
-    setToolInUse("none")
 
     setChatStudyState("home")
 
@@ -106,38 +66,15 @@ export const useChatHandler = () => {
 
     setUserInput("")
     setSelectedChat(null)
-    setChatFileItems([])
 
     setIsGenerating(false)
     setFirstTokenReceived(false)
 
-    setChatFiles([])
-    setChatImages([])
-    setNewMessageFiles([])
-    setNewMessageImages([])
-    setShowFilesDisplay(false)
-    setIsPromptPickerOpen(false)
-    setIsFilePickerOpen(false)
-
-    setSelectedTools([])
-    setToolInUse("none")
-
     setChatMessages([
       {
-        message: {
-          id: "1",
-          user_id: "1",
-          content: `Enter your topic name below to start.`,
-          created_at: new Date().toISOString(),
-          image_paths: [],
-          model: "",
-          role: "assistant",
-          sequence_number: 0,
-          updated_at: null,
-          assistant_id: selectedAssistant?.id || null,
-          chat_id: "quick-quiz"
-        },
-        fileItems: []
+        content: `Enter your topic name below to start.`,
+        role: "assistant",
+        sequence_number: 0
       }
     ])
 
@@ -158,8 +95,7 @@ export const useChatHandler = () => {
 
   const handleSendMessage = async (
     messageContent: string,
-    chatMessages: ChatMessage[],
-    isRegeneration: boolean
+    chatMessages: ChatMessage[]
   ) => {
     const startingInput = messageContent
 
@@ -171,64 +107,25 @@ export const useChatHandler = () => {
     try {
       setUserInput("")
       setIsGenerating(true)
-      setIsPromptPickerOpen(false)
-      setIsFilePickerOpen(false)
-      setNewMessageImages([])
 
       const newAbortController = new AbortController()
       setAbortController(newAbortController)
 
       let currentChat = selectedChat ? { ...selectedChat } : null
 
-      const b64Images = newMessageImages.map(image => image.base64)
-
       let retrievedFileItems: Tables<"file_items">[] = []
 
-      if (
-        (newMessageFiles.length > 0 || chatFiles.length > 0) &&
-        useRetrieval &&
-        messageContent !== "Save study sheet."
-      ) {
-        setToolInUse("retrieval")
-
-        retrievedFileItems = await handleRetrieval(
-          userInput,
-          newMessageFiles,
-          chatFiles,
-          chatSettings!.embeddingsProvider,
-          sourceCount
-        )
-      }
-
       const { tempUserChatMessage, tempAssistantChatMessage } =
-        createTempMessages(
-          messageContent,
-          chatMessages,
-          chatSettings!,
-          b64Images,
-          isRegeneration,
-          setChatMessages,
-          selectedAssistant
-        )
+        createTempMessages(messageContent, chatMessages, setChatMessages)
 
       let payload: ChatPayload = {
-        chatSettings: chatSettings!,
         workspaceInstructions: selectedWorkspace!.instructions || "",
-        chatMessages: isRegeneration
-          ? [...chatMessages]
-          : [...chatMessages, tempUserChatMessage],
-        assistant: selectedChat?.assistant_id ? selectedAssistant : null,
-        messageFileItems: retrievedFileItems,
-        chatFileItems: chatFileItems
+        chatMessages: [...chatMessages, tempUserChatMessage]
       }
 
       let generatedText = ""
 
-      const formattedMessages = await buildFinalMessages(
-        payload,
-        profile!,
-        chatImages
-      )
+      const formattedMessages = await buildFinalMessages(payload, profile!)
 
       let response: Response
 
@@ -292,10 +189,6 @@ export const useChatHandler = () => {
           const newTopicContent = await getChatById(currentChat!.id)
           const topicDescription = newTopicContent!.topic_description || "" // Provide a default value if topicDescription is null
           setTopicDescription(topicDescription)
-          // remove files from chat ///////////////////////////////
-          setChatFiles([])
-          setNewMessageFiles([])
-          setShowFilesDisplay(false)
         }
         if (newStudyState === "recall_first_attempt") {
           chatMessages = []
@@ -315,23 +208,17 @@ export const useChatHandler = () => {
 
       generatedText = await processResponse(
         response,
-        isRegeneration
-          ? payload.chatMessages[payload.chatMessages.length - 1]
-          : tempAssistantChatMessage,
-        true,
+        tempAssistantChatMessage,
         newAbortController,
         setFirstTokenReceived,
-        setChatMessages,
-        setToolInUse
+        setChatMessages
       )
 
       if (!currentChat && !isQuickQuiz) {
         currentChat = await handleCreateChat(
-          chatSettings!,
           profile!,
           selectedWorkspace!,
           messageContent,
-          selectedAssistant!,
           newMessageFiles,
           setSelectedChat,
           setChats,
@@ -378,16 +265,13 @@ export const useChatHandler = () => {
   ) => {
     try {
       setUserInput("")
-      setIsPromptPickerOpen(false)
       setIsFilePickerOpen(false)
       setNewMessageImages([])
 
       const currentChat = await handleCreateChat(
-        chatSettings!,
         profile!,
         selectedWorkspace!,
         messageContent,
-        selectedAssistant!,
         newMessageFiles,
         setSelectedChat,
         setChats,
@@ -419,27 +303,6 @@ You can also upload files ⨁ as source material for me to generate your study n
       console.log({ error })
       setUserInput(messageContent)
     }
-  }
-
-  const handleSendEdit = async (
-    editedContent: string,
-    sequenceNumber: number
-  ) => {
-    if (!selectedChat) return
-
-    await deleteMessagesIncludingAndAfter(
-      selectedChat.user_id,
-      selectedChat.id,
-      sequenceNumber
-    )
-
-    const filteredMessages = chatMessages.filter(
-      chatMessage => chatMessage.message.sequence_number < sequenceNumber
-    )
-
-    setChatMessages(filteredMessages)
-
-    handleSendMessage(editedContent, filteredMessages, false)
   }
 
   const handleStartTutorial = async () => {
@@ -488,16 +351,13 @@ Please click 'Next' below to proceed with the tutorial.`
     try {
       setUserInput("")
       setIsGenerating(true)
-      setIsPromptPickerOpen(false)
       setIsFilePickerOpen(false)
       setNewMessageImages([])
 
       const currentChat = await handleCreateChat(
-        chatSettings!,
         profile!,
         selectedWorkspace!,
         messageContent,
-        selectedAssistant!,
         newMessageFiles,
         setSelectedChat,
         setChats,
@@ -532,7 +392,6 @@ Please click 'Next' below to proceed with the tutorial.`
     handleSendMessage,
     handleFocusChatInput,
     handleStopMessage,
-    handleSendEdit,
     handleStartTutorial
   }
 }
