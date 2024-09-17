@@ -28,10 +28,7 @@ export const useChatHandler = () => {
     setChatRecallMetadata
   } = useContext(ChatbotUIContext)
 
-  const { setMessages, messages } = useChat()
-
   const makeMessageBody = () => {
-    console.log({ messages })
     if (chatStudyState === "topic_new") {
       return // This case is now handled in ChatInput
     }
@@ -89,9 +86,6 @@ export const useChatHandler = () => {
         const topicDescription = newTopicContent!.topic_description || ""
         setTopicDescription(topicDescription)
       }
-      if (newStudyState === "recall_first_attempt") {
-        setMessages([])
-      }
     }
 
     const score = response.headers.get("SCORE")
@@ -102,6 +96,15 @@ export const useChatHandler = () => {
         score: parseInt(score),
         dueDateFromNow: dueDateFromNow!
       })
+    }
+  }
+
+  const handleFinish = async (
+    messages: Message[],
+    setMessages: (messages: Message[]) => void
+  ) => {
+    if (chatStudyState === "recall_first_attempt") {
+      setMessages([])
     }
 
     const isQuickQuiz: boolean =
@@ -151,7 +154,9 @@ export const useChatHandler = () => {
     return router.push(`/${selectedWorkspace.id}/chat`)
   }
 
-  const handleStartTutorial = async () => {
+  const handleStartTutorial = async (
+    setMessages: (messages: Message[]) => void
+  ) => {
     setChatStudyState("tutorial_hide_input")
 
     const topic_description = `### States of Matter
@@ -213,7 +218,10 @@ Please click 'Next' below to proceed with the tutorial.`
     }
   }
 
-  const handleCreateTopic = async (input: string) => {
+  const handleCreateTopic = async (
+    input: string,
+    setMessages: React.Dispatch<React.SetStateAction<Message[]>>
+  ) => {
     setMessages(prevMessages => [
       ...prevMessages,
       {
@@ -251,6 +259,7 @@ You can also upload files ⨁ as source material for me to generate your study n
     handleStartTutorial,
     handleCreateTopic,
     makeMessageBody,
-    handleResponse
+    handleResponse,
+    handleFinish
   }
 }

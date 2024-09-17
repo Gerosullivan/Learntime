@@ -9,7 +9,8 @@ import { updateProfile } from "@/db/profile"
 import useHotkey from "@/lib/hooks/use-hotkey"
 import { useChat } from "ai/react"
 import { useTheme } from "next-themes"
-import { useContext, useEffect, useRef } from "react"
+import { useContext, useEffect, useRef, useState } from "react"
+import { Message } from "ai"
 
 export default function ChatPage() {
   useHotkey("o", () => handleNewChat())
@@ -17,7 +18,8 @@ export default function ChatPage() {
   const { profile, setProfile, chats, setAllChatRecallAnalysis } =
     useContext(ChatbotUIContext)
 
-  const { handleNewChat, handleStartTutorial } = useChatHandler()
+  const { handleNewChat, handleStartTutorial, handleResponse, handleFinish } =
+    useChatHandler()
 
   const { theme } = useTheme()
 
@@ -34,7 +36,7 @@ export default function ChatPage() {
           has_onboarded: true
         })
         setProfile(updatedProfile)
-        handleStartTutorial()
+        handleStartTutorial(setMessages)
       }
     }
 
@@ -70,7 +72,26 @@ export default function ChatPage() {
     }
   }, [chats])
 
-  const { messages } = useChat()
+  const [initialMessage, setInitialMessage] = useState<Message>()
+
+  const {
+    input,
+    isLoading,
+    handleInputChange,
+    handleSubmit,
+    stop,
+    setInput,
+    messages,
+    append,
+    setMessages
+  } = useChat({
+    keepLastMessageOnError: true,
+    onResponse: handleResponse,
+    onFinish: () => {
+      handleFinish(messages, setMessages)
+    },
+    initialMessages: initialMessage ? [initialMessage] : []
+  })
 
   return (
     <>
@@ -87,7 +108,18 @@ export default function ChatPage() {
           </div>
         </div>
       ) : (
-        <ChatUI />
+        <ChatUI
+          input={input}
+          isLoading={isLoading}
+          handleInputChange={handleInputChange}
+          handleSubmit={handleSubmit}
+          stop={stop}
+          setInput={setInput}
+          messages={messages}
+          append={append}
+          setInitialMessage={setInitialMessage}
+          setMessages={setMessages}
+        />
       )}
     </>
   )

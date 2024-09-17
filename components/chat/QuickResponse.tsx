@@ -4,13 +4,14 @@ import { useContext } from "react"
 import { ChatbotUIContext } from "@/context/context"
 import { useChatHandler } from "./chat-hooks/use-chat-handler"
 import { IconSend } from "@tabler/icons-react"
-import { useChat } from "ai/react"
 import { v4 as uuidv4 } from "uuid"
 
-const QuickResponse = () => {
-  const { chatStudyState } = useContext(ChatbotUIContext)
+interface QuickResponseProps {
+  append: (message: any, options?: any) => void
+}
 
-  const { append } = useChat()
+const QuickResponse: React.FC<QuickResponseProps> = ({ append }) => {
+  const { chatStudyState } = useContext(ChatbotUIContext)
 
   const { makeMessageBody } = useChatHandler()
 

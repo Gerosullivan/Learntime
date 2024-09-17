@@ -11,11 +11,11 @@ const ICON_SIZE = 32
 interface MessageProps {
   message: MessageType
   isLast: boolean
+  isLoading: boolean
 }
 
-export const Message: FC<MessageProps> = ({ message, isLast }) => {
+export const Message: FC<MessageProps> = ({ message, isLast, isLoading }) => {
   const { profile } = useContext(ChatbotUIContext)
-  const { isLoading } = useChat()
 
   return (
     <div
