@@ -28,30 +28,15 @@ export const useChatHandler = () => {
     setChatRecallMetadata
   } = useContext(ChatbotUIContext)
 
-  const handleSendMessage = (
-    event: React.FormEvent<HTMLFormElement> | React.MouseEvent<SVGSVGElement>
-  ) => {
-    event.preventDefault()
+  const { setMessages, messages } = useChat()
+
+  const makeMessageBody = () => {
+    console.log({ messages })
     if (chatStudyState === "topic_new") {
-      handleCreateTopic(input)
-      return
+      return // This case is now handled in ChatInput
     }
 
     let currentChat = selectedChat ? { ...selectedChat } : null
-
-    const workspaceInstructions = selectedWorkspace!.instructions
-
-    let prePrompt = ""
-
-    if (profile?.profile_context) {
-      prePrompt += `User Info:\n${profile.profile_context}\n\n`
-    }
-
-    if (workspaceInstructions) {
-      prePrompt += `System Instructions:\n${workspaceInstructions}\n\n`
-    }
-
-    setInput(prePrompt + input)
 
     let randomRecallFact: string = ""
 
@@ -83,16 +68,14 @@ export const useChatHandler = () => {
       setChatStudyState(studyState)
     }
 
-    handleSubmit(event as React.FormEvent<HTMLFormElement>, {
-      body: {
-        chatId: currentChat?.id,
-        studyState,
-        studySheet,
-        chatRecallMetadata,
-        randomRecallFact,
-        profile_context: profile?.profile_context || ""
-      }
-    })
+    return {
+      chatId: currentChat?.id,
+      studyState,
+      studySheet,
+      chatRecallMetadata,
+      randomRecallFact,
+      profile_context: profile?.profile_context || ""
+    }
   }
 
   const handleResponse = async (response: Response) => {
@@ -149,8 +132,6 @@ export const useChatHandler = () => {
       }
     }
   }
-
-  const { setMessages, setInput, handleSubmit, input, messages } = useChat()
 
   const handleGoHome = async () => {
     if (!selectedWorkspace) return
@@ -265,12 +246,11 @@ You can also upload files ⨁ as source material for me to generate your study n
   }
 
   return {
-    prompt,
     handleNewChat,
     handleGoHome,
     handleStartTutorial,
     handleCreateTopic,
-    handleSendMessage,
-    handleResponse // Add this to the returned object
+    makeMessageBody,
+    handleResponse
   }
 }

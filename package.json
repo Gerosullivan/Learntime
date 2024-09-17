@@ -116,6 +116,7 @@
     "@types/react-syntax-highlighter": "^15.5.11",
     "@types/uuid": "^9.0.7",
     "autoprefixer": "^10.4.16",
+    "babel-loader": "^9.2.1",
     "clsx": "^2.0.0",
     "eslint": "^8",
     "eslint-config-next": "^14.0.2",

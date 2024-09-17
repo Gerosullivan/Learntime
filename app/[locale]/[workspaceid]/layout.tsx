@@ -5,7 +5,7 @@ import { ChatbotUIContext } from "@/context/context"
 import { getChatsByWorkspaceId } from "@/db/chats"
 import { getWorkspaceById } from "@/db/workspaces"
 import { supabase } from "@/lib/supabase/browser-client"
-import { useParams, useRouter, useSearchParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { ReactNode, useContext, useEffect, useState } from "react"
 import Loading from "../loading"
 
@@ -19,15 +19,8 @@ export default function WorkspaceLayout({ children }: WorkspaceLayoutProps) {
   const params = useParams()
   const workspaceId = params.workspaceid as string
 
-  const {
-    setChats,
-    setSelectedWorkspace,
-    setSelectedChat,
-    setChatMessages,
-    setUserInput,
-    setIsGenerating,
-    setFirstTokenReceived
-  } = useContext(ChatbotUIContext)
+  const { setChats, setSelectedWorkspace, setSelectedChat } =
+    useContext(ChatbotUIContext)
 
   const [loading, setLoading] = useState(true)
 
@@ -47,12 +40,7 @@ export default function WorkspaceLayout({ children }: WorkspaceLayoutProps) {
   useEffect(() => {
     ;(async () => await fetchWorkspaceData(workspaceId))()
 
-    setUserInput("")
-    setChatMessages([])
     setSelectedChat(null)
-
-    setIsGenerating(false)
-    setFirstTokenReceived(false)
   }, [workspaceId])
 
   const fetchWorkspaceData = async (workspaceId: string) => {

@@ -4,14 +4,32 @@ import { useContext } from "react"
 import { ChatbotUIContext } from "@/context/context"
 import { useChatHandler } from "./chat-hooks/use-chat-handler"
 import { IconSend } from "@tabler/icons-react"
+import { useChat } from "ai/react"
+import { v4 as uuidv4 } from "uuid"
 
 const QuickResponse = () => {
-  const { chatMessages, chatStudyState } = useContext(ChatbotUIContext)
+  const { chatStudyState } = useContext(ChatbotUIContext)
 
-  const { handleSendMessage } = useChatHandler()
+  const { append } = useChat()
 
-  const handleQuickResponse = async (message: string) => {
-    handleSendMessage(message, chatMessages, false)
+  const { makeMessageBody } = useChatHandler()
+
+  const handleQuickResponse = async (
+    event: React.MouseEvent<HTMLButtonElement>,
+    message: string
+  ) => {
+    event.preventDefault()
+
+    const body = makeMessageBody()
+
+    append(
+      {
+        content: message,
+        role: "user",
+        id: uuidv4()
+      },
+      { body }
+    )
   }
 
   const quickResponses = getQuickResponses(chatStudyState)
@@ -31,7 +49,9 @@ const QuickResponse = () => {
         <div key={index} className={`${widthClass(index)} p-2`}>
           <button
             className="flex w-full items-center justify-between rounded-md border border-blue-500 px-4 py-2 text-left text-blue-500 transition-colors hover:bg-blue-500 hover:text-white"
-            onClick={() => handleQuickResponse(quickResponse.quickText)}
+            onClick={event =>
+              handleQuickResponse(event, quickResponse.quickText)
+            }
           >
             <span>{quickResponse.quickText}</span>
             <IconSend size={20} />

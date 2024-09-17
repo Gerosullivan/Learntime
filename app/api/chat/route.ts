@@ -3,11 +3,7 @@ import {
   StudyState,
   getQuickResponseByUserText
 } from "@/lib/studyStates"
-import {
-  checkApiKey,
-  getServerProfile,
-  functionCalledByLLM
-} from "@/lib/server/server-chat-helpers"
+import { functionCalledByLLM } from "@/lib/server/server-chat-helpers"
 import { streamText, LanguageModel, generateText } from "ai"
 import { formatDistanceToNow } from "date-fns/esm"
 import { openai } from "./registry"
@@ -516,9 +512,6 @@ export async function POST(request: Request) {
     }
 
     const noMoreQuizQuestions = studyState === "quick_quiz_finished_hide_input"
-    // return new Response("hello", {
-    //   status: 200
-    // })
 
     const response = await callLLM(
       chatId,
