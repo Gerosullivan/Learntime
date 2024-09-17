@@ -1,21 +1,16 @@
-import { ChatbotUIContext } from "@/context/context"
-import { FC, useContext, useState } from "react"
 import { Message } from "../messages/message"
+import { useChat } from "ai/react"
 
-interface ChatMessagesProps {}
+export const ChatMessages = () => {
+  const { messages } = useChat()
 
-export const ChatMessages: FC<ChatMessagesProps> = ({}) => {
-  const { chatMessages } = useContext(ChatbotUIContext)
-
-  return chatMessages
-    .sort((a, b) => a.message.sequence_number - b.message.sequence_number)
-    .map((chatMessage, index, array) => {
-      return (
-        <Message
-          key={chatMessage.message.sequence_number}
-          message={chatMessage.message}
-          isLast={index === array.length - 1}
-        />
-      )
-    })
+  return messages.map((message, index, array) => {
+    return (
+      <Message
+        key={index}
+        message={message}
+        isLast={index === array.length - 1}
+      />
+    )
+  })
 }

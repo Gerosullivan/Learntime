@@ -1,62 +1,163 @@
 import { ChatbotUIContext } from "@/context/context"
-import { getChatById } from "@/db/chats"
-import { deleteMessagesIncludingAndAfter } from "@/db/messages"
-import { buildFinalMessages } from "@/lib/build-prompt"
-import { Tables } from "@/supabase/types"
-import { ChatMessage, ChatPayload } from "@/types"
 import { useRouter } from "next/navigation"
-import { useContext, useEffect, useRef } from "react"
-import {
-  createTempMessages,
-  handleCreateAssistantMessage,
-  handleCreateChat,
-  handleCreateMessages,
-  processResponse
-} from "../chat-helpers"
+import { useContext } from "react"
+import { handleCreateChat } from "../chat-helpers"
+import { v4 as uuidv4 } from "uuid"
+import { useChat } from "ai/react"
+import { Message } from "ai"
 import { StudyState } from "@/lib/studyStates"
+import { getChatById } from "@/db/chats"
 
 export const useChatHandler = () => {
   const router = useRouter()
 
   const {
-    userInput,
-    setUserInput,
     profile,
-    setIsGenerating,
-    setChatMessages,
-    setFirstTokenReceived,
-    selectedChat,
     selectedWorkspace,
     setSelectedChat,
     setChats,
-    abortController,
-    setAbortController,
-    chatMessages,
-    chatStudyState,
     setChatStudyState,
+    chats,
+    selectedChat,
+    chatStudyState,
     topicDescription,
     setTopicDescription,
-    setChatRecallMetadata,
-    chatRecallMetadata,
     allChatRecallAnalysis,
     setAllChatRecallAnalysis,
-    chats
+    chatRecallMetadata,
+    setChatRecallMetadata
   } = useContext(ChatbotUIContext)
 
-  const chatInputRef = useRef<HTMLTextAreaElement>(null)
+  const handleSendMessage = (
+    event: React.FormEvent<HTMLFormElement> | React.MouseEvent<SVGSVGElement>
+  ) => {
+    event.preventDefault()
+    if (chatStudyState === "topic_new") {
+      handleCreateTopic(input)
+      return
+    }
+
+    let currentChat = selectedChat ? { ...selectedChat } : null
+
+    const workspaceInstructions = selectedWorkspace!.instructions
+
+    let prePrompt = ""
+
+    if (profile?.profile_context) {
+      prePrompt += `User Info:\n${profile.profile_context}\n\n`
+    }
+
+    if (workspaceInstructions) {
+      prePrompt += `System Instructions:\n${workspaceInstructions}\n\n`
+    }
+
+    setInput(prePrompt + input)
+
+    let randomRecallFact: string = ""
+
+    const isQuickQuiz: boolean =
+      chatStudyState === "quick_quiz_ready_hide_input" ||
+      chatStudyState === "quick_quiz_answer"
+
+    let studySheet = topicDescription
+    let quizFinished = allChatRecallAnalysis.length === 0
+    let studyState = chatStudyState
+
+    if (chatStudyState === "quick_quiz_ready_hide_input" && !quizFinished) {
+      const randomIndex = Math.floor(
+        Math.random() * allChatRecallAnalysis.length
+      )
+      const { recallAnalysis, chatId } = allChatRecallAnalysis[randomIndex]
+      randomRecallFact = recallAnalysis
+      studySheet =
+        chats.find(chat => chat.id === chatId)?.topic_description || ""
+
+      setTopicDescription(studySheet)
+
+      const updated = [...allChatRecallAnalysis]
+      updated.splice(randomIndex, 1)
+      setAllChatRecallAnalysis(updated)
+      console.log("randomRecallFact", randomRecallFact, updated.length)
+    } else if (isQuickQuiz && quizFinished) {
+      studyState = "quick_quiz_finished_hide_input"
+      setChatStudyState(studyState)
+    }
+
+    handleSubmit(event as React.FormEvent<HTMLFormElement>, {
+      body: {
+        chatId: currentChat?.id,
+        studyState,
+        studySheet,
+        chatRecallMetadata,
+        randomRecallFact,
+        profile_context: profile?.profile_context || ""
+      }
+    })
+  }
+
+  const handleResponse = async (response: Response) => {
+    console.log("Received HTTP response from server:", response)
+    const newStudyState = response.headers.get("NEW-STUDY-STATE") as StudyState
+
+    if (newStudyState) {
+      setChatStudyState(newStudyState)
+      if (newStudyState === "topic_saved_hide_input") {
+        const newTopicContent = await getChatById(selectedChat!.id)
+        const topicDescription = newTopicContent!.topic_description || ""
+        setTopicDescription(topicDescription)
+      }
+      if (newStudyState === "recall_first_attempt") {
+        setMessages([])
+      }
+    }
+
+    const score = response.headers.get("SCORE")
+    if (score) {
+      const dueDateFromNow = response.headers.get("DUE-DATE-FROM-NOW")
+
+      setChatRecallMetadata({
+        score: parseInt(score),
+        dueDateFromNow: dueDateFromNow!
+      })
+    }
+
+    const isQuickQuiz: boolean =
+      chatStudyState === "quick_quiz_ready_hide_input" ||
+      chatStudyState === "quick_quiz_answer"
+
+    if (!selectedChat && !isQuickQuiz) {
+      const lastUserMessage = messages.find(message => message.role === "user")
+      const messageTitle = lastUserMessage?.content.substring(0, 100) || ""
+      await handleCreateChat(
+        profile!,
+        selectedWorkspace!,
+        messageTitle,
+        setSelectedChat,
+        setChats
+      )
+    } else if (!isQuickQuiz) {
+      const updatedChat = await getChatById(selectedChat!.id)
+
+      if (updatedChat) {
+        setChats(prevChats => {
+          const updatedChats = prevChats.map(prevChat =>
+            prevChat.id === updatedChat.id ? updatedChat : prevChat
+          )
+
+          return updatedChats
+        })
+      }
+    }
+  }
+
+  const { setMessages, setInput, handleSubmit, input, messages } = useChat()
 
   const handleGoHome = async () => {
     if (!selectedWorkspace) return
 
-    setUserInput("")
     setSelectedChat(null)
 
-    setIsGenerating(false)
-    setFirstTokenReceived(false)
-
-    setChatMessages([])
-
-    setChatStudyState("home")
+    // setChatStudyState("home")
 
     return router.push(`/${selectedWorkspace.id}/chat`)
   }
@@ -64,257 +165,13 @@ export const useChatHandler = () => {
   const handleNewChat = async () => {
     if (!selectedWorkspace) return
 
-    setUserInput("")
     setSelectedChat(null)
-
-    setIsGenerating(false)
-    setFirstTokenReceived(false)
-
-    setChatMessages([
-      {
-        content: `Enter your topic name below to start.`,
-        role: "assistant",
-        sequence_number: 0
-      }
-    ])
-
-    setChatStudyState("topic_new")
 
     return router.push(`/${selectedWorkspace.id}/chat`)
   }
 
-  const handleFocusChatInput = () => {
-    chatInputRef.current?.focus()
-  }
-
-  const handleStopMessage = () => {
-    if (abortController) {
-      abortController.abort()
-    }
-  }
-
-  const handleSendMessage = async (
-    messageContent: string,
-    chatMessages: ChatMessage[]
-  ) => {
-    const startingInput = messageContent
-
-    if (chatStudyState === "topic_new") {
-      handleCreateTopic(messageContent, chatMessages)
-      return
-    }
-
-    try {
-      setUserInput("")
-      setIsGenerating(true)
-
-      const newAbortController = new AbortController()
-      setAbortController(newAbortController)
-
-      let currentChat = selectedChat ? { ...selectedChat } : null
-
-      let retrievedFileItems: Tables<"file_items">[] = []
-
-      const { tempUserChatMessage, tempAssistantChatMessage } =
-        createTempMessages(messageContent, chatMessages, setChatMessages)
-
-      let payload: ChatPayload = {
-        workspaceInstructions: selectedWorkspace!.instructions || "",
-        chatMessages: [...chatMessages, tempUserChatMessage]
-      }
-
-      let generatedText = ""
-
-      const formattedMessages = await buildFinalMessages(payload, profile!)
-
-      let response: Response
-
-      const formattedMessagesWithoutSystem = formattedMessages.slice(1)
-
-      let randomRecallFact: string = ""
-
-      const isQuickQuiz: boolean =
-        chatStudyState === "quick_quiz_ready_hide_input" ||
-        chatStudyState === "quick_quiz_answer"
-
-      let studySheet = topicDescription
-      let quizFinished = allChatRecallAnalysis.length === 0
-      let studyState = chatStudyState
-
-      if (chatStudyState === "quick_quiz_ready_hide_input" && !quizFinished) {
-        // randomly remove and return one item from allChatRecallAnalysis
-        const randomIndex = Math.floor(
-          Math.random() * allChatRecallAnalysis.length
-        )
-        const { recallAnalysis, chatId } = allChatRecallAnalysis[randomIndex]
-        randomRecallFact = recallAnalysis
-        // set topicDescription based on topicDescription allChatRecallAnalysis[randomIndex].id
-        studySheet =
-          chats.find(chat => chat.id === chatId)?.topic_description || ""
-
-        setTopicDescription(studySheet)
-
-        const updated = [...allChatRecallAnalysis]
-        updated.splice(randomIndex, 1)
-        setAllChatRecallAnalysis(updated)
-        console.log("randomRecallFact", randomRecallFact, updated.length)
-      } else if (isQuickQuiz && quizFinished) {
-        studyState = "quick_quiz_finished_hide_input"
-        setChatStudyState(studyState)
-      }
-
-      response = await fetch("/api/chat/functions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          messages: formattedMessagesWithoutSystem,
-          chatId: currentChat?.id,
-          studyState,
-          studySheet,
-          chatRecallMetadata,
-          randomRecallFact,
-          profile_context: profile?.profile_context || ""
-        })
-      })
-
-      const newStudyState = response.headers.get(
-        "NEW-STUDY-STATE"
-      ) as StudyState
-
-      if (newStudyState) {
-        setChatStudyState(newStudyState)
-        if (newStudyState === "topic_saved_hide_input") {
-          const newTopicContent = await getChatById(currentChat!.id)
-          const topicDescription = newTopicContent!.topic_description || "" // Provide a default value if topicDescription is null
-          setTopicDescription(topicDescription)
-        }
-        if (newStudyState === "recall_first_attempt") {
-          chatMessages = []
-        }
-      }
-
-      const score = response.headers.get("SCORE")
-      if (score) {
-        // there will be a DUE-DATE-FROM-NOW
-        const dueDateFromNow = response.headers.get("DUE-DATE-FROM-NOW")
-
-        setChatRecallMetadata({
-          score: parseInt(score),
-          dueDateFromNow: dueDateFromNow!
-        })
-      }
-
-      generatedText = await processResponse(
-        response,
-        tempAssistantChatMessage,
-        newAbortController,
-        setFirstTokenReceived,
-        setChatMessages
-      )
-
-      if (!currentChat && !isQuickQuiz) {
-        currentChat = await handleCreateChat(
-          profile!,
-          selectedWorkspace!,
-          messageContent,
-          newMessageFiles,
-          setSelectedChat,
-          setChats,
-          setChatFiles
-        )
-      } else if (!isQuickQuiz) {
-        const updatedChat = await getChatById(currentChat!.id)
-
-        if (updatedChat) {
-          setChats(prevChats => {
-            const updatedChats = prevChats.map(prevChat =>
-              prevChat.id === updatedChat.id ? updatedChat : prevChat
-            )
-
-            return updatedChats
-          })
-        }
-      }
-
-      await handleCreateMessages(
-        chatMessages,
-        currentChat,
-        profile!,
-        { modelId: "llama2-uncensored:latest" },
-        messageContent,
-        generatedText,
-        retrievedFileItems,
-        setChatMessages,
-        setChatFileItems
-      )
-      setIsGenerating(false)
-      setFirstTokenReceived(false)
-    } catch (error) {
-      console.log({ error })
-      setIsGenerating(false)
-      setFirstTokenReceived(false)
-      setUserInput(startingInput)
-    }
-  }
-
-  const handleCreateTopic = async (
-    messageContent: string,
-    chatMessages: ChatMessage[]
-  ) => {
-    try {
-      setUserInput("")
-      setIsFilePickerOpen(false)
-      setNewMessageImages([])
-
-      const currentChat = await handleCreateChat(
-        profile!,
-        selectedWorkspace!,
-        messageContent,
-        newMessageFiles,
-        setSelectedChat,
-        setChats,
-        setChatFiles
-      )
-
-      const generatedText = `Topic successfully created. Please describe your topic below.
-You can also upload files ⨁ as source material for me to generate your study notes.`
-
-      const retrievedFileItems: Tables<"file_items">[] = []
-
-      await handleCreateMessages(
-        chatMessages,
-        currentChat,
-        profile!,
-        { modelId: "llama2-uncensored:latest" },
-        messageContent,
-        generatedText,
-        retrievedFileItems,
-        setChatMessages,
-        setChatFileItems
-      )
-
-      const newStudyState: StudyState = "topic_describe_upload"
-      setChatStudyState(newStudyState)
-
-      setUserInput("")
-    } catch (error) {
-      console.log({ error })
-      setUserInput(messageContent)
-    }
-  }
-
   const handleStartTutorial = async () => {
-    setIsGenerating(true)
     setChatStudyState("tutorial_hide_input")
-
-    const messageContent = `👋 Hello! I'm your AI Study Mentor.
-I'm here to boost your learning by assisting with creating a topic study sheet and guiding you through optimally spaced free recall study sessions.
-This tutorial will walk you through how to craft a revision topic.
-You'll find topics listed in the panel on the left side of the chat window. 👈
-Open the panel, and you'll see "States of matter" as our example topic for this tutorial.
-Please click 'Next' below to proceed with the tutorial.`
 
     const topic_description = `### States of Matter
 
@@ -349,49 +206,71 @@ Please click 'Next' below to proceed with the tutorial.`
        - Understanding the transitions helps explain natural phenomena like ice melting, water boiling, and dew forming.`
 
     try {
-      setUserInput("")
-      setIsGenerating(true)
-      setIsFilePickerOpen(false)
-      setNewMessageImages([])
-
-      const currentChat = await handleCreateChat(
+      await handleCreateChat(
         profile!,
         selectedWorkspace!,
-        messageContent,
-        newMessageFiles,
+        "States of matter",
         setSelectedChat,
         setChats,
-        setChatFiles,
-        true,
         topic_description
       )
 
-      await handleCreateAssistantMessage(
-        chatMessages,
-        currentChat,
-        profile!,
-        messageContent,
-        setChatMessages
-      )
-
-      setIsGenerating(false)
-      setFirstTokenReceived(false)
+      setMessages([
+        {
+          id: uuidv4(),
+          role: "assistant",
+          content: `👋 Hello! I'm your AI Study Mentor.
+I'm here to boost your learning by assisting with creating a topic study sheet and guiding you through optimally spaced free recall study sessions.
+This tutorial will walk you through how to craft a revision topic.
+You'll find topics listed in the panel on the left side of the chat window. 👈
+Open the panel, and you'll see "States of matter" as our example topic for this tutorial.
+Please click 'Next' below to proceed with the tutorial.`
+        }
+      ])
     } catch (error) {
       console.log({ error })
-      setIsGenerating(false)
-      setFirstTokenReceived(false)
-      setUserInput(messageContent)
     }
   }
 
+  const handleCreateTopic = async (input: string) => {
+    setMessages(prevMessages => [
+      ...prevMessages,
+      {
+        id: uuidv4(),
+        role: "user",
+        content: input
+      } as Message
+    ])
+
+    // add new chat to db
+    await handleCreateChat(
+      profile!,
+      selectedWorkspace!,
+      input,
+      setSelectedChat,
+      setChats
+    )
+
+    setChatStudyState("topic_describe_upload" as StudyState)
+
+    setMessages(prevMessages => [
+      ...prevMessages,
+      {
+        id: uuidv4(),
+        role: "assistant",
+        content: `Topic successfully created. Please describe your topic below.
+You can also upload files ⨁ as source material for me to generate your study notes.`
+      }
+    ])
+  }
+
   return {
-    chatInputRef,
     prompt,
     handleNewChat,
     handleGoHome,
+    handleStartTutorial,
+    handleCreateTopic,
     handleSendMessage,
-    handleFocusChatInput,
-    handleStopMessage,
-    handleStartTutorial
+    handleResponse // Add this to the returned object
   }
 }

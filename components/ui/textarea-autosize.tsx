@@ -1,13 +1,11 @@
 import { cn } from "@/lib/utils"
 import { FC } from "react"
 import ReactTextareaAutosize from "react-textarea-autosize"
+import { useChat } from "ai/react"
 
 interface TextareaAutosizeProps {
-  value: string
-
   textareaRef?: React.RefObject<HTMLTextAreaElement>
   className?: string
-
   placeholder?: string
   minRows?: number
   maxRows?: number
@@ -19,7 +17,6 @@ interface TextareaAutosizeProps {
 }
 
 export const TextareaAutosize: FC<TextareaAutosizeProps> = ({
-  value,
   textareaRef,
   className,
   placeholder = "",
@@ -31,6 +28,8 @@ export const TextareaAutosize: FC<TextareaAutosizeProps> = ({
   onCompositionStart = () => {},
   onCompositionEnd = () => {}
 }) => {
+  const { input, handleInputChange } = useChat()
+
   return (
     <ReactTextareaAutosize
       ref={textareaRef}
@@ -41,12 +40,13 @@ export const TextareaAutosize: FC<TextareaAutosizeProps> = ({
       minRows={minRows}
       maxRows={minRows > maxRows ? minRows : maxRows}
       placeholder={placeholder}
-      value={value}
+      value={input}
       maxLength={maxLength}
       onKeyDown={onKeyDown}
       onPaste={onPaste}
       onCompositionStart={onCompositionStart}
       onCompositionEnd={onCompositionEnd}
+      onChange={handleInputChange}
     />
   )
 }

@@ -10,7 +10,7 @@ import {
 } from "@/lib/server/server-chat-helpers"
 import { streamText, LanguageModel, generateText } from "ai"
 import { formatDistanceToNow } from "date-fns/esm"
-import { openai } from "../../registry"
+import { openai } from "./registry"
 
 // export const runtime = "edge"
 export const dynamic = "force-dynamic"
@@ -458,9 +458,6 @@ Maintain a balance between praise, correction, and guidance.`
 
 export async function POST(request: Request) {
   try {
-    const profile = await getServerProfile()
-    checkApiKey(profile.openai_api_key, "OpenAI")
-
     const json = await request.json()
     const {
       messages,

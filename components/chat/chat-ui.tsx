@@ -10,17 +10,13 @@ import { useScroll } from "./chat-hooks/use-scroll"
 import { ChatInput } from "./chat-input"
 import { ChatMessages } from "./chat-messages"
 import { ChatScrollButtons } from "./chat-scroll-buttons"
-import { useChat } from "ai/react"
+import { Message, useChat } from "ai/react"
+import { v4 as uuidv4 } from "uuid"
 
 interface ChatUIProps {}
 
 export const ChatUI: FC<ChatUIProps> = ({}) => {
-  useHotkey("o", () => handleNewChat())
-
-  const params = useParams()
-
   const {
-    setChatMessages,
     selectedChat,
     setSelectedChat,
     setTopicDescription,
@@ -29,7 +25,19 @@ export const ChatUI: FC<ChatUIProps> = ({}) => {
     allChatRecallAnalysis
   } = useContext(ChatbotUIContext)
 
-  const { handleNewChat, handleFocusChatInput } = useChatHandler()
+  useHotkey("o", () => handleNewChat())
+
+  const { handleNewChat, handleResponse } = useChatHandler()
+
+  const [initialMessage, setInitialMessage] = useState<Message>()
+
+  useChat({
+    keepLastMessageOnError: true,
+    onResponse: handleResponse,
+    initialMessages: initialMessage ? [initialMessage] : []
+  })
+
+  const params = useParams()
 
   const {
     messagesStartRef,
@@ -43,7 +51,7 @@ export const ChatUI: FC<ChatUIProps> = ({}) => {
     scrollToTop
   } = useScroll()
 
-  const [loading, setLoading] = useState(true)
+  const [chatLoading, setChatLoading] = useState(true)
   const [chatTitle, setChatTitle] = useState("Chat")
 
   useEffect(() => {
@@ -56,13 +64,11 @@ export const ChatUI: FC<ChatUIProps> = ({}) => {
     const startQuickQuiz = async () => {
       setSelectedChat(null)
       if (allChatRecallAnalysis.length > 0) {
-        setChatMessages([
-          {
-            content: `Are you ready to start a 🔥 Quick quiz?`,
-            role: "assistant",
-            sequence_number: 0
-          }
-        ])
+        setInitialMessage({
+          id: uuidv4(),
+          content: `Are you ready to start a 🔥 Quick quiz?`,
+          role: "assistant"
+        })
         setChatStudyState("quick_quiz_ready_hide_input")
       }
     }
@@ -70,15 +76,21 @@ export const ChatUI: FC<ChatUIProps> = ({}) => {
     if (params.chatid) {
       if (params.chatid === "quick-quiz") {
         startQuickQuiz()
-        setLoading(false)
+        setChatLoading(false)
       } else {
         fetchData().then(() => {
-          handleFocusChatInput()
-          setLoading(false)
+          setChatLoading(false)
         })
       }
     } else {
-      setLoading(false)
+      // Handle new chat
+      setInitialMessage({
+        content: `Enter your topic name below to start.`,
+        role: "assistant",
+        id: uuidv4()
+      })
+      setChatStudyState("topic_new")
+      setChatLoading(false)
     }
   }, [])
 
@@ -95,24 +107,20 @@ export const ChatUI: FC<ChatUIProps> = ({}) => {
     if (chat.topic_description) {
       setTopicDescription(chat.topic_description)
 
-      setChatStudyState("topic_default_hide_input")
+      setInitialMessage({
+        id: uuidv4(),
+        content: `Welcome back to the topic "${chat.name}".
+          Please select from the options below.`,
+        role: "assistant"
+      })
 
-      setChatMessages([
-        {
-          content: `Welcome back to the topic "${chat.name}".
-Please select from the options below.`,
-          role: "assistant",
-          sequence_number: 0
-        }
-      ])
+      setChatStudyState("topic_default_hide_input")
     } else {
-      setChatMessages([
-        {
-          content: `Please add topic description below for ${chat.name}.`,
-          role: "assistant",
-          sequence_number: 0
-        }
-      ])
+      setInitialMessage({
+        id: uuidv4(),
+        content: `Please add topic description below for ${chat.name}.`,
+        role: "assistant"
+      })
       setChatStudyState("topic_describe_upload")
     }
 
@@ -121,7 +129,7 @@ Please select from the options below.`,
     setChatTitle(chat.name || "Chat")
   }
 
-  if (loading) {
+  if (chatLoading) {
     return <Loading />
   }
 
@@ -148,9 +156,7 @@ Please select from the options below.`,
         onScroll={handleScroll}
       >
         <div ref={messagesStartRef} />
-
         <ChatMessages />
-
         <div ref={messagesEndRef} />
       </div>
 

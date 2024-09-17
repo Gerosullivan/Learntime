@@ -11,7 +11,7 @@ import { convertBlobToBase64 } from "@/lib/blob-to-b64"
 import { supabase } from "@/lib/supabase/browser-client"
 import { Tables } from "@/supabase/types"
 import { ChatRecallMetadata } from "@/lib/studyStates"
-import { ChatMessage, WorkspaceImage } from "@/types"
+import { WorkspaceImage } from "@/types"
 
 import { useRouter } from "next/navigation"
 import { FC, useEffect, useState } from "react"
@@ -36,8 +36,6 @@ export const GlobalState: FC<GlobalStateProps> = ({ children }) => {
   const [workspaceImages, setWorkspaceImages] = useState<WorkspaceImage[]>([])
 
   // PASSIVE CHAT STORE
-  const [userInput, setUserInput] = useState<string>("")
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
 
   const [selectedChat, setSelectedChat] = useState<Tables<"chats"> | null>(null)
   const [topicDescription, setTopicDescription] = useState<string>("")
@@ -47,12 +45,6 @@ export const GlobalState: FC<GlobalStateProps> = ({ children }) => {
   const [allChatRecallAnalysis, setAllChatRecallAnalysis] = useState<
     { chatId: string; recallAnalysis: any }[]
   >([])
-
-  // ACTIVE CHAT STORE
-  const [isGenerating, setIsGenerating] = useState<boolean>(false)
-  const [firstTokenReceived, setFirstTokenReceived] = useState<boolean>(false)
-  const [abortController, setAbortController] =
-    useState<AbortController | null>(null)
 
   useEffect(() => {
     ;(async () => {
@@ -124,10 +116,6 @@ export const GlobalState: FC<GlobalStateProps> = ({ children }) => {
         setWorkspaceImages,
 
         // PASSIVE CHAT STORE
-        userInput,
-        setUserInput,
-        chatMessages,
-        setChatMessages,
         selectedChat,
         setSelectedChat,
         topicDescription,
@@ -137,15 +125,7 @@ export const GlobalState: FC<GlobalStateProps> = ({ children }) => {
         chatRecallMetadata,
         setChatRecallMetadata,
         allChatRecallAnalysis,
-        setAllChatRecallAnalysis,
-
-        // ACTIVE CHAT STORE
-        isGenerating,
-        setIsGenerating,
-        firstTokenReceived,
-        setFirstTokenReceived,
-        abortController,
-        setAbortController
+        setAllChatRecallAnalysis
       }}
     >
       {children}

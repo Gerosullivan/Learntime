@@ -3,35 +3,26 @@ const withBundleAnalyzer = require("@next/bundle-analyzer")({
 })
 
 const withPWA = require("next-pwa")({
-  dest: "public"
+  dest: "public",
+  disable: process.env.NODE_ENV === "development",
+  register: true,
+  skipWaiting: true
 })
 
-module.exports = {
-  ...withBundleAnalyzer(
-    withPWA({
-      reactStrictMode: true,
-      images: {
-        remotePatterns: [
-          {
-            protocol: "http",
-            hostname: "localhost"
-          },
-          {
-            protocol: "http",
-            hostname: "127.0.0.1"
-          },
-          {
-            protocol: "https",
-            hostname: "**"
+module.exports = withPWA({
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.module.rules.push({
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: {
+          loader: "babel-loader",
+          options: {
+            presets: ["@babel/preset-env"]
           }
-        ]
-      },
-      experimental: {
-        serverComponentsExternalPackages: ["sharp", "onnxruntime-node"]
-      }
-    })
-  ),
-  images: {
-    unoptimized: true
+        }
+      })
+    }
+    return config
   }
-}
+})

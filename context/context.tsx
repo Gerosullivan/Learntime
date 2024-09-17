@@ -1,6 +1,6 @@
 import { Tables } from "@/supabase/types"
 import { ChatRecallMetadata } from "@/lib/studyStates"
-import { ChatMessage, WorkspaceImage } from "@/types"
+import { WorkspaceImage } from "@/types"
 import { Dispatch, SetStateAction, createContext } from "react"
 import { StudyState } from "@/lib/studyStates"
 
@@ -23,10 +23,6 @@ interface ChatbotUIContext {
   setWorkspaceImages: Dispatch<SetStateAction<WorkspaceImage[]>>
 
   // PASSIVE CHAT STORE
-  userInput: string
-  setUserInput: Dispatch<SetStateAction<string>>
-  chatMessages: ChatMessage[]
-  setChatMessages: Dispatch<SetStateAction<ChatMessage[]>>
   selectedChat: Tables<"chats"> | null
   setSelectedChat: Dispatch<SetStateAction<Tables<"chats"> | null>>
   topicDescription: string
@@ -39,14 +35,6 @@ interface ChatbotUIContext {
   setAllChatRecallAnalysis: Dispatch<
     SetStateAction<{ chatId: string; recallAnalysis: any }[]>
   >
-
-  // ACTIVE CHAT STORE
-  abortController: AbortController | null
-  setAbortController: Dispatch<SetStateAction<AbortController | null>>
-  firstTokenReceived: boolean
-  setFirstTokenReceived: Dispatch<SetStateAction<boolean>>
-  isGenerating: boolean
-  setIsGenerating: Dispatch<SetStateAction<boolean>>
 }
 
 export const ChatbotUIContext = createContext<ChatbotUIContext>({
@@ -67,12 +55,8 @@ export const ChatbotUIContext = createContext<ChatbotUIContext>({
   setWorkspaceImages: () => {},
 
   // PASSIVE CHAT STORE
-  userInput: "",
-  setUserInput: () => {},
   selectedChat: null,
   setSelectedChat: () => {},
-  chatMessages: [],
-  setChatMessages: () => {},
   topicDescription: "",
   setTopicDescription: () => {},
   chatStudyState: "home",
@@ -80,13 +64,5 @@ export const ChatbotUIContext = createContext<ChatbotUIContext>({
   chatRecallMetadata: null,
   setChatRecallMetadata: () => {},
   allChatRecallAnalysis: [],
-  setAllChatRecallAnalysis: () => {},
-
-  // ACTIVE CHAT STORE
-  isGenerating: false,
-  setIsGenerating: () => {},
-  firstTokenReceived: false,
-  setFirstTokenReceived: () => {},
-  abortController: null,
-  setAbortController: () => {}
+  setAllChatRecallAnalysis: () => {}
 })

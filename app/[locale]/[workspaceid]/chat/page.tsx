@@ -7,20 +7,17 @@ import { Brand } from "@/components/ui/brand"
 import { ChatbotUIContext } from "@/context/context"
 import { updateProfile } from "@/db/profile"
 import useHotkey from "@/lib/hooks/use-hotkey"
+import { useChat } from "ai/react"
 import { useTheme } from "next-themes"
 import { useContext, useEffect, useRef } from "react"
 
 export default function ChatPage() {
   useHotkey("o", () => handleNewChat())
-  useHotkey("l", () => {
-    handleFocusChatInput()
-  })
 
-  const { chatMessages, profile, setProfile, chats, setAllChatRecallAnalysis } =
+  const { profile, setProfile, chats, setAllChatRecallAnalysis } =
     useContext(ChatbotUIContext)
 
-  const { handleNewChat, handleFocusChatInput, handleStartTutorial } =
-    useChatHandler()
+  const { handleNewChat, handleStartTutorial } = useChatHandler()
 
   const { theme } = useTheme()
 
@@ -73,9 +70,11 @@ export default function ChatPage() {
     }
   }, [chats])
 
+  const { messages } = useChat()
+
   return (
     <>
-      {chatMessages.length === 0 ? (
+      {messages.length === 0 ? (
         <div className="relative flex h-full flex-col items-center justify-center">
           <div className="top-50% left-50% -translate-x-50% -translate-y-50% absolute mb-20">
             <Brand theme={theme === "dark" ? "dark" : "light"} />

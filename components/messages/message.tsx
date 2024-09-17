@@ -1,23 +1,21 @@
 import { ChatbotUIContext } from "@/context/context"
 import { cn } from "@/lib/utils"
-import { Tables } from "@/supabase/types"
-import { ChatMessage } from "@/types"
 import { IconMoodSmile, IconPencil, IconSparkles } from "@tabler/icons-react"
 import Image from "next/image"
 import { FC, useContext } from "react"
 import { MessageMarkdown } from "./message-markdown"
+import { useChat, Message as MessageType } from "ai/react"
 
 const ICON_SIZE = 32
 
 interface MessageProps {
-  message: ChatMessage
-  fileItems: Tables<"file_items">[]
+  message: MessageType
   isLast: boolean
 }
 
 export const Message: FC<MessageProps> = ({ message, isLast }) => {
-  const { profile, isGenerating, firstTokenReceived } =
-    useContext(ChatbotUIContext)
+  const { profile } = useContext(ChatbotUIContext)
+  const { isLoading } = useChat()
 
   return (
     <div
@@ -64,10 +62,7 @@ export const Message: FC<MessageProps> = ({ message, isLast }) => {
               </div>
             </div>
           )}
-          {!firstTokenReceived &&
-          isGenerating &&
-          isLast &&
-          message.role === "assistant" ? (
+          {isLoading && isLast && message.role === "assistant" ? (
             <svg
               className="-ml-1 mr-3 size-5 animate-spin text-white"
               xmlns="http://www.w3.org/2000/svg"
@@ -80,7 +75,7 @@ export const Message: FC<MessageProps> = ({ message, isLast }) => {
                 cy="12"
                 r="10"
                 stroke="indigo"
-                stroke-width="4"
+                strokeWidth="4"
               ></circle>
               <path
                 className="fill-blue-500"
