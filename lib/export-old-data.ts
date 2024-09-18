@@ -13,7 +13,7 @@ export function exportLocalStorageAsJSON() {
 
   const a = document.createElement("a")
   a.href = url
-  a.download = "chatbot-ui-data.json"
+  a.download = "learntime-ui-data.json"
   document.body.appendChild(a)
   a.click()
   document.body.removeChild(a)

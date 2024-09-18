@@ -5,7 +5,7 @@ import { Dispatch, SetStateAction, createContext } from "react"
 import { StudyState } from "@/lib/studyStates"
 import { ChatRequestOptions, CreateMessage, Message } from "ai"
 
-interface ChatbotUIContext {
+interface LearntimeContext {
   // PROFILE STORE
   profile: Tables<"profiles"> | null
   setProfile: Dispatch<SetStateAction<Tables<"profiles"> | null>>
@@ -55,7 +55,7 @@ interface ChatbotUIContext {
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>
 }
 
-export const ChatbotUIContext = createContext<ChatbotUIContext>({
+export const LearntimeContext = createContext<LearntimeContext>({
   // PROFILE STORE
   profile: null,
   setProfile: () => {},

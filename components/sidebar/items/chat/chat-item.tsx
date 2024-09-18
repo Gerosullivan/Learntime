@@ -1,4 +1,4 @@
-import { ChatbotUIContext } from "@/context/context"
+import { LearntimeContext } from "@/context/context"
 import { cn } from "@/lib/utils"
 import { Tables } from "@/supabase/types"
 import { useParams, useRouter } from "next/navigation"
@@ -16,7 +16,7 @@ interface ExtendedChat extends Tables<"chats"> {
 }
 
 export const ChatItem: FC<ChatItemProps> = ({ chat }) => {
-  const { selectedWorkspace, selectedChat } = useContext(ChatbotUIContext)
+  const { selectedWorkspace, selectedChat } = useContext(LearntimeContext)
 
   const router = useRouter()
   const params = useParams()

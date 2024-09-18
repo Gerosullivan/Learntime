@@ -4,7 +4,7 @@ import {
   getQuickResponseByUserText
 } from "@/lib/studyStates"
 import { useContext } from "react"
-import { ChatbotUIContext } from "@/context/context"
+import { LearntimeContext } from "@/context/context"
 import { useChatHandler } from "./chat-hooks/use-chat-handler"
 import { IconSend } from "@tabler/icons-react"
 import { v4 as uuidv4 } from "uuid"
@@ -19,7 +19,7 @@ const QuickResponse: React.FC = () => {
     selectedChat,
     messages,
     append
-  } = useContext(ChatbotUIContext)
+  } = useContext(LearntimeContext)
 
   const { makeMessageBody } = useChatHandler()
 

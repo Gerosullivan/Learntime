@@ -1,4 +1,4 @@
-import { ChatbotUIContext } from "@/context/context"
+import { LearntimeContext } from "@/context/context"
 import { cn } from "@/lib/utils"
 import { IconMoodSmile, IconPencil, IconSparkles } from "@tabler/icons-react"
 import Image from "next/image"
@@ -14,7 +14,7 @@ interface MessageProps {
 }
 
 export const Message: FC<MessageProps> = ({ message, isLast }) => {
-  const { profile, isLoading } = useContext(ChatbotUIContext)
+  const { profile, isLoading } = useContext(LearntimeContext)
 
   return (
     <div

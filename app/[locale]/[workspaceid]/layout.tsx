@@ -1,7 +1,7 @@
 "use client"
 
 import { Dashboard } from "@/components/ui/dashboard"
-import { ChatbotUIContext } from "@/context/context"
+import { LearntimeContext } from "@/context/context"
 import { getChatsByWorkspaceId } from "@/db/chats"
 import { getWorkspaceById } from "@/db/workspaces"
 import { supabase } from "@/lib/supabase/browser-client"
@@ -20,7 +20,7 @@ export default function WorkspaceLayout({ children }: WorkspaceLayoutProps) {
   const workspaceId = params.workspaceid as string
 
   const { setChats, setSelectedWorkspace, setSelectedChat } =
-    useContext(ChatbotUIContext)
+    useContext(LearntimeContext)
 
   const [loading, setLoading] = useState(true)
 

@@ -1,4 +1,4 @@
-import { ChatbotUIContext } from "@/context/context"
+import { LearntimeContext } from "@/context/context"
 import {
   type UIEventHandler,
   useCallback,
@@ -9,7 +9,7 @@ import {
 } from "react"
 
 export const useScroll = () => {
-  const { isLoading, messages } = useContext(ChatbotUIContext)
+  const { isLoading, messages } = useContext(LearntimeContext)
 
   const messagesStartRef = useRef<HTMLDivElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)

@@ -1,4 +1,4 @@
-import { ChatbotUIContext } from "@/context/context"
+import { LearntimeContext } from "@/context/context"
 import useHotkey from "@/lib/hooks/use-hotkey"
 import { IconLoader2, IconSend } from "@tabler/icons-react"
 import { FC, useContext, useState } from "react"
@@ -10,7 +10,7 @@ interface CommandKProps {}
 export const CommandK: FC<CommandKProps> = ({}) => {
   useHotkey("k", () => setIsOpen(prevState => !prevState))
 
-  const { profile } = useContext(ChatbotUIContext)
+  const { profile } = useContext(LearntimeContext)
 
   const [isOpen, setIsOpen] = useState(false)
   const [value, setValue] = useState("")

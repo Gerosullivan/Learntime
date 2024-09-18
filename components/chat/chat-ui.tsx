@@ -1,6 +1,6 @@
 import Loading from "@/app/[locale]/loading"
 import { useChatHandler } from "@/components/chat/chat-hooks/use-chat-handler"
-import { ChatbotUIContext } from "@/context/context"
+import { LearntimeContext } from "@/context/context"
 import { getChatById } from "@/db/chats"
 import useHotkey from "@/lib/hooks/use-hotkey"
 import { useParams } from "next/navigation"
@@ -21,7 +21,7 @@ export const ChatUI: FC = () => {
     setChatStudyState,
     allChatRecallAnalysis,
     setMessages
-  } = useContext(ChatbotUIContext)
+  } = useContext(LearntimeContext)
 
   useHotkey("o", () => handleNewChat())
 

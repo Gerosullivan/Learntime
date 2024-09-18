@@ -1,6 +1,6 @@
 "use client"
 
-import { ChatbotUIContext } from "@/context/context"
+import { LearntimeContext } from "@/context/context"
 import { getProfileByUserId, updateProfile } from "@/db/profile"
 import {
   getHomeWorkspaceByUserId,
@@ -20,7 +20,7 @@ import {
 
 export default function SetupPage() {
   const { profile, setProfile, setWorkspaces, setSelectedWorkspace } =
-    useContext(ChatbotUIContext)
+    useContext(LearntimeContext)
 
   const router = useRouter()
 

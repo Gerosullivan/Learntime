@@ -1,4 +1,4 @@
-import { ChatbotUIContext } from "@/context/context"
+import { LearntimeContext } from "@/context/context"
 import { cn } from "@/lib/utils"
 import {
   IconCirclePlus,
@@ -21,7 +21,7 @@ export const ChatInput: FC = () => {
     handleInputChange,
     handleSubmit,
     stop
-  } = useContext(ChatbotUIContext)
+  } = useContext(LearntimeContext)
   const { makeMessageBody, handleCreateTopic } = useChatHandler()
 
   const fileInputRef = useRef<HTMLInputElement>(null)

@@ -1,10 +1,10 @@
-import { ChatbotUIContext } from "@/context/context"
+import { LearntimeContext } from "@/context/context"
 import { cn } from "@/lib/utils"
 import { useParams, useRouter } from "next/navigation"
 import { useContext, useRef } from "react"
 
 export const QuickQuiz = () => {
-  const { selectedWorkspace, selectedChat } = useContext(ChatbotUIContext)
+  const { selectedWorkspace, selectedChat } = useContext(LearntimeContext)
 
   const router = useRouter()
   const params = useParams()

@@ -2,10 +2,10 @@ import { FC, useState, useContext } from "react"
 import { SidebarDataList } from "./sidebar-data-list"
 import { SidebarSearch } from "./sidebar-search"
 import { SidebarCreateButtons } from "./sidebar-create-buttons"
-import { ChatbotUIContext } from "@/context/context"
+import { LearntimeContext } from "@/context/context"
 
 export const SidebarContent = () => {
-  const { chats } = useContext(ChatbotUIContext)
+  const { chats } = useContext(LearntimeContext)
 
   const [searchTerm, setSearchTerm] = useState("")
 

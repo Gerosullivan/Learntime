@@ -1,4 +1,4 @@
-import { ChatbotUIContext } from "@/context/context"
+import { LearntimeContext } from "@/context/context"
 import { WORKSPACE_INSTRUCTIONS_MAX } from "@/db/limits"
 import {
   getWorkspaceImageFromStorage,
@@ -37,7 +37,7 @@ export const WorkspaceSettings: FC<WorkspaceSettingsProps> = ({}) => {
     setWorkspaces,
     workspaceImages,
     setWorkspaceImages
-  } = useContext(ChatbotUIContext)
+  } = useContext(LearntimeContext)
 
   const buttonRef = useRef<HTMLButtonElement>(null)
 

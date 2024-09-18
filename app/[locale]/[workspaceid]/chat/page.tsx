@@ -4,7 +4,7 @@ import { ChatHelp } from "@/components/chat/chat-help"
 import { useChatHandler } from "@/components/chat/chat-hooks/use-chat-handler"
 import { ChatUI } from "@/components/chat/chat-ui"
 import { Brand } from "@/components/ui/brand"
-import { ChatbotUIContext } from "@/context/context"
+import { LearntimeContext } from "@/context/context"
 import { updateProfile } from "@/db/profile"
 import useHotkey from "@/lib/hooks/use-hotkey"
 import { useTheme } from "next-themes"
@@ -14,7 +14,7 @@ export default function ChatPage() {
   useHotkey("o", () => handleNewChat())
 
   const { profile, setProfile, chats, setAllChatRecallAnalysis, messages } =
-    useContext(ChatbotUIContext)
+    useContext(LearntimeContext)
 
   const { handleNewChat, handleStartTutorial } = useChatHandler()
 

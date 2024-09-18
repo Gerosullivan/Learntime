@@ -1,9 +1,9 @@
 import { useContext } from "react"
-import { ChatbotUIContext } from "@/context/context"
+import { LearntimeContext } from "@/context/context"
 import { Message } from "../messages/message"
 
 export const ChatMessages: React.FC = () => {
-  const { messages } = useContext(ChatbotUIContext)
+  const { messages } = useContext(LearntimeContext)
   if (!messages) return null
 
   return messages.map((message, index, array) => {

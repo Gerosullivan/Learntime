@@ -1,4 +1,4 @@
-import { ChatbotUIContext } from "@/context/context"
+import { LearntimeContext } from "@/context/context"
 import { useRouter } from "next/navigation"
 import { useContext } from "react"
 import { handleCreateChat } from "../chat-helpers"
@@ -24,7 +24,7 @@ export const useChatHandler = () => {
     setAllChatRecallAnalysis,
     chatRecallMetadata,
     setMessages
-  } = useContext(ChatbotUIContext)
+  } = useContext(LearntimeContext)
 
   const makeMessageBody = () => {
     if (chatStudyState === "topic_new") {

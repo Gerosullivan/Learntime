@@ -1,4 +1,4 @@
-import { ChatbotUIContext } from "@/context/context"
+import { LearntimeContext } from "@/context/context"
 import { createChats } from "@/db/chats"
 import { IconUpload, IconX } from "@tabler/icons-react"
 import { FC, useContext, useEffect, useRef, useState } from "react"
@@ -21,7 +21,7 @@ interface ImportProps {
 }
 
 export const Import: FC<ImportProps> = ({ demo_mode_text }) => {
-  const { profile, selectedWorkspace, setChats } = useContext(ChatbotUIContext)
+  const { profile, selectedWorkspace, setChats } = useContext(LearntimeContext)
 
   const inputRef = useRef<HTMLInputElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)

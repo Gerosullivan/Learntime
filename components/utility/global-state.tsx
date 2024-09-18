@@ -2,7 +2,7 @@
 
 "use client"
 
-import { ChatbotUIContext } from "@/context/context"
+import { LearntimeContext } from "@/context/context"
 import { getProfileByUserId } from "@/db/profile"
 import { getWorkspaceImageFromStorage } from "@/db/storage/workspace-images"
 import { getWorkspacesByUserId } from "@/db/workspaces"
@@ -171,7 +171,7 @@ export const GlobalState: FC<GlobalStateProps> = ({ children }) => {
   }
 
   return (
-    <ChatbotUIContext.Provider
+    <LearntimeContext.Provider
       value={{
         // PROFILE STORE
         profile,
@@ -211,6 +211,6 @@ export const GlobalState: FC<GlobalStateProps> = ({ children }) => {
       }}
     >
       {children}
-    </ChatbotUIContext.Provider>
+    </LearntimeContext.Provider>
   )
 }
