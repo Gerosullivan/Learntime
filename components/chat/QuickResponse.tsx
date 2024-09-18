@@ -14,7 +14,6 @@ const QuickResponse: React.FC = () => {
   const {
     chatStudyState,
     setMessages,
-    setInput,
     setChatStudyState,
     topicDescription,
     selectedChat,
@@ -26,21 +25,29 @@ const QuickResponse: React.FC = () => {
 
   const router = useRouter()
 
-  const handleQuickResponse = async (
-    event: React.MouseEvent<HTMLButtonElement>,
-    message: string
-  ) => {
-    event.preventDefault()
-
+  const handleQuickResponse = async (message: string) => {
     const quickResponse = getQuickResponseByUserText(message)
     if (quickResponse && quickResponse.responseText !== "{{LLM}}") {
+      if (message === "Start recall now.") {
+        setMessages([])
+      } else {
+        setMessages(prevMessages => [
+          ...prevMessages,
+          {
+            content: message,
+            role: "user",
+            id: uuidv4()
+          }
+        ])
+      }
+
       let responseText
       let newStudyState = quickResponse.newStudyState
 
       switch (quickResponse.responseText) {
         case "{{DB}}":
           if (selectedChat) {
-            const topicContent = messages[messages.length - 2].content
+            const topicContent = messages[messages.length - 1].content
             const response = await fetch("/api/update-topic-content", {
               method: "POST",
               headers: {
@@ -73,11 +80,6 @@ const QuickResponse: React.FC = () => {
 
       setMessages(prevMessages => [
         ...prevMessages,
-        {
-          content: message,
-          role: "user",
-          id: uuidv4()
-        },
         {
           content: responseText,
           role: "assistant",
@@ -119,9 +121,7 @@ const QuickResponse: React.FC = () => {
         <div key={index} className={`${widthClass(index)} p-2`}>
           <button
             className="flex w-full items-center justify-between rounded-md border border-blue-500 px-4 py-2 text-left text-blue-500 transition-colors hover:bg-blue-500 hover:text-white"
-            onClick={event =>
-              handleQuickResponse(event, quickResponse.quickText)
-            }
+            onClick={event => handleQuickResponse(quickResponse.quickText)}
           >
             <span>{quickResponse.quickText}</span>
             <IconSend size={20} />

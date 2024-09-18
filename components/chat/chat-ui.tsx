@@ -20,7 +20,8 @@ export const ChatUI: FC = () => {
     chats,
     setChatStudyState,
     allChatRecallAnalysis,
-    setMessages
+    setMessages,
+    messages // Add this line to destructure messages from context
   } = useContext(ChatbotUIContext)
 
   useHotkey("o", () => handleNewChat())
@@ -46,6 +47,7 @@ export const ChatUI: FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       await fetchChat()
+      scrollToBottom()
       setIsAtBottom(true)
     }
 
@@ -91,6 +93,11 @@ export const ChatUI: FC = () => {
     const chat = chats.find(chat => chat.id === selectedChat?.id)
     setTopicDescription(chat?.topic_description || "")
   }, [chats])
+
+  // Add this new useEffect to scroll to bottom when messages change
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages])
 
   const fetchChat = async () => {
     const chat = await getChatById(params.chatid as string)

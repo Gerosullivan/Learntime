@@ -73,10 +73,6 @@ export const GlobalState: FC<GlobalStateProps> = ({ children }) => {
       })
     }
 
-    if (chatStudyState === "recall_first_attempt") {
-      setMessages([])
-    }
-
     const isQuickQuiz: boolean =
       chatStudyState === "quick_quiz_ready_hide_input" ||
       chatStudyState === "quick_quiz_answer"
