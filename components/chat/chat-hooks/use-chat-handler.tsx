@@ -75,7 +75,11 @@ export const useChatHandler = () => {
     }
   }
 
-  const handleResponse = async (response: Response) => {
+  const handleResponse = async (
+    response: Response,
+    messages: Message[],
+    setMessages: (messages: Message[]) => void
+  ) => {
     console.log("Received HTTP response from server:", response)
     const newStudyState = response.headers.get("NEW-STUDY-STATE") as StudyState
 
@@ -97,12 +101,7 @@ export const useChatHandler = () => {
         dueDateFromNow: dueDateFromNow!
       })
     }
-  }
 
-  const handleFinish = async (
-    messages: Message[],
-    setMessages: (messages: Message[]) => void
-  ) => {
     if (chatStudyState === "recall_first_attempt") {
       setMessages([])
     }
@@ -150,6 +149,27 @@ export const useChatHandler = () => {
     if (!selectedWorkspace) return
 
     setSelectedChat(null)
+
+    // setChatMessages([
+    //   {
+    //     message: {
+    //       id: "1",
+    //       user_id: "1",
+    //       content: `Enter your topic name below to start.`,
+    //       created_at: new Date().toISOString(),
+    //       image_paths: [],
+    //       model: "",
+    //       role: "assistant",
+    //       sequence_number: 0,
+    //       updated_at: null,
+    //       assistant_id: selectedAssistant?.id || null,
+    //       chat_id: "quick-quiz"
+    //     },
+    //     fileItems: []
+    //   }
+    // ])
+
+    // setChatStudyState("topic_new")
 
     return router.push(`/${selectedWorkspace.id}/chat`)
   }
@@ -259,7 +279,6 @@ You can also upload files ⨁ as source material for me to generate your study n
     handleStartTutorial,
     handleCreateTopic,
     makeMessageBody,
-    handleResponse,
-    handleFinish
+    handleResponse
   }
 }

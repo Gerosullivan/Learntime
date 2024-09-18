@@ -8,7 +8,7 @@ import { useChatHandler } from "@/components/chat/chat-hooks/use-chat-handler"
 
 export default function ChatIDPage() {
   const [initialMessage, setInitialMessage] = useState<Message>()
-  const { handleResponse, handleFinish } = useChatHandler()
+  const { handleResponse } = useChatHandler()
 
   const {
     input,
@@ -22,9 +22,8 @@ export default function ChatIDPage() {
     setMessages
   } = useChat({
     keepLastMessageOnError: true,
-    onResponse: handleResponse,
-    onFinish: () => {
-      handleFinish(messages, setMessages)
+    onResponse: response => {
+      handleResponse(response, messages, setMessages)
     },
     initialMessages: initialMessage ? [initialMessage] : []
   })

@@ -18,7 +18,7 @@ export default function ChatPage() {
   const { profile, setProfile, chats, setAllChatRecallAnalysis } =
     useContext(ChatbotUIContext)
 
-  const { handleNewChat, handleStartTutorial, handleResponse, handleFinish } =
+  const { handleNewChat, handleStartTutorial, handleResponse } =
     useChatHandler()
 
   const { theme } = useTheme()
@@ -86,9 +86,8 @@ export default function ChatPage() {
     setMessages
   } = useChat({
     keepLastMessageOnError: true,
-    onResponse: handleResponse,
-    onFinish: () => {
-      handleFinish(messages, setMessages)
+    onResponse: response => {
+      handleResponse(response, messages, setMessages)
     },
     initialMessages: initialMessage ? [initialMessage] : []
   })

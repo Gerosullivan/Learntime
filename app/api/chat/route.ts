@@ -44,10 +44,8 @@ const callLLM = async (
   const quickQuizSystemMessage = `You are helpful, friendly quiz master. Generate short answer quiz questions based on a provided fact. Never give the answer to the question when generating the question text. Do not state which step of the instuctions you are on.${studentContext}`
 
   try {
-    const scoringModel = openai(
-      "ft:gpt-4o-mini-2024-07-18:personal:learntime-assess:A2xcwa07"
-    ) as LanguageModel
     const defaultModel = openai("gpt-4o-mini") as LanguageModel
+    const scoringModel = defaultModel
     const hintingModel = defaultModel
 
     switch (studyState) {
