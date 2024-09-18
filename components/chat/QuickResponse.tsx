@@ -1,15 +1,30 @@
 import type { QuickResponse as QuickResponseType } from "@/lib/studyStates"
-import { getQuickResponses } from "@/lib/studyStates"
+import {
+  getQuickResponses,
+  getQuickResponseByUserText
+} from "@/lib/studyStates"
 import { useContext } from "react"
 import { ChatbotUIContext } from "@/context/context"
 import { useChatHandler } from "./chat-hooks/use-chat-handler"
 import { IconSend } from "@tabler/icons-react"
 import { v4 as uuidv4 } from "uuid"
+import { useRouter } from "next/navigation"
 
 const QuickResponse: React.FC = () => {
-  const { chatStudyState, append } = useContext(ChatbotUIContext)
+  const {
+    chatStudyState,
+    setMessages,
+    setInput,
+    setChatStudyState,
+    topicDescription,
+    selectedChat,
+    messages,
+    append
+  } = useContext(ChatbotUIContext)
 
   const { makeMessageBody } = useChatHandler()
+
+  const router = useRouter()
 
   const handleQuickResponse = async (
     event: React.MouseEvent<HTMLButtonElement>,
@@ -17,16 +32,74 @@ const QuickResponse: React.FC = () => {
   ) => {
     event.preventDefault()
 
-    const body = makeMessageBody()
+    const quickResponse = getQuickResponseByUserText(message)
+    if (quickResponse && quickResponse.responseText !== "{{LLM}}") {
+      let responseText
+      let newStudyState = quickResponse.newStudyState
 
-    append(
-      {
-        content: message,
-        role: "user",
-        id: uuidv4()
-      },
-      { body }
-    )
+      switch (quickResponse.responseText) {
+        case "{{DB}}":
+          if (selectedChat) {
+            const topicContent = messages[messages.length - 2].content
+            const response = await fetch("/api/update-topic-content", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                chatId: selectedChat.id,
+                content: topicContent
+              })
+            })
+            const data = await response.json()
+            if (!data.success) {
+              responseText = "Server error saving topic content."
+              newStudyState = "topic_describe_upload"
+            } else {
+              responseText = "Save successful."
+              router.refresh() // Refresh the page to reflect the changes
+            }
+          } else {
+            responseText = "Error: No chat selected."
+          }
+          break
+        case "{{topicDescription}}":
+          responseText = topicDescription
+          break
+        default:
+          responseText = quickResponse.responseText
+          break
+      }
+
+      setMessages(prevMessages => [
+        ...prevMessages,
+        {
+          content: message,
+          role: "user",
+          id: uuidv4()
+        },
+        {
+          content: responseText,
+          role: "assistant",
+          id: uuidv4()
+        }
+      ])
+
+      setChatStudyState(newStudyState)
+      // setInput("")
+    } else {
+      // If it's not a quick response, append / call LLM
+      const body = makeMessageBody()
+
+      append(
+        {
+          content: message,
+          role: "user",
+          id: uuidv4()
+        },
+        { body }
+      )
+    }
   }
 
   const quickResponses = getQuickResponses(chatStudyState)
