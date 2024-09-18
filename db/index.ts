@@ -1,7 +1,5 @@
 import "./assistants"
 import "./chats"
-import "./file-items"
-import "./files"
 import "./folders"
 import "./profile"
 import "./workspaces"

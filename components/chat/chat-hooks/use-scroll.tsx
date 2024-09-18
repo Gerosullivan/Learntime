@@ -9,7 +9,7 @@ import {
 } from "react"
 
 export const useScroll = () => {
-  const { isGenerating, chatMessages } = useContext(ChatbotUIContext)
+  const { isLoading, messages } = useContext(ChatbotUIContext)
 
   const messagesStartRef = useRef<HTMLDivElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -23,16 +23,16 @@ export const useScroll = () => {
   useEffect(() => {
     setUserScrolled(false)
 
-    if (!isGenerating && userScrolled) {
+    if (!isLoading && userScrolled) {
       setUserScrolled(false)
     }
-  }, [isGenerating])
+  }, [isLoading])
 
   useEffect(() => {
-    if (isGenerating && !userScrolled) {
+    if (isLoading && !userScrolled) {
       scrollToBottom()
     }
-  }, [chatMessages])
+  }, [messages])
 
   const handleScroll: UIEventHandler<HTMLDivElement> = useCallback(e => {
     const target = e.target as HTMLDivElement
