@@ -3,6 +3,7 @@ import { ChatRecallMetadata } from "@/lib/studyStates"
 import { WorkspaceImage } from "@/types"
 import { Dispatch, SetStateAction, createContext } from "react"
 import { StudyState } from "@/lib/studyStates"
+import { ChatRequestOptions, CreateMessage, Message } from "ai"
 
 interface ChatbotUIContext {
   // PROFILE STORE
@@ -35,6 +36,23 @@ interface ChatbotUIContext {
   setAllChatRecallAnalysis: Dispatch<
     SetStateAction<{ chatId: string; recallAnalysis: any }[]>
   >
+
+  // New useChat values
+  input: string
+  isLoading: boolean
+  handleInputChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
+  handleSubmit: (
+    e: React.FormEvent<HTMLFormElement>,
+    chatRequestOptions?: ChatRequestOptions
+  ) => void
+  stop: () => void
+  setInput: (input: string) => void
+  messages: Message[]
+  append: (
+    message: Message | CreateMessage,
+    chatRequestOptions?: ChatRequestOptions
+  ) => Promise<string | null | undefined>
+  setMessages: React.Dispatch<React.SetStateAction<Message[]>>
 }
 
 export const ChatbotUIContext = createContext<ChatbotUIContext>({
@@ -64,5 +82,16 @@ export const ChatbotUIContext = createContext<ChatbotUIContext>({
   chatRecallMetadata: null,
   setChatRecallMetadata: () => {},
   allChatRecallAnalysis: [],
-  setAllChatRecallAnalysis: () => {}
+  setAllChatRecallAnalysis: () => {},
+
+  // New useChat default values
+  input: "",
+  isLoading: false,
+  handleInputChange: () => {},
+  handleSubmit: () => {},
+  stop: () => {},
+  setInput: () => {},
+  messages: [],
+  append: async () => null,
+  setMessages: () => {}
 })

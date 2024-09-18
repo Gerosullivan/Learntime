@@ -10,44 +10,17 @@ import { useScroll } from "./chat-hooks/use-scroll"
 import { ChatInput } from "./chat-input"
 import { ChatMessages } from "./chat-messages"
 import { ChatScrollButtons } from "./chat-scroll-buttons"
-import { Message, ChatRequestOptions, CreateMessage } from "ai"
 import { v4 as uuidv4 } from "uuid"
 
-interface ChatUIProps {
-  input: string
-  isLoading: boolean
-  handleInputChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
-  handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void
-  stop: () => void
-  setInput: (input: string) => void
-  messages: Message[]
-  append: (
-    message: Message | CreateMessage,
-    chatRequestOptions?: ChatRequestOptions
-  ) => Promise<string | null | undefined>
-  setInitialMessage: (message: Message | undefined) => void
-  setMessages: React.Dispatch<React.SetStateAction<Message[]>>
-}
-
-export const ChatUI: FC<ChatUIProps> = ({
-  input,
-  isLoading,
-  handleInputChange,
-  handleSubmit,
-  stop,
-  setInput,
-  messages,
-  append,
-  setInitialMessage,
-  setMessages
-}) => {
+export const ChatUI: FC = () => {
   const {
     selectedChat,
     setSelectedChat,
     setTopicDescription,
     chats,
     setChatStudyState,
-    allChatRecallAnalysis
+    allChatRecallAnalysis,
+    setMessages
   } = useContext(ChatbotUIContext)
 
   useHotkey("o", () => handleNewChat())
@@ -73,18 +46,19 @@ export const ChatUI: FC<ChatUIProps> = ({
   useEffect(() => {
     const fetchData = async () => {
       await fetchChat()
-
       setIsAtBottom(true)
     }
 
     const startQuickQuiz = async () => {
       setSelectedChat(null)
       if (allChatRecallAnalysis.length > 0) {
-        setInitialMessage({
-          id: uuidv4(),
-          content: `Are you ready to start a 🔥 Quick quiz?`,
-          role: "assistant"
-        })
+        setMessages([
+          {
+            id: uuidv4(),
+            content: `Are you ready to start a 🔥 Quick quiz?`,
+            role: "assistant"
+          }
+        ])
         setChatStudyState("quick_quiz_ready_hide_input")
       }
     }
@@ -100,11 +74,13 @@ export const ChatUI: FC<ChatUIProps> = ({
       }
     } else {
       // Handle new chat
-      setInitialMessage({
-        content: `Enter your topic name below to start.`,
-        role: "assistant",
-        id: uuidv4()
-      })
+      setMessages([
+        {
+          content: `Enter your topic name below to start.`,
+          role: "assistant",
+          id: uuidv4()
+        }
+      ])
       setChatStudyState("topic_new")
       setChatLoading(false)
     }
@@ -123,20 +99,24 @@ export const ChatUI: FC<ChatUIProps> = ({
     if (chat.topic_description) {
       setTopicDescription(chat.topic_description)
 
-      setInitialMessage({
-        id: uuidv4(),
-        content: `Welcome back to the topic "${chat.name}".
+      setMessages([
+        {
+          id: uuidv4(),
+          content: `Welcome back to the topic "${chat.name}".
           Please select from the options below.`,
-        role: "assistant"
-      })
+          role: "assistant"
+        }
+      ])
 
       setChatStudyState("topic_default_hide_input")
     } else {
-      setInitialMessage({
-        id: uuidv4(),
-        content: `Please add topic description below for ${chat.name}.`,
-        role: "assistant"
-      })
+      setMessages([
+        {
+          id: uuidv4(),
+          content: `Please add topic description below for ${chat.name}.`,
+          role: "assistant"
+        }
+      ])
       setChatStudyState("topic_describe_upload")
     }
 
@@ -172,21 +152,12 @@ export const ChatUI: FC<ChatUIProps> = ({
         onScroll={handleScroll}
       >
         <div ref={messagesStartRef} />
-        <ChatMessages messages={messages} isLoading={isLoading} />
+        <ChatMessages />
         <div ref={messagesEndRef} />
       </div>
 
       <div className="relative w-full min-w-[300px] items-end px-2 pb-3 pt-0 sm:w-[600px] sm:pb-8 sm:pt-5 md:w-[700px] lg:w-[700px] xl:w-[800px]">
-        <ChatInput
-          input={input}
-          isLoading={isLoading}
-          handleInputChange={handleInputChange}
-          handleSubmit={handleSubmit}
-          stop={stop}
-          setInput={setInput}
-          append={append}
-          setMessages={setMessages}
-        />
+        <ChatInput />
       </div>
 
       <div className="absolute bottom-2 right-2 hidden md:block lg:bottom-4 lg:right-4">

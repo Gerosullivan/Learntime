@@ -1,4 +1,4 @@
-import type { QuickResponse } from "@/lib/studyStates"
+import type { QuickResponse as QuickResponseType } from "@/lib/studyStates"
 import { getQuickResponses } from "@/lib/studyStates"
 import { useContext } from "react"
 import { ChatbotUIContext } from "@/context/context"
@@ -6,12 +6,8 @@ import { useChatHandler } from "./chat-hooks/use-chat-handler"
 import { IconSend } from "@tabler/icons-react"
 import { v4 as uuidv4 } from "uuid"
 
-interface QuickResponseProps {
-  append: (message: any, options?: any) => void
-}
-
-const QuickResponse: React.FC<QuickResponseProps> = ({ append }) => {
-  const { chatStudyState } = useContext(ChatbotUIContext)
+const QuickResponse: React.FC = () => {
+  const { chatStudyState, append } = useContext(ChatbotUIContext)
 
   const { makeMessageBody } = useChatHandler()
 
@@ -46,7 +42,7 @@ const QuickResponse: React.FC<QuickResponseProps> = ({ append }) => {
   // Render buttons based on the available quickResponses
   return (
     <div className="flex flex-wrap">
-      {quickResponses.map((quickResponse: QuickResponse, index) => (
+      {quickResponses.map((quickResponse: QuickResponseType, index) => (
         <div key={index} className={`${widthClass(index)} p-2`}>
           <button
             className="flex w-full items-center justify-between rounded-md border border-blue-500 px-4 py-2 text-left text-blue-500 transition-colors hover:bg-blue-500 hover:text-white"

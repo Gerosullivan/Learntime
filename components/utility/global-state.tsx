@@ -12,9 +12,13 @@ import { supabase } from "@/lib/supabase/browser-client"
 import { Tables } from "@/supabase/types"
 import { ChatRecallMetadata } from "@/lib/studyStates"
 import { WorkspaceImage } from "@/types"
+import { useChat } from "ai/react"
+import { Message } from "ai"
+import { getChatById } from "@/db/chats"
 
 import { useRouter } from "next/navigation"
 import { FC, useEffect, useState } from "react"
+import { handleCreateChat } from "../chat/chat-helpers"
 
 interface GlobalStateProps {
   children: React.ReactNode
@@ -45,6 +49,79 @@ export const GlobalState: FC<GlobalStateProps> = ({ children }) => {
   const [allChatRecallAnalysis, setAllChatRecallAnalysis] = useState<
     { chatId: string; recallAnalysis: any }[]
   >([])
+
+  const handleResponse = async (response: Response) => {
+    console.log("Received HTTP response from server:", response)
+    const newStudyState = response.headers.get("NEW-STUDY-STATE") as StudyState
+
+    if (newStudyState) {
+      setChatStudyState(newStudyState)
+      if (newStudyState === "topic_saved_hide_input") {
+        const newTopicContent = await getChatById(selectedChat!.id)
+        const topicDescription = newTopicContent!.topic_description || ""
+        setTopicDescription(topicDescription)
+      }
+    }
+
+    const score = response.headers.get("SCORE")
+    if (score) {
+      const dueDateFromNow = response.headers.get("DUE-DATE-FROM-NOW")
+
+      setChatRecallMetadata({
+        score: parseInt(score),
+        dueDateFromNow: dueDateFromNow!
+      })
+    }
+
+    if (chatStudyState === "recall_first_attempt") {
+      setMessages([])
+    }
+
+    const isQuickQuiz: boolean =
+      chatStudyState === "quick_quiz_ready_hide_input" ||
+      chatStudyState === "quick_quiz_answer"
+
+    if (!selectedChat && !isQuickQuiz) {
+      const lastUserMessage = messages.find(message => message.role === "user")
+      const messageTitle = lastUserMessage?.content.substring(0, 100) || ""
+      await handleCreateChat(
+        profile!,
+        selectedWorkspace!,
+        messageTitle,
+        setSelectedChat,
+        setChats
+      )
+    } else if (!isQuickQuiz) {
+      const updatedChat = await getChatById(selectedChat!.id)
+
+      if (updatedChat) {
+        setChats(prevChats => {
+          const updatedChats = prevChats.map(prevChat =>
+            prevChat.id === updatedChat.id ? updatedChat : prevChat
+          )
+
+          return updatedChats
+        })
+      }
+    }
+  }
+
+  const {
+    input,
+    isLoading,
+    handleInputChange,
+    handleSubmit,
+    stop,
+    setInput,
+    messages,
+    append,
+    setMessages
+  } = useChat({
+    keepLastMessageOnError: true,
+    onResponse: response => {
+      handleResponse(response)
+    }
+  })
 
   useEffect(() => {
     ;(async () => {
@@ -125,7 +202,16 @@ export const GlobalState: FC<GlobalStateProps> = ({ children }) => {
         chatRecallMetadata,
         setChatRecallMetadata,
         allChatRecallAnalysis,
-        setAllChatRecallAnalysis
+        setAllChatRecallAnalysis,
+        input,
+        isLoading,
+        handleInputChange,
+        handleSubmit,
+        stop,
+        setInput,
+        messages,
+        append,
+        setMessages
       }}
     >
       {children}

@@ -11,38 +11,25 @@ import { Input } from "../ui/input"
 import { useChatHandler } from "./chat-hooks/use-chat-handler"
 import QuickResponse from "./QuickResponse"
 import ReactTextareaAutosize from "react-textarea-autosize"
-import { Message } from "ai"
 
-interface ChatInputProps {
-  input: string
-  isLoading: boolean
-  handleInputChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
-  handleSubmit: (e: React.FormEvent<HTMLFormElement>, options?: any) => void
-  stop: () => void
-  setInput: (input: string) => void
-  setMessages: React.Dispatch<React.SetStateAction<Message[]>>
-  append: (message: any, options?: any) => void
-}
-
-export const ChatInput: FC<ChatInputProps> = ({
-  input,
-  isLoading,
-  handleInputChange,
-  handleSubmit,
-  stop,
-  setInput,
-  setMessages,
-  append
-}) => {
+export const ChatInput: FC = () => {
   const { t } = useTranslation()
-  const { chatStudyState } = useContext(ChatbotUIContext)
+  const {
+    chatStudyState,
+    input,
+    isLoading,
+    handleInputChange,
+    handleSubmit,
+    stop
+  } = useContext(ChatbotUIContext)
   const { makeMessageBody, handleCreateTopic } = useChatHandler()
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
     if (chatStudyState === "topic_new") {
-      handleCreateTopic(input, setMessages)
+      handleCreateTopic(input)
       // setInput("")
     } else {
       const body = makeMessageBody()
@@ -53,7 +40,7 @@ export const ChatInput: FC<ChatInputProps> = ({
   return (
     <>
       <div className="flex flex-col flex-wrap justify-center gap-2">
-        <QuickResponse append={append} />
+        <QuickResponse />
       </div>
 
       {!chatStudyState.endsWith("hide_input") && (

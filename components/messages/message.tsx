@@ -4,18 +4,17 @@ import { IconMoodSmile, IconPencil, IconSparkles } from "@tabler/icons-react"
 import Image from "next/image"
 import { FC, useContext } from "react"
 import { MessageMarkdown } from "./message-markdown"
-import { useChat, Message as MessageType } from "ai/react"
+import { Message as MessageType } from "ai"
 
 const ICON_SIZE = 32
 
 interface MessageProps {
   message: MessageType
   isLast: boolean
-  isLoading: boolean
 }
 
-export const Message: FC<MessageProps> = ({ message, isLast, isLoading }) => {
-  const { profile } = useContext(ChatbotUIContext)
+export const Message: FC<MessageProps> = ({ message, isLast }) => {
+  const { profile, isLoading } = useContext(ChatbotUIContext)
 
   return (
     <div

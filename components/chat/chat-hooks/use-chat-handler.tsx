@@ -3,10 +3,8 @@ import { useRouter } from "next/navigation"
 import { useContext } from "react"
 import { handleCreateChat } from "../chat-helpers"
 import { v4 as uuidv4 } from "uuid"
-import { useChat } from "ai/react"
 import { Message } from "ai"
 import { StudyState } from "@/lib/studyStates"
-import { getChatById } from "@/db/chats"
 
 export const useChatHandler = () => {
   const router = useRouter()
@@ -25,7 +23,7 @@ export const useChatHandler = () => {
     allChatRecallAnalysis,
     setAllChatRecallAnalysis,
     chatRecallMetadata,
-    setChatRecallMetadata
+    setMessages
   } = useContext(ChatbotUIContext)
 
   const makeMessageBody = () => {
@@ -75,66 +73,6 @@ export const useChatHandler = () => {
     }
   }
 
-  const handleResponse = async (
-    response: Response,
-    messages: Message[],
-    setMessages: (messages: Message[]) => void
-  ) => {
-    console.log("Received HTTP response from server:", response)
-    const newStudyState = response.headers.get("NEW-STUDY-STATE") as StudyState
-
-    if (newStudyState) {
-      setChatStudyState(newStudyState)
-      if (newStudyState === "topic_saved_hide_input") {
-        const newTopicContent = await getChatById(selectedChat!.id)
-        const topicDescription = newTopicContent!.topic_description || ""
-        setTopicDescription(topicDescription)
-      }
-    }
-
-    const score = response.headers.get("SCORE")
-    if (score) {
-      const dueDateFromNow = response.headers.get("DUE-DATE-FROM-NOW")
-
-      setChatRecallMetadata({
-        score: parseInt(score),
-        dueDateFromNow: dueDateFromNow!
-      })
-    }
-
-    if (chatStudyState === "recall_first_attempt") {
-      setMessages([])
-    }
-
-    const isQuickQuiz: boolean =
-      chatStudyState === "quick_quiz_ready_hide_input" ||
-      chatStudyState === "quick_quiz_answer"
-
-    if (!selectedChat && !isQuickQuiz) {
-      const lastUserMessage = messages.find(message => message.role === "user")
-      const messageTitle = lastUserMessage?.content.substring(0, 100) || ""
-      await handleCreateChat(
-        profile!,
-        selectedWorkspace!,
-        messageTitle,
-        setSelectedChat,
-        setChats
-      )
-    } else if (!isQuickQuiz) {
-      const updatedChat = await getChatById(selectedChat!.id)
-
-      if (updatedChat) {
-        setChats(prevChats => {
-          const updatedChats = prevChats.map(prevChat =>
-            prevChat.id === updatedChat.id ? updatedChat : prevChat
-          )
-
-          return updatedChats
-        })
-      }
-    }
-  }
-
   const handleGoHome = async () => {
     if (!selectedWorkspace) return
 
@@ -150,33 +88,20 @@ export const useChatHandler = () => {
 
     setSelectedChat(null)
 
-    // setChatMessages([
-    //   {
-    //     message: {
-    //       id: "1",
-    //       user_id: "1",
-    //       content: `Enter your topic name below to start.`,
-    //       created_at: new Date().toISOString(),
-    //       image_paths: [],
-    //       model: "",
-    //       role: "assistant",
-    //       sequence_number: 0,
-    //       updated_at: null,
-    //       assistant_id: selectedAssistant?.id || null,
-    //       chat_id: "quick-quiz"
-    //     },
-    //     fileItems: []
-    //   }
-    // ])
+    setMessages([
+      {
+        id: uuidv4(),
+        content: `Enter your topic name below to start.`,
+        role: "assistant"
+      }
+    ])
 
-    // setChatStudyState("topic_new")
+    setChatStudyState("topic_new")
 
     return router.push(`/${selectedWorkspace.id}/chat`)
   }
 
-  const handleStartTutorial = async (
-    setMessages: (messages: Message[]) => void
-  ) => {
+  const handleStartTutorial = async () => {
     setChatStudyState("tutorial_hide_input")
 
     const topic_description = `### States of Matter
@@ -238,10 +163,8 @@ Please click 'Next' below to proceed with the tutorial.`
     }
   }
 
-  const handleCreateTopic = async (
-    input: string,
-    setMessages: React.Dispatch<React.SetStateAction<Message[]>>
-  ) => {
+  const handleCreateTopic = async (input: string) => {
+    console.log({ input })
     setMessages(prevMessages => [
       ...prevMessages,
       {
@@ -278,7 +201,6 @@ You can also upload files ⨁ as source material for me to generate your study n
     handleGoHome,
     handleStartTutorial,
     handleCreateTopic,
-    makeMessageBody,
-    handleResponse
+    makeMessageBody
   }
 }

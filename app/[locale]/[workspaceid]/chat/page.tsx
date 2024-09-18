@@ -7,19 +7,16 @@ import { Brand } from "@/components/ui/brand"
 import { ChatbotUIContext } from "@/context/context"
 import { updateProfile } from "@/db/profile"
 import useHotkey from "@/lib/hooks/use-hotkey"
-import { useChat } from "ai/react"
 import { useTheme } from "next-themes"
-import { useContext, useEffect, useRef, useState } from "react"
-import { Message } from "ai"
+import { useContext, useEffect, useRef } from "react"
 
 export default function ChatPage() {
   useHotkey("o", () => handleNewChat())
 
-  const { profile, setProfile, chats, setAllChatRecallAnalysis } =
+  const { profile, setProfile, chats, setAllChatRecallAnalysis, messages } =
     useContext(ChatbotUIContext)
 
-  const { handleNewChat, handleStartTutorial, handleResponse } =
-    useChatHandler()
+  const { handleNewChat, handleStartTutorial } = useChatHandler()
 
   const { theme } = useTheme()
 
@@ -36,7 +33,7 @@ export default function ChatPage() {
           has_onboarded: true
         })
         setProfile(updatedProfile)
-        handleStartTutorial(setMessages)
+        handleStartTutorial()
       }
     }
 
@@ -72,26 +69,6 @@ export default function ChatPage() {
     }
   }, [chats])
 
-  const [initialMessage, setInitialMessage] = useState<Message>()
-
-  const {
-    input,
-    isLoading,
-    handleInputChange,
-    handleSubmit,
-    stop,
-    setInput,
-    messages,
-    append,
-    setMessages
-  } = useChat({
-    keepLastMessageOnError: true,
-    onResponse: response => {
-      handleResponse(response, messages, setMessages)
-    },
-    initialMessages: initialMessage ? [initialMessage] : []
-  })
-
   return (
     <>
       {messages.length === 0 ? (
@@ -107,18 +84,7 @@ export default function ChatPage() {
           </div>
         </div>
       ) : (
-        <ChatUI
-          input={input}
-          isLoading={isLoading}
-          handleInputChange={handleInputChange}
-          handleSubmit={handleSubmit}
-          stop={stop}
-          setInput={setInput}
-          messages={messages}
-          append={append}
-          setInitialMessage={setInitialMessage}
-          setMessages={setMessages}
-        />
+        <ChatUI />
       )}
     </>
   )
