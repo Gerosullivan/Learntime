@@ -1,4 +1,4 @@
-import { ChatbotUIContext } from "@/context/context"
+import { LearntimeContext } from "@/context/context"
 import { WORKSPACE_INSTRUCTIONS_MAX } from "@/db/limits"
 import {
   getWorkspaceImageFromStorage,
@@ -6,12 +6,10 @@ import {
 } from "@/db/storage/workspace-images"
 import { updateWorkspace } from "@/db/workspaces"
 import { convertBlobToBase64 } from "@/lib/blob-to-b64"
-import { LLMID } from "@/types"
 import { IconHome, IconSettings } from "@tabler/icons-react"
 import { FC, useContext, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { Button } from "../ui/button"
-import { ChatSettingsForm } from "../ui/chat-settings-form"
 import ImagePicker from "../ui/image-picker"
 import { Input } from "../ui/input"
 import { Label } from "../ui/label"
@@ -23,7 +21,7 @@ import {
   SheetTitle,
   SheetTrigger
 } from "../ui/sheet"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs"
+import { Tabs, TabsContent } from "../ui/tabs"
 import { TextareaAutosize } from "../ui/textarea-autosize"
 import { WithTooltip } from "../ui/with-tooltip"
 import { DeleteWorkspace } from "./delete-workspace"
@@ -37,10 +35,9 @@ export const WorkspaceSettings: FC<WorkspaceSettingsProps> = ({}) => {
     selectedWorkspace,
     setSelectedWorkspace,
     setWorkspaces,
-    setChatSettings,
     workspaceImages,
     setWorkspaceImages
-  } = useContext(ChatbotUIContext)
+  } = useContext(LearntimeContext)
 
   const buttonRef = useRef<HTMLButtonElement>(null)
 
@@ -57,14 +54,8 @@ export const WorkspaceSettings: FC<WorkspaceSettingsProps> = ({}) => {
   )
 
   const [defaultChatSettings, setDefaultChatSettings] = useState({
-    model: selectedWorkspace?.default_model,
-    prompt: selectedWorkspace?.default_prompt,
-    temperature: selectedWorkspace?.default_temperature,
-    contextLength: selectedWorkspace?.default_context_length,
-    includeProfileContext: selectedWorkspace?.include_profile_context,
     includeWorkspaceInstructions:
-      selectedWorkspace?.include_workspace_instructions,
-    embeddingsProvider: selectedWorkspace?.embeddings_provider
+      selectedWorkspace?.include_workspace_instructions
   })
 
   useEffect(() => {
@@ -109,38 +100,9 @@ export const WorkspaceSettings: FC<WorkspaceSettingsProps> = ({}) => {
       description,
       image_path: imagePath,
       instructions,
-      default_model: defaultChatSettings.model,
-      default_prompt: defaultChatSettings.prompt,
-      default_temperature: defaultChatSettings.temperature,
-      default_context_length: defaultChatSettings.contextLength,
-      embeddings_provider: defaultChatSettings.embeddingsProvider,
-      include_profile_context: defaultChatSettings.includeProfileContext,
       include_workspace_instructions:
         defaultChatSettings.includeWorkspaceInstructions
     })
-
-    if (
-      defaultChatSettings.model &&
-      defaultChatSettings.prompt &&
-      defaultChatSettings.temperature &&
-      defaultChatSettings.contextLength &&
-      defaultChatSettings.includeProfileContext &&
-      defaultChatSettings.includeWorkspaceInstructions &&
-      defaultChatSettings.embeddingsProvider
-    ) {
-      setChatSettings({
-        model: defaultChatSettings.model as LLMID,
-        prompt: defaultChatSettings.prompt,
-        temperature: defaultChatSettings.temperature,
-        contextLength: defaultChatSettings.contextLength,
-        includeProfileContext: defaultChatSettings.includeProfileContext,
-        includeWorkspaceInstructions:
-          defaultChatSettings.includeWorkspaceInstructions,
-        embeddingsProvider: defaultChatSettings.embeddingsProvider as
-          | "openai"
-          | "local"
-      })
-    }
 
     setIsOpen(false)
     setSelectedWorkspace(updatedWorkspace)
@@ -200,13 +162,6 @@ export const WorkspaceSettings: FC<WorkspaceSettingsProps> = ({}) => {
           </SheetHeader>
 
           <Tabs defaultValue="main">
-            {profile?.advanced_settings && (
-              <TabsList className="mt-4 grid w-full grid-cols-2">
-                <TabsTrigger value="main">Main</TabsTrigger>
-                <TabsTrigger value="defaults">Defaults</TabsTrigger>
-              </TabsList>
-            )}
-
             <TabsContent className="mt-4 space-y-4" value="main">
               <>
                 <div className="space-y-1">
@@ -249,38 +204,25 @@ export const WorkspaceSettings: FC<WorkspaceSettingsProps> = ({}) => {
                 </div>
               </>
 
-              {profile?.advanced_settings && (
-                <div className="space-y-1">
-                  <Label>
-                    How would you like the AI to respond in this workspace?
-                  </Label>
+              <div className="space-y-1">
+                <Label>
+                  How would you like the AI to respond in this workspace?
+                </Label>
 
-                  <TextareaAutosize
-                    placeholder="Instructions... (optional)"
-                    value={instructions}
-                    onValueChange={setInstructions}
-                    minRows={5}
-                    maxRows={10}
-                    maxLength={1500}
-                  />
+                <TextareaAutosize
+                  placeholder="Instructions... (optional)"
+                  value={instructions}
+                  onValueChange={setInstructions}
+                  minRows={5}
+                  maxRows={10}
+                  maxLength={1500}
+                />
 
-                  <LimitDisplay
-                    used={instructions.length}
-                    limit={WORKSPACE_INSTRUCTIONS_MAX}
-                  />
-                </div>
-              )}
-            </TabsContent>
-
-            <TabsContent className="mt-5" value="defaults">
-              <div className="mb-4 text-sm">
-                These are the settings your workspace begins with when selected.
+                <LimitDisplay
+                  used={instructions.length}
+                  limit={WORKSPACE_INSTRUCTIONS_MAX}
+                />
               </div>
-
-              <ChatSettingsForm
-                chatSettings={defaultChatSettings as any}
-                onChangeChatSettings={setDefaultChatSettings}
-              />
             </TabsContent>
           </Tabs>
         </div>

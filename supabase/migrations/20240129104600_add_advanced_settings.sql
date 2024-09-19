@@ -1,1 +1,0 @@
-ALTER TABLE profiles ADD COLUMN advanced_settings BOOLEAN DEFAULT false;

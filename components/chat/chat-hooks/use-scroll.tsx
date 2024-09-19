@@ -1,4 +1,4 @@
-import { ChatbotUIContext } from "@/context/context"
+import { LearntimeContext } from "@/context/context"
 import {
   type UIEventHandler,
   useCallback,
@@ -9,7 +9,7 @@ import {
 } from "react"
 
 export const useScroll = () => {
-  const { isGenerating, chatMessages } = useContext(ChatbotUIContext)
+  const { isLoading, messages } = useContext(LearntimeContext)
 
   const messagesStartRef = useRef<HTMLDivElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -23,16 +23,16 @@ export const useScroll = () => {
   useEffect(() => {
     setUserScrolled(false)
 
-    if (!isGenerating && userScrolled) {
+    if (!isLoading && userScrolled) {
       setUserScrolled(false)
     }
-  }, [isGenerating])
+  }, [isLoading])
 
   useEffect(() => {
-    if (isGenerating && !userScrolled) {
+    if (!userScrolled) {
       scrollToBottom()
     }
-  }, [chatMessages])
+  }, [messages])
 
   const handleScroll: UIEventHandler<HTMLDivElement> = useCallback(e => {
     const target = e.target as HTMLDivElement

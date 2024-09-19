@@ -1,11 +1,5 @@
-import { ChatbotUIContext } from "@/context/context"
-import { createAssistants } from "@/db/assistants"
+import { LearntimeContext } from "@/context/context"
 import { createChats } from "@/db/chats"
-import { createCollections } from "@/db/collections"
-import { createFiles } from "@/db/files"
-import { createPresets } from "@/db/presets"
-import { createPrompts } from "@/db/prompts"
-import { createTools } from "@/db/tools"
 import { IconUpload, IconX } from "@tabler/icons-react"
 import { FC, useContext, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
@@ -27,17 +21,7 @@ interface ImportProps {
 }
 
 export const Import: FC<ImportProps> = ({ demo_mode_text }) => {
-  const {
-    profile,
-    selectedWorkspace,
-    setChats,
-    setPresets,
-    setPrompts,
-    setFiles,
-    setCollections,
-    setAssistants,
-    setTools
-  } = useContext(ChatbotUIContext)
+  const { profile, selectedWorkspace, setChats } = useContext(LearntimeContext)
 
   const inputRef = useRef<HTMLInputElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
@@ -46,31 +30,9 @@ export const Import: FC<ImportProps> = ({ demo_mode_text }) => {
   const [importList, setImportList] = useState<Array<Record<string, any>>>([])
   const [importCounts, setImportCounts] = useState<{
     chats: number
-    presets: number
-    prompts: number
-    files: number
-    collections: number
-    assistants: number
-    tools: number
   }>({
-    chats: 0,
-    presets: 0,
-    prompts: 0,
-    files: 0,
-    collections: 0,
-    assistants: 0,
-    tools: 0
+    chats: 0
   })
-
-  const stateUpdateFunctions = {
-    chats: setChats,
-    presets: setPresets,
-    prompts: setPrompts,
-    files: setFiles,
-    collections: setCollections,
-    assistants: setAssistants,
-    tools: setTools
-  }
 
   const handleSelectFiles = async (e: any) => {
     const filePromises = Array.from(e.target.files).map(file => {
@@ -101,20 +63,10 @@ export const Import: FC<ImportProps> = ({ demo_mode_text }) => {
       })
 
       setImportCounts(prevCounts => {
-        const countTypes = [
-          "chats",
-          "presets",
-          "prompts",
-          "files",
-          "collections",
-          "assistants"
-        ]
         const newCounts: any = { ...prevCounts }
-        countTypes.forEach(type => {
-          newCounts[type] = uniqueResults.filter(
-            item => item.contentType === type
-          ).length
-        })
+        newCounts.chats = uniqueResults.filter(
+          item => item.contentType === "chats"
+        ).length
         return newCounts
       })
     } catch (error) {
@@ -127,7 +79,7 @@ export const Import: FC<ImportProps> = ({ demo_mode_text }) => {
 
     setImportCounts(prev => {
       const newCounts: any = { ...prev }
-      newCounts[item.contentType] -= 1
+      newCounts.chats -= 1
       return newCounts
     })
   }
@@ -135,13 +87,7 @@ export const Import: FC<ImportProps> = ({ demo_mode_text }) => {
   const handleCancel = () => {
     setImportList([])
     setImportCounts({
-      chats: 0,
-      presets: 0,
-      prompts: 0,
-      files: 0,
-      collections: 0,
-      assistants: 0,
-      tools: 0
+      chats: 0
     })
     setIsOpen(false)
   }
@@ -151,67 +97,27 @@ export const Import: FC<ImportProps> = ({ demo_mode_text }) => {
     if (!selectedWorkspace) return
 
     const saveData: any = {
-      chats: [],
-      presets: [],
-      prompts: [],
-      files: [],
-      collections: [],
-      assistants: [],
-      tools: []
+      chats: []
     }
 
     importList.forEach(item => {
       const { contentType, ...itemWithoutContentType } = item
-      itemWithoutContentType.user_id = profile.user_id
-      itemWithoutContentType.workspace_id = selectedWorkspace.id
-      itemWithoutContentType.context_length = 4096
-      itemWithoutContentType.created_at = new Date().toISOString()
-      itemWithoutContentType.embeddings_provider = "openai"
-      itemWithoutContentType.include_profile_context = true
-      itemWithoutContentType.model = "gpt-3.5-turbo"
-      itemWithoutContentType.prompt = ""
-      itemWithoutContentType.sharing = "private"
-      itemWithoutContentType.temperature = 0.5
-      itemWithoutContentType.include_workspace_instructions = true
-
-      saveData[contentType].push(itemWithoutContentType)
+      if (contentType === "chats") {
+        itemWithoutContentType.user_id = profile.user_id
+        itemWithoutContentType.workspace_id = selectedWorkspace.id
+        // ... add other necessary properties ...
+        saveData.chats.push(itemWithoutContentType)
+      }
     })
 
-    const createdItems = {
-      chats: await createChats(saveData.chats),
-      presets: await createPresets(saveData.presets, selectedWorkspace.id),
-      prompts: await createPrompts(saveData.prompts, selectedWorkspace.id),
-      files: await createFiles(saveData.files, selectedWorkspace.id),
-      collections: await createCollections(
-        saveData.collections,
-        selectedWorkspace.id
-      ),
-      assistants: await createAssistants(
-        saveData.assistants,
-        selectedWorkspace.id
-      ),
-      tools: await createTools(saveData.tools, selectedWorkspace.id)
-    }
+    const createdChats = await createChats(saveData.chats)
+    setChats(prevChats => [...prevChats, ...createdChats])
 
-    Object.keys(createdItems).forEach(key => {
-      const typedKey = key as keyof typeof stateUpdateFunctions
-      stateUpdateFunctions[typedKey]((prevItems: any) => [
-        ...prevItems,
-        ...createdItems[typedKey]
-      ])
-    })
-
-    toast.success("Data imported successfully!")
+    toast.success("Chats imported successfully!")
 
     setImportList([])
     setImportCounts({
-      chats: 0,
-      presets: 0,
-      prompts: 0,
-      files: 0,
-      collections: 0,
-      assistants: 0,
-      tools: 0
+      chats: 0
     })
     setIsOpen(false)
   }

@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
   }
 
   // Search all chats in DB and return array where revise_date is today
-  const chats = await getChatsByDueDate(request)
+  const chats = await getChatsByDueDate()
   console.log("Valid topics due for revision today: ", chats.length)
 
   // Group chats by user_id

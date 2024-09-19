@@ -3,11 +3,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { SubmitButton } from "@/components/ui/submit-button"
 import { createClient } from "@/lib/supabase/server"
-import { Database } from "@/supabase/types"
-import { createServerClient } from "@supabase/ssr"
 import { get } from "@vercel/edge-config"
 import { Metadata } from "next"
-import { cookies, headers } from "next/headers"
+import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 
 export const metadata: Metadata = {
@@ -20,18 +18,7 @@ export default async function Login({
   searchParams: { message: string }
 }) {
   const origin = headers().get("origin")
-  const cookieStore = cookies()
-  const supabase = createServerClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value
-        }
-      }
-    }
-  )
+  const supabase = createClient()
   const session = (await supabase.auth.getSession()).data.session
 
   if (session) {
@@ -43,7 +30,7 @@ export default async function Login({
       .single()
 
     if (!homeWorkspace) {
-      throw new Error(error.message)
+      throw new Error(error?.message)
     }
 
     return redirect(`/${homeWorkspace.id}/chat`)
@@ -54,8 +41,6 @@ export default async function Login({
 
     const email = formData.get("email") as string
     const password = formData.get("password") as string
-    const cookieStore = cookies()
-    const supabase = createClient(cookieStore)
 
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
@@ -121,9 +106,6 @@ export default async function Login({
       }
     }
 
-    const cookieStore = cookies()
-    const supabase = createClient(cookieStore)
-
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -147,8 +129,6 @@ export default async function Login({
     "use server"
 
     const email = formData.get("email") as string
-    const cookieStore = cookies()
-    const supabase = createClient(cookieStore)
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${origin}/auth/callback?next=/login/password`
