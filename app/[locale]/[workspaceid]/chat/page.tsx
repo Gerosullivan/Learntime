@@ -1,8 +1,6 @@
 "use client"
 
-import { ChatHelp } from "@/components/chat/chat-help"
 import { useChatHandler } from "@/components/chat/chat-hooks/use-chat-handler"
-import FeedbackButton from "@/components/chat/chat-ideas-bugs"
 import { ChatUI } from "@/components/chat/chat-ui"
 import { Brand } from "@/components/ui/brand"
 import { LearntimeContext } from "@/context/context"
@@ -81,9 +79,6 @@ export default function ChatPage() {
 
           <div className="flex grow flex-col items-center justify-center" />
 
-          <div className="absolute bottom-2 right-2 hidden md:block lg:bottom-4 lg:right-4">
-            <ChatHelp />
-          </div>
           <FeedbackAndHelp />
         </div>
       ) : (

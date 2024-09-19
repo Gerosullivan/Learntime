@@ -5,7 +5,6 @@ import { getChatById } from "@/db/chats"
 import useHotkey from "@/lib/hooks/use-hotkey"
 import { useParams } from "next/navigation"
 import { FC, useContext, useEffect, useState, DragEvent } from "react"
-import { ChatHelp } from "./chat-help"
 import { useScroll } from "./chat-hooks/use-scroll"
 import { ChatInput } from "./chat-input"
 import { ChatMessages } from "./chat-messages"
@@ -13,11 +12,7 @@ import { ChatScrollButtons } from "./chat-scroll-buttons"
 import { v4 as uuidv4 } from "uuid"
 import { AnimatePresence, motion } from "framer-motion"
 import { toast } from "sonner"
-import { ChatSecondaryButtons } from "./chat-secondary-buttons"
-import FeedbackButton from "./chat-ideas-bugs"
 import FeedbackAndHelp from "./feedback-and-help"
-
-interface ChatUIProps {}
 
 export const ChatUI: FC = () => {
   const {

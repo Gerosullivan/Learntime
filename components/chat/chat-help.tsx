@@ -1,7 +1,6 @@
 import useHotkey from "@/lib/hooks/use-hotkey"
 import {
   IconBrandGithub,
-  IconBrandX,
   IconFileText,
   IconHelpCircle,
   IconMail,
@@ -13,11 +12,8 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger
 } from "../ui/dropdown-menu"
-import { Announcements } from "../utility/announcements"
 
 interface ChatHelpProps {}
 
