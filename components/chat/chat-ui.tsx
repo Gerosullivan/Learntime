@@ -4,13 +4,15 @@ import { LearntimeContext } from "@/context/context"
 import { getChatById } from "@/db/chats"
 import useHotkey from "@/lib/hooks/use-hotkey"
 import { useParams } from "next/navigation"
-import { FC, useContext, useEffect, useState } from "react"
+import { FC, useContext, useEffect, useState, DragEvent } from "react"
 import { ChatHelp } from "./chat-help"
 import { useScroll } from "./chat-hooks/use-scroll"
 import { ChatInput } from "./chat-input"
 import { ChatMessages } from "./chat-messages"
 import { ChatScrollButtons } from "./chat-scroll-buttons"
 import { v4 as uuidv4 } from "uuid"
+import { AnimatePresence, motion } from "framer-motion"
+import { toast } from "sonner"
 
 export const ChatUI: FC = () => {
   const {
@@ -42,6 +44,39 @@ export const ChatUI: FC = () => {
     isOverflowing,
     scrollToTop
   } = useScroll()
+
+  const [files, setFiles] = useState<FileList | null>(null)
+  const [isDragging, setIsDragging] = useState(false)
+
+  const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault()
+    setIsDragging(true)
+  }
+
+  const handleDragLeave = (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault()
+    setIsDragging(false)
+  }
+
+  const handleDrop = (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault()
+    const droppedFiles = event.dataTransfer.files
+    const droppedFilesArray = Array.from(droppedFiles)
+    if (droppedFilesArray.length > 0) {
+      const validFiles = droppedFilesArray.filter(
+        file => file.type.startsWith("image/") || file.type.startsWith("text/")
+      )
+
+      if (validFiles.length === droppedFilesArray.length) {
+        const dataTransfer = new DataTransfer()
+        validFiles.forEach(file => dataTransfer.items.add(file))
+        setFiles(dataTransfer.files)
+      } else {
+        toast.error("Only image and text files are allowed!")
+      }
+    }
+    setIsDragging(false)
+  }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -131,7 +166,28 @@ export const ChatUI: FC = () => {
   }
 
   return (
-    <div className="relative flex h-full flex-col items-center">
+    <div
+      className="relative flex h-full flex-col items-center"
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
+      <AnimatePresence>
+        {isDragging && (
+          <motion.div
+            className="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-1 bg-zinc-100/90 dark:bg-zinc-900/90"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <div>Drag and drop files here</div>
+            <div className="text-sm text-zinc-500 dark:text-zinc-400">
+              {"(images and text)"}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="absolute left-4 top-2.5 flex justify-center">
         <ChatScrollButtons
           isAtTop={isAtTop}
@@ -158,7 +214,7 @@ export const ChatUI: FC = () => {
       </div>
 
       <div className="relative w-full min-w-[300px] items-end px-2 pb-3 pt-0 sm:w-[600px] sm:pb-8 sm:pt-5 md:w-[700px] lg:w-[700px] xl:w-[800px]">
-        <ChatInput />
+        <ChatInput files={files} setFiles={setFiles} />
       </div>
 
       <div className="absolute bottom-2 right-2 hidden md:block lg:bottom-4 lg:right-4">

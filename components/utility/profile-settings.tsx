@@ -91,7 +91,7 @@ export const ProfileSettings: FC<ProfileSettingsProps> = ({}) => {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <button className="hover:bg-accent hover:text-accent-foreground flex w-full max-w-full items-center gap-2 rounded-lg       p-2 text-sm">
+        <div className="hover:bg-accent hover:text-accent-foreground flex w-full max-w-full cursor-pointer items-center gap-2 rounded-lg p-2 text-sm">
           {profile.image_url ? (
             <div className="shrink-0">
               <div className="flex items-center justify-center overflow-hidden rounded-full">
@@ -102,7 +102,7 @@ export const ProfileSettings: FC<ProfileSettingsProps> = ({}) => {
                     src={profile.image_url}
                     height={34}
                     width={34}
-                    alt={"Image"}
+                    alt={"Profile Image"}
                   />
                 </div>
               </div>
@@ -113,7 +113,7 @@ export const ProfileSettings: FC<ProfileSettingsProps> = ({}) => {
           <div className="text-token-text-primary relative -top-px grow -space-y-px truncate text-left">
             <div>{profile.display_name || "Profile settings"}</div>
           </div>
-        </button>
+        </div>
       </SheetTrigger>
 
       <SheetContent

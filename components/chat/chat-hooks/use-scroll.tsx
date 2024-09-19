@@ -29,7 +29,7 @@ export const useScroll = () => {
   }, [isLoading])
 
   useEffect(() => {
-    if (isLoading && !userScrolled) {
+    if (!userScrolled) {
       scrollToBottom()
     }
   }, [messages])

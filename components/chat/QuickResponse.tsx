@@ -10,7 +10,9 @@ import { IconSend } from "@tabler/icons-react"
 import { v4 as uuidv4 } from "uuid"
 import { useRouter } from "next/navigation"
 
-const QuickResponse: React.FC = () => {
+const QuickResponse: React.FC<{
+  setFiles: (files: FileList | null) => void
+}> = ({ setFiles }) => {
   const {
     chatStudyState,
     setMessages,
@@ -26,6 +28,7 @@ const QuickResponse: React.FC = () => {
   const router = useRouter()
 
   const handleQuickResponse = async (message: string) => {
+    setFiles(null)
     const quickResponse = getQuickResponseByUserText(message)
     if (quickResponse && quickResponse.responseText !== "{{LLM}}") {
       if (message === "Start recall now.") {

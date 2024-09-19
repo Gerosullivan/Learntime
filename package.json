@@ -23,7 +23,8 @@
     "db-types": "supabase gen types typescript --local > supabase/types.ts",
     "db-pull": "supabase db remote commit",
     "db-push": "supabase db push",
-    "test": "pnpm --prefix __tests__/playwright-test run test"
+    "test": "pnpm --prefix __tests__/playwright-test run test",
+    "depcheck": "depcheck"
   },
   "dependencies": {
     "@ai-sdk/google": "^0.0.30",
@@ -74,6 +75,7 @@
     "date-fns": "^2.30.0",
     "dotenv": "^16.4.5",
     "endent": "^2.1.0",
+    "framer-motion": "^11.5.5",
     "gpt-tokenizer": "^2.1.2",
     "i18next": "^23.7.16",
     "i18next-resources-to-backend": "^1.2.0",

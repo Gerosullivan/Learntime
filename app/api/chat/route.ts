@@ -1,6 +1,11 @@
 import { StudyState } from "@/lib/studyStates"
 import { updateTopicOnRecall } from "@/lib/server/server-chat-helpers"
-import { streamText, LanguageModel, generateText } from "ai"
+import {
+  streamText,
+  LanguageModel,
+  generateText,
+  convertToCoreMessages
+} from "ai"
 import { formatDistanceToNow } from "date-fns/esm"
 import { openai } from "./registry"
 
@@ -55,7 +60,7 @@ export async function POST(request: Request) {
         chatStreamResponse = await streamText({
           model: defaultModel,
           temperature: 0.2,
-          messages: [
+          messages: convertToCoreMessages([
             {
               role: "system",
               content: `Objective: Create a detailed study sheet for a specified topic. The study sheet should be concise, informative, and well-organized to facilitate quick learning and retention. Important: generate the study sheet text only. Do not generate additional text like summary, notes or additional text not in study sheet text.
@@ -72,7 +77,7 @@ export async function POST(request: Request) {
                   Do not generate additional text like summary, notes or additional text not in study sheet text.${studentContext}`
             },
             ...messages
-          ]
+          ])
         })
 
         newStudyState = "topic_generated"
@@ -101,7 +106,7 @@ export async function POST(request: Request) {
 
         const { text } = await generateText({
           model: scoringModel,
-          messages: [
+          messages: convertToCoreMessages([
             {
               role: "system",
               content:
@@ -111,7 +116,7 @@ export async function POST(request: Request) {
               role: "user",
               content
             }
-          ]
+          ])
         })
 
         // extract recall score and forgotten facts from content response
@@ -149,7 +154,7 @@ export async function POST(request: Request) {
           chatStreamResponse = await streamText({
             model: defaultModel,
             temperature: 0.2,
-            messages: [
+            messages: convertToCoreMessages([
               {
                 role: "system",
                 content: `${mentor_system_message} Answer in a consistent style.`
@@ -170,7 +175,7 @@ export async function POST(request: Request) {
   Inform the student of their recall score: ${recallScore}% and the next recall session date; ${date_from_now} from now, to ensure consistent study progress.
   ${finalFeedback}`
               }
-            ]
+            ])
           })
 
           return chatStreamResponse.toDataStreamResponse({
@@ -187,7 +192,7 @@ export async function POST(request: Request) {
           chatStreamResponse = await streamText({
             model: defaultModel,
             temperature: 0.2,
-            messages: [
+            messages: convertToCoreMessages([
               {
                 role: "system",
                 content: `${mentor_system_message} Answer in a consistent style. Follow the following instructions:
@@ -208,7 +213,7 @@ export async function POST(request: Request) {
   ${forgottenOrIncorrectFacts.join("\n")}
   </ForgottenFacts>`
               }
-            ]
+            ])
           })
 
           newStudyState =
@@ -240,7 +245,7 @@ export async function POST(request: Request) {
         chatStreamResponse = await streamText({
           model: hintingModel,
           temperature: 0.3,
-          messages: [
+          messages: convertToCoreMessages([
             {
               role: "system",
               content: `When constructing feedback for a student's attempt at answering hints on a recall test, follow these guidelines:
@@ -354,7 +359,7 @@ export async function POST(request: Request) {
               role: "user",
               content: studentMessage.content
             }
-          ]
+          ])
         })
 
         newStudyState =
@@ -375,13 +380,13 @@ export async function POST(request: Request) {
         chatStreamResponse = await streamText({
           model: defaultModel,
           temperature: 0.5,
-          messages: [
+          messages: convertToCoreMessages([
             {
               role: "system",
               content: `Act as a study mentor, guiding student through active recall sessions. ${studentContext}`
             },
             ...messages
-          ]
+          ])
         })
 
         return chatStreamResponse.toDataStreamResponse()
@@ -389,7 +394,7 @@ export async function POST(request: Request) {
         chatStreamResponse = await streamText({
           model: defaultModel,
           temperature: 0.3,
-          messages: [
+          messages: convertToCoreMessages([
             {
               role: "system",
               content: quickQuizSystemMessage
@@ -402,7 +407,7 @@ export async function POST(request: Request) {
                   """${randomRecallFact}"""
                   Important: Do not provide the answer when generating the question or mention the fact used to generate quiz question.`
             }
-          ]
+          ])
         })
         newStudyState = "quick_quiz_answer"
         return chatStreamResponse.toDataStreamResponse({
@@ -420,7 +425,7 @@ export async function POST(request: Request) {
         chatStreamResponse = await streamText({
           model: defaultModel,
           temperature: 0.3,
-          messages: [
+          messages: convertToCoreMessages([
             {
               role: "system",
               content: `${quickQuizSystemMessage}.  Always provide the answer when giving feedback to the student. If the students answers "I don't know.", just give the answer.`
@@ -436,7 +441,7 @@ export async function POST(request: Request) {
                 ${finalFeeback}
                 `
             }
-          ]
+          ])
         })
         newStudyState =
           studyState === "quick_quiz_finished_hide_input"
