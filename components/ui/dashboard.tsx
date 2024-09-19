@@ -8,7 +8,6 @@ import { ContentType } from "@/types"
 import { IconChevronCompactRight } from "@tabler/icons-react"
 import { useSearchParams } from "next/navigation"
 import { FC, useState } from "react"
-import { CommandK } from "../utility/command-k"
 
 export const SIDEBAR_WIDTH = 290
 
@@ -36,8 +35,6 @@ export const Dashboard: FC<DashboardProps> = ({ children }) => {
 
   return (
     <div className="flex size-full">
-      <CommandK />
-
       <div
         className={cn(
           "duration-200 dark:border-none " + (showSidebar ? "border-r-2" : "")

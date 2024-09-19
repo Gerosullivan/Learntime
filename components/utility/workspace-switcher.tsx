@@ -1,6 +1,5 @@
 "use client"
 
-import { useChatHandler } from "@/components/chat/chat-hooks/use-chat-handler"
 import {
   Popover,
   PopoverContent,
@@ -8,7 +7,6 @@ import {
 } from "@/components/ui/popover"
 import { LearntimeContext } from "@/context/context"
 import { createWorkspace } from "@/db/workspaces"
-import useHotkey from "@/lib/hooks/use-hotkey"
 import { IconBuilding, IconHome, IconPlus } from "@tabler/icons-react"
 import { ChevronsUpDown } from "lucide-react"
 import Image from "next/image"
@@ -20,8 +18,6 @@ import { Input } from "../ui/input"
 interface WorkspaceSwitcherProps {}
 
 export const WorkspaceSwitcher: FC<WorkspaceSwitcherProps> = ({}) => {
-  useHotkey(";", () => setOpen(prevState => !prevState))
-
   const {
     workspaces,
     workspaceImages,
@@ -47,13 +43,7 @@ export const WorkspaceSwitcher: FC<WorkspaceSwitcherProps> = ({}) => {
 
     const createdWorkspace = await createWorkspace({
       user_id: selectedWorkspace.user_id,
-      default_context_length: selectedWorkspace.default_context_length,
-      default_model: selectedWorkspace.default_model,
-      default_prompt: selectedWorkspace.default_prompt,
-      default_temperature: selectedWorkspace.default_temperature,
       description: "",
-      embeddings_provider: "openai",
-      include_profile_context: selectedWorkspace.include_profile_context,
       include_workspace_instructions:
         selectedWorkspace.include_workspace_instructions,
       instructions: selectedWorkspace.instructions,

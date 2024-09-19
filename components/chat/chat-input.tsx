@@ -13,6 +13,7 @@ import ReactTextareaAutosize from "react-textarea-autosize"
 import { toast } from "sonner"
 import { motion, AnimatePresence } from "framer-motion"
 import { ChangeEvent } from "react"
+import { KeyboardEvent } from "react" // Add this import
 
 interface ChatInputProps {
   files: FileList | null
@@ -97,6 +98,13 @@ export const ChatInput: FC<ChatInputProps> = ({ files, setFiles }) => {
     }
   }
 
+  const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault()
+      handleFormSubmit(event as unknown as React.FormEvent<HTMLFormElement>)
+    }
+  }
+
   return (
     <>
       <div className="flex flex-col flex-wrap justify-center gap-2">
@@ -171,6 +179,7 @@ export const ChatInput: FC<ChatInputProps> = ({ files, setFiles }) => {
             value={input}
             onChange={handleInputChange}
             onPaste={handlePaste}
+            onKeyDown={handleKeyDown} // Add this line
           />
 
           <div className="absolute bottom-[8px] right-3 cursor-pointer hover:opacity-50">

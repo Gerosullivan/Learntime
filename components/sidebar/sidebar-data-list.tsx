@@ -83,10 +83,11 @@ export const SidebarDataList: FC<SidebarDataListProps> = ({ data }) => {
             return true
         }
       })
-      .sort(
-        (a: { predictedRecall: number }, b: { predictedRecall: number }) =>
-          a.predictedRecall - b.predictedRecall
-      )
+      .map(item => ({
+        ...item,
+        predictedRecall: (item as any).predictedRecall ?? -1
+      }))
+      .sort((a, b) => a.predictedRecall - b.predictedRecall)
   }
 
   useEffect(() => {

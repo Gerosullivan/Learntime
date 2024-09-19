@@ -23,7 +23,8 @@ export const useChatHandler = () => {
     allChatRecallAnalysis,
     setAllChatRecallAnalysis,
     chatRecallMetadata,
-    setMessages
+    setMessages,
+    setInput
   } = useContext(LearntimeContext)
 
   const makeMessageBody = () => {
@@ -164,7 +165,7 @@ Please click 'Next' below to proceed with the tutorial.`
   }
 
   const handleCreateTopic = async (input: string) => {
-    console.log({ input })
+    setInput("")
     setMessages(prevMessages => [
       ...prevMessages,
       {
