@@ -1,5 +1,3 @@
-// TODO: Separate into multiple contexts, keeping simple for now
-
 "use client"
 
 import { LearntimeContext } from "@/context/context"
@@ -13,7 +11,6 @@ import { Tables } from "@/supabase/types"
 import { ChatRecallMetadata } from "@/lib/studyStates"
 import { WorkspaceImage } from "@/types"
 import { useChat } from "ai/react"
-import { Message } from "ai"
 import { getChatById } from "@/db/chats"
 
 import { useRouter } from "next/navigation"

@@ -46,7 +46,6 @@ export const DeleteWorkspace: FC<DeleteWorkspaceProps> = ({
       const defaultWorkspace = filteredWorkspaces[0]
 
       setSelectedWorkspace(defaultWorkspace)
-      router.push(`/${defaultWorkspace.id}/chat`)
 
       return filteredWorkspaces
     })

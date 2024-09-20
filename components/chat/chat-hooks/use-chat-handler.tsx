@@ -74,32 +74,10 @@ export const useChatHandler = () => {
     }
   }
 
-  const handleGoHome = async () => {
-    if (!selectedWorkspace) return
-
-    setSelectedChat(null)
-
-    // setChatStudyState("home")
-
-    return router.push(`/${selectedWorkspace.id}/chat`)
-  }
-
   const handleNewChat = async () => {
     if (!selectedWorkspace) return
 
-    setSelectedChat(null)
-
-    setMessages([
-      {
-        id: uuidv4(),
-        content: `Enter your topic name below to start.`,
-        role: "assistant"
-      }
-    ])
-
-    setChatStudyState("topic_new")
-
-    return router.push(`/${selectedWorkspace.id}/chat`)
+    return router.push(`/${selectedWorkspace.id}/chat/new`)
   }
 
   const handleStartTutorial = async () => {
@@ -197,11 +175,17 @@ You can also upload files ⨁ as source material for me to generate your study n
     ])
   }
 
+  const handleGoToWorkspace = () => {
+    if (!selectedWorkspace) return
+
+    return router.push(`/${selectedWorkspace.id}/chat`)
+  }
+
   return {
     handleNewChat,
-    handleGoHome,
     handleStartTutorial,
     handleCreateTopic,
-    makeMessageBody
+    makeMessageBody,
+    handleGoToWorkspace
   }
 }

@@ -1,37 +1,26 @@
-import Loading from "@/app/[locale]/loading"
 import { useChatHandler } from "@/components/chat/chat-hooks/use-chat-handler"
 import { LearntimeContext } from "@/context/context"
-import { getChatById } from "@/db/chats"
-import useHotkey from "@/lib/hooks/use-hotkey"
-import { useParams } from "next/navigation"
-import { FC, useContext, useEffect, useState, DragEvent } from "react"
+import { FC, useContext, useEffect } from "react"
 import { useScroll } from "./chat-hooks/use-scroll"
 import { ChatInput } from "./chat-input"
 import { ChatMessages } from "./chat-messages"
 import { ChatScrollButtons } from "./chat-scroll-buttons"
-import { v4 as uuidv4 } from "uuid"
 import { AnimatePresence, motion } from "framer-motion"
-import { toast } from "sonner"
 import FeedbackAndHelp from "./feedback-and-help"
+import { useDragHandlers } from "./use-drag-handlers"
+import useHotkey from "@/lib/hooks/use-hotkey"
 
-export const ChatUI: FC = () => {
-  const {
-    selectedChat,
-    setSelectedChat,
-    setTopicDescription,
-    chats,
-    setChatStudyState,
-    allChatRecallAnalysis,
-    setMessages
-  } = useContext(LearntimeContext)
+interface ChatUIProps {
+  chatTitle: string
+}
 
-  useHotkey("o", () => handleNewChat())
+export const ChatUI: FC<ChatUIProps> = ({ chatTitle }) => {
+  // const { selectedChat, setTopicDescription, chats } =
+  //   useContext(LearntimeContext)
 
   const { handleNewChat } = useChatHandler()
 
-  const [chatLoading, setChatLoading] = useState(true)
-  const [chatTitle, setChatTitle] = useState("Chat")
-  const params = useParams()
+  useHotkey("o", () => handleNewChat())
 
   const {
     messagesStartRef,
@@ -45,125 +34,25 @@ export const ChatUI: FC = () => {
     scrollToTop
   } = useScroll()
 
-  const [files, setFiles] = useState<FileList | null>(null)
-  const [isDragging, setIsDragging] = useState(false)
-
-  const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
-    event.preventDefault()
-    setIsDragging(true)
-  }
-
-  const handleDragLeave = (event: DragEvent<HTMLDivElement>) => {
-    event.preventDefault()
-    setIsDragging(false)
-  }
-
-  const handleDrop = (event: DragEvent<HTMLDivElement>) => {
-    event.preventDefault()
-    const droppedFiles = event.dataTransfer.files
-    const droppedFilesArray = Array.from(droppedFiles)
-    if (droppedFilesArray.length > 0) {
-      const validFiles = droppedFilesArray.filter(
-        file => file.type.startsWith("image/") || file.type.startsWith("text/")
-      )
-
-      if (validFiles.length === droppedFilesArray.length) {
-        const dataTransfer = new DataTransfer()
-        validFiles.forEach(file => dataTransfer.items.add(file))
-        setFiles(dataTransfer.files)
-      } else {
-        toast.error("Only image and text files are allowed!")
-      }
-    }
-    setIsDragging(false)
-  }
+  const {
+    files,
+    setFiles,
+    isDragging,
+    handleDragOver,
+    handleDragLeave,
+    handleDrop
+  } = useDragHandlers()
 
   useEffect(() => {
-    const fetchData = async () => {
-      await fetchChat()
-      scrollToBottom()
-      setIsAtBottom(true)
-    }
-
-    const startQuickQuiz = async () => {
-      setSelectedChat(null)
-      if (allChatRecallAnalysis.length > 0) {
-        setMessages([
-          {
-            id: uuidv4(),
-            content: `Are you ready to start a 🔥 Quick quiz?`,
-            role: "assistant"
-          }
-        ])
-        setChatStudyState("quick_quiz_ready_hide_input")
-      }
-    }
-
-    if (params.chatid) {
-      if (params.chatid === "quick-quiz") {
-        startQuickQuiz()
-        setChatLoading(false)
-      } else {
-        fetchData().then(() => {
-          setChatLoading(false)
-        })
-      }
-    } else {
-      // Handle new chat
-      setMessages([
-        {
-          content: `Enter your topic name below to start.`,
-          role: "assistant",
-          id: uuidv4()
-        }
-      ])
-      setChatStudyState("topic_new")
-      setChatLoading(false)
-    }
+    scrollToBottom()
+    setIsAtBottom(true)
   }, [])
 
-  useEffect(() => {
-    // find selected chat in chats
-    const chat = chats.find(chat => chat.id === selectedChat?.id)
-    setTopicDescription(chat?.topic_description || "")
-  }, [chats])
-
-  const fetchChat = async () => {
-    const chat = await getChatById(params.chatid as string)
-    if (!chat) return
-
-    if (chat.topic_description) {
-      setTopicDescription(chat.topic_description)
-
-      setMessages([
-        {
-          id: uuidv4(),
-          content: `Welcome back to the topic "${chat.name}".
-          Please select from the options below.`,
-          role: "assistant"
-        }
-      ])
-
-      setChatStudyState("topic_default_hide_input")
-    } else {
-      setMessages([
-        {
-          id: uuidv4(),
-          content: `Please add topic description below for ${chat.name}.`,
-          role: "assistant"
-        }
-      ])
-      setChatStudyState("topic_describe_upload")
-    }
-
-    setSelectedChat(chat)
-
-    setChatTitle(chat.name || "Chat")
-  }
-
-  if (chatLoading) {
-    return <Loading />
-  }
+  // useEffect(() => {
+  //   // find selected chat in chats
+  //   const chat = chats.find(chat => chat.id === selectedChat?.id)
+  //   setTopicDescription(chat?.topic_description || "")
+  // }, [chats, selectedChat])
 
   return (
     <div
