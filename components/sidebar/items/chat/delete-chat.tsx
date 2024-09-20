@@ -14,6 +14,7 @@ import { deleteChat } from "@/db/chats"
 import useHotkey from "@/lib/hooks/use-hotkey"
 import { Tables } from "@/supabase/types"
 import { IconTrash } from "@tabler/icons-react"
+import { useRouter } from "next/router"
 import { FC, useContext, useRef, useState } from "react"
 
 interface DeleteChatProps {
@@ -24,11 +25,12 @@ export const DeleteChat: FC<DeleteChatProps> = ({ chat }) => {
   useHotkey("Backspace", () => setShowChatDialog(true))
 
   const { setChats } = useContext(LearntimeContext)
-  const { handleGoHome } = useChatHandler()
 
   const buttonRef = useRef<HTMLButtonElement>(null)
 
   const [showChatDialog, setShowChatDialog] = useState(false)
+
+  const { handleGoToWorkspace } = useChatHandler()
 
   const handleDeleteChat = async () => {
     await deleteChat(chat.id)
@@ -37,7 +39,7 @@ export const DeleteChat: FC<DeleteChatProps> = ({ chat }) => {
 
     setShowChatDialog(false)
 
-    handleGoHome()
+    handleGoToWorkspace()
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {

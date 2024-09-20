@@ -27,7 +27,6 @@ export const DeleteWorkspace: FC<DeleteWorkspaceProps> = ({
 }) => {
   const { setWorkspaces, setSelectedWorkspace } = useContext(LearntimeContext)
   const { handleNewChat } = useChatHandler()
-  const router = useRouter()
 
   const buttonRef = useRef<HTMLButtonElement>(null)
 
@@ -46,7 +45,6 @@ export const DeleteWorkspace: FC<DeleteWorkspaceProps> = ({
       const defaultWorkspace = filteredWorkspaces[0]
 
       setSelectedWorkspace(defaultWorkspace)
-      router.push(`/${defaultWorkspace.id}/chat`)
 
       return filteredWorkspaces
     })

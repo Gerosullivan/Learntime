@@ -1,7 +1,6 @@
 "use client"
 
 import { useChatHandler } from "@/components/chat/chat-hooks/use-chat-handler"
-import { ChatUI } from "@/components/chat/chat-ui"
 import { Brand } from "@/components/ui/brand"
 import { LearntimeContext } from "@/context/context"
 import { updateProfile } from "@/db/profile"
@@ -13,8 +12,15 @@ import FeedbackAndHelp from "@/components/chat/feedback-and-help"
 export default function ChatPage() {
   useHotkey("o", () => handleNewChat())
 
-  const { profile, setProfile, chats, setAllChatRecallAnalysis, messages } =
-    useContext(LearntimeContext)
+  const {
+    profile,
+    setProfile,
+    chats,
+    setAllChatRecallAnalysis,
+    setMessages,
+    setChatStudyState,
+    setSelectedChat
+  } = useContext(LearntimeContext)
 
   const { handleNewChat, handleStartTutorial } = useChatHandler()
 
@@ -22,6 +28,14 @@ export default function ChatPage() {
 
   // Ref to track if the tutorial has been started to prevent duplicate executions
   const tutorialStartedRef = useRef(false)
+
+  useEffect(() => {
+    setSelectedChat(null)
+
+    setMessages([])
+
+    setChatStudyState("home")
+  }, [])
 
   useEffect(() => {
     const startTutorial = async () => {
@@ -70,20 +84,14 @@ export default function ChatPage() {
   }, [chats])
 
   return (
-    <>
-      {messages.length === 0 ? (
-        <div className="relative flex h-full flex-col items-center justify-center">
-          <div className="top-50% left-50% -translate-x-50% -translate-y-50% absolute mb-20">
-            <Brand theme={theme === "dark" ? "dark" : "light"} />
-          </div>
+    <div className="relative flex h-full flex-col items-center justify-center">
+      <div className="top-50% left-50% -translate-x-50% -translate-y-50% absolute mb-20">
+        <Brand theme={theme === "dark" ? "dark" : "light"} />
+      </div>
 
-          <div className="flex grow flex-col items-center justify-center" />
+      <div className="flex grow flex-col items-center justify-center" />
 
-          <FeedbackAndHelp />
-        </div>
-      ) : (
-        <ChatUI />
-      )}
-    </>
+      <FeedbackAndHelp />
+    </div>
   )
 }
