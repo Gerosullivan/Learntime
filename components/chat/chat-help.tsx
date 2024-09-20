@@ -49,24 +49,6 @@ export const ChatHelp: FC<ChatHelpProps> = ({}) => {
             <IconHelpCircle /> <span>Help & FAQ</span>
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem>
-          <Link
-            className="flex cursor-pointer items-center gap-2 hover:opacity-50"
-            href="https://learntime.ai/privacy-policy"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <IconFileText /> <span>Terms & Policies</span>
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem>
-          <a
-            className="flex cursor-pointer items-center gap-2 hover:opacity-50"
-            href="mailto:ger@learntime.ai"
-          >
-            <IconMail /> <span>Contact Support</span>
-          </a>
-        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )
