@@ -27,7 +27,6 @@ export const DeleteWorkspace: FC<DeleteWorkspaceProps> = ({
 }) => {
   const { setWorkspaces, setSelectedWorkspace } = useContext(LearntimeContext)
   const { handleNewChat } = useChatHandler()
-  const router = useRouter()
 
   const buttonRef = useRef<HTMLButtonElement>(null)
 

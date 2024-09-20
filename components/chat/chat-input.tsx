@@ -14,6 +14,7 @@ import { toast } from "sonner"
 import { motion, AnimatePresence } from "framer-motion"
 import { ChangeEvent } from "react"
 import { KeyboardEvent } from "react" // Add this import
+import { cn } from "@/lib/utils" // Make sure to import the cn function
 
 interface ChatInputProps {
   files: FileList | null
@@ -53,7 +54,6 @@ export const ChatInput: FC<ChatInputProps> = ({ files, setFiles }) => {
   const { makeMessageBody, handleCreateTopic } = useChatHandler()
 
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
 
   const handlePaste = (event: React.ClipboardEvent) => {
     const items = event.clipboardData?.items
@@ -190,10 +190,17 @@ export const ChatInput: FC<ChatInputProps> = ({ files, setFiles }) => {
                 size={30}
               />
             ) : (
-              <button type="submit" className="m-0 p-0">
+              <button
+                type="submit"
+                className="m-0 p-0"
+                disabled={!input.trim()}
+              >
                 <IconSend
                   size={30}
-                  className="bg-primary text-secondary rounded p-1"
+                  className={cn(
+                    "bg-primary text-secondary rounded p-1",
+                    !input.trim() && "cursor-not-allowed opacity-50"
+                  )}
                 />
               </button>
             )}
