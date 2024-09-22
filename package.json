@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "@ai-sdk/google": "^0.0.30",
-    "@ai-sdk/openai": "^0.0.40",
+    "@ai-sdk/openai": "^0.0.54",
     "@radix-ui/react-accordion": "^1.1.2",
     "@radix-ui/react-alert-dialog": "^1.0.5",
     "@radix-ui/react-aspect-ratio": "^1.0.3",
@@ -77,7 +77,7 @@
     "next-pwa": "5.6.0",
     "next-themes": "^0.2.1",
     "openai": "^4.52.0",
-    "postmark": "^4.0.2",
+    "postmark": "^4.0.5",
     "react": "^18",
     "react-day-picker": "^8.9.1",
     "react-dom": "^18",

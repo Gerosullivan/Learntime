@@ -1,6 +1,5 @@
 import { useChatHandler } from "@/components/chat/chat-hooks/use-chat-handler"
-import { LearntimeContext } from "@/context/context"
-import { FC, useContext, useEffect } from "react"
+import { FC, useEffect } from "react"
 import { useScroll } from "./chat-hooks/use-scroll"
 import { ChatInput } from "./chat-input"
 import { ChatMessages } from "./chat-messages"

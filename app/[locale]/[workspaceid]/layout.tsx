@@ -27,8 +27,6 @@ export default function WorkspaceLayout({ children }: WorkspaceLayoutProps) {
   useEffect(() => {
     ;(async () => {
       const session = (await supabase.auth.getSession()).data.session
-      // console.warn("logging out layout!")
-      // supabase.auth.signOut()
       if (!session) {
         return router.push("/login")
       } else {
