@@ -8,6 +8,7 @@ import useHotkey from "@/lib/hooks/use-hotkey"
 import { useTheme } from "next-themes"
 import { useContext, useEffect, useRef } from "react"
 import FeedbackAndHelp from "@/components/chat/feedback-and-help"
+import { useRouter, usePathname } from "next/navigation" // Updated import
 
 export default function ChatPage() {
   useHotkey("o", () => handleNewChat())
@@ -22,12 +23,15 @@ export default function ChatPage() {
     setSelectedChat
   } = useContext(LearntimeContext)
 
-  const { handleNewChat, handleStartTutorial } = useChatHandler()
+  const { handleNewChat } = useChatHandler()
 
   const { theme } = useTheme()
 
   // Ref to track if the tutorial has been started to prevent duplicate executions
   const tutorialStartedRef = useRef(false)
+
+  const router = useRouter()
+  const pathname = usePathname() // Get the current pathname
 
   useEffect(() => {
     setSelectedChat(null)
@@ -47,12 +51,12 @@ export default function ChatPage() {
           has_onboarded: true
         })
         setProfile(updatedProfile)
-        handleStartTutorial()
+        router.push(`${pathname}/tutorial`) // Use the pathname here
       }
     }
 
     startTutorial()
-  }, [profile])
+  }, [profile, router, pathname])
 
   useEffect(() => {
     const recallAnalysisInChats: { chatId: string; recallAnalysis: string }[] =

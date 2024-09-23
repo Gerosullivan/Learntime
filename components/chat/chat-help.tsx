@@ -1,26 +1,31 @@
 import useHotkey from "@/lib/hooks/use-hotkey"
 import {
   IconBrandGithub,
-  IconFileText,
+  IconSignLeft,
   IconHelpCircle,
-  IconMail,
   IconQuestionMark
 } from "@tabler/icons-react"
 import Link from "next/link"
-import { FC, useState } from "react"
+import { FC, useContext, useState } from "react"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger
 } from "../ui/dropdown-menu"
+import { LearntimeContext } from "@/context/context"
 
 interface ChatHelpProps {}
 
 export const ChatHelp: FC<ChatHelpProps> = ({}) => {
   useHotkey("/", () => setIsOpen(prevState => !prevState))
 
+  const { selectedWorkspace } = useContext(LearntimeContext)
+
   const [isOpen, setIsOpen] = useState(false)
+
+  if (!selectedWorkspace) return null
+  const tutorialLink = `/${selectedWorkspace?.id}/chat/tutorial`
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
@@ -47,6 +52,14 @@ export const ChatHelp: FC<ChatHelpProps> = ({}) => {
             rel="noopener noreferrer"
           >
             <IconHelpCircle /> <span>Help & FAQ</span>
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem>
+          <Link
+            className="flex cursor-pointer items-center gap-2 hover:opacity-50"
+            href={tutorialLink}
+          >
+            <IconSignLeft /> <span>Tutorial</span>
           </Link>
         </DropdownMenuItem>
       </DropdownMenuContent>

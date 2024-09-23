@@ -140,6 +140,8 @@ Please click 'Next' below to proceed with the tutorial.`
     } catch (error) {
       console.log({ error })
     }
+
+    setTopicDescription(topic_description)
   }
 
   const handleCreateTopic = async (input: string) => {
