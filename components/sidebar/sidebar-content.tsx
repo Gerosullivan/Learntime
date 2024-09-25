@@ -1,4 +1,4 @@
-import { FC, useState, useContext } from "react"
+import { useState, useContext } from "react"
 import { SidebarDataList } from "./sidebar-data-list"
 import { SidebarSearch } from "./sidebar-search"
 import { SidebarCreateButtons } from "./sidebar-create-buttons"

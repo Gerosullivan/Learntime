@@ -3,10 +3,10 @@ import { IconPlus } from "@tabler/icons-react"
 import { Button } from "../ui/button"
 
 export const SidebarCreateButtons = () => {
-  const { handleNewChat } = useChatHandler()
+  const { handleNewTopic } = useChatHandler()
 
   const handleCreateChat = async () => {
-    handleNewChat()
+    handleNewTopic()
   }
 
   return (
