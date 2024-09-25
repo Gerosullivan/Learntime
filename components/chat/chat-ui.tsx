@@ -17,9 +17,9 @@ export const ChatUI: FC<ChatUIProps> = ({ chatTitle }) => {
   // const { selectedChat, setTopicDescription, chats } =
   //   useContext(LearntimeContext)
 
-  const { handleNewChat } = useChatHandler()
+  const { handleNewTopic } = useChatHandler()
 
-  useHotkey("o", () => handleNewChat())
+  useHotkey("o", () => handleNewTopic())
 
   const {
     messagesStartRef,
