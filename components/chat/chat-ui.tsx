@@ -47,12 +47,6 @@ export const ChatUI: FC<ChatUIProps> = ({ chatTitle }) => {
     setIsAtBottom(true)
   }, [])
 
-  // useEffect(() => {
-  //   // find selected chat in chats
-  //   const chat = chats.find(chat => chat.id === selectedChat?.id)
-  //   setTopicDescription(chat?.topic_description || "")
-  // }, [chats, selectedChat])
-
   return (
     <div
       className="relative flex h-full flex-col items-center"
