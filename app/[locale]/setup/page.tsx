@@ -48,7 +48,7 @@ export default function SetupPage() {
         setProfile(profile)
         setUsername(profile.username)
 
-        if (profile.has_onboarded) {
+        if (!profile.has_onboarded) {
           setLoading(false)
         } else {
           const homeWorkspaceId = await getHomeWorkspaceByUserId(
