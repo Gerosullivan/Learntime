@@ -5,6 +5,7 @@ import { handleCreateChat } from "../chat-helpers"
 import { v4 as uuidv4 } from "uuid"
 import { Message } from "ai"
 import { StudyState } from "@/lib/studyStates"
+import { updateChat } from "@/db/chats"
 
 export const useChatHandler = () => {
   const router = useRouter()
@@ -74,10 +75,54 @@ export const useChatHandler = () => {
     }
   }
 
-  const handleNewChat = async () => {
+  const handleNewTopic = async () => {
     if (!selectedWorkspace) return
 
-    return router.push(`/${selectedWorkspace.id}/chat/new`)
+    // Create a new chat in the database
+    const newChat = await handleCreateChat(
+      profile!,
+      selectedWorkspace,
+      "New topic",
+      setSelectedChat,
+      setChats
+    )
+
+    // Navigate to the new chat
+    router.push(`/${selectedWorkspace.id}/chat/${newChat.id}`)
+  }
+
+  const handleCreateTopicName = async (input: string) => {
+    setInput("")
+    setMessages(prevMessages => [
+      ...prevMessages,
+      {
+        id: uuidv4(),
+        role: "user",
+        content: input
+      } as Message
+    ])
+
+    // update chat name in db
+    await updateChat(selectedChat!.id, { name: input })
+
+    //update chats context
+    setChats(prevChats =>
+      prevChats.map(chat =>
+        chat.id === selectedChat?.id ? { ...chat, name: input } : chat
+      )
+    )
+
+    setChatStudyState("topic_describe_upload" as StudyState)
+
+    setMessages(prevMessages => [
+      ...prevMessages,
+      {
+        id: uuidv4(),
+        role: "assistant",
+        content: `Topic name saved. Please describe your topic below.
+  You can also upload files ⨁ as source material for me to generate your study notes.`
+      }
+    ])
   }
 
   const handleStartTutorial = async () => {
@@ -144,39 +189,6 @@ Please click 'Next' below to proceed with the tutorial.`
     setTopicDescription(topic_description)
   }
 
-  const handleCreateTopic = async (input: string) => {
-    setInput("")
-    setMessages(prevMessages => [
-      ...prevMessages,
-      {
-        id: uuidv4(),
-        role: "user",
-        content: input
-      } as Message
-    ])
-
-    // add new chat to db
-    await handleCreateChat(
-      profile!,
-      selectedWorkspace!,
-      input,
-      setSelectedChat,
-      setChats
-    )
-
-    setChatStudyState("topic_describe_upload" as StudyState)
-
-    setMessages(prevMessages => [
-      ...prevMessages,
-      {
-        id: uuidv4(),
-        role: "assistant",
-        content: `Topic successfully created. Please describe your topic below.
-You can also upload files ⨁ as source material for me to generate your study notes.`
-      }
-    ])
-  }
-
   const handleGoToWorkspace = () => {
     if (!selectedWorkspace) return
 
@@ -184,9 +196,9 @@ You can also upload files ⨁ as source material for me to generate your study n
   }
 
   return {
-    handleNewChat,
+    handleNewTopic,
     handleStartTutorial,
-    handleCreateTopic,
+    handleCreateTopicName,
     makeMessageBody,
     handleGoToWorkspace
   }

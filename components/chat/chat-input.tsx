@@ -51,7 +51,7 @@ export const ChatInput: FC<ChatInputProps> = ({ files, setFiles }) => {
     handleSubmit,
     stop
   } = useContext(LearntimeContext)
-  const { makeMessageBody, handleCreateTopic } = useChatHandler()
+  const { makeMessageBody, handleCreateTopicName } = useChatHandler()
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -89,7 +89,7 @@ export const ChatInput: FC<ChatInputProps> = ({ files, setFiles }) => {
   const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (chatStudyState === "topic_new") {
-      handleCreateTopic(input)
+      handleCreateTopicName(input)
     } else {
       const body = makeMessageBody()
       const options = files ? { experimental_attachments: files } : {}

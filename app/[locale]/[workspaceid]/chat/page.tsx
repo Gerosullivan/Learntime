@@ -11,7 +11,7 @@ import FeedbackAndHelp from "@/components/chat/feedback-and-help"
 import { useRouter, usePathname } from "next/navigation" // Updated import
 
 export default function ChatPage() {
-  useHotkey("o", () => handleNewChat())
+  useHotkey("o", () => handleNewTopic())
 
   const {
     profile,
@@ -23,7 +23,7 @@ export default function ChatPage() {
     setSelectedChat
   } = useContext(LearntimeContext)
 
-  const { handleNewChat } = useChatHandler()
+  const { handleNewTopic } = useChatHandler()
 
   const { theme } = useTheme()
 

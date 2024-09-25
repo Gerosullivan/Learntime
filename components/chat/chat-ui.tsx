@@ -17,9 +17,9 @@ export const ChatUI: FC<ChatUIProps> = ({ chatTitle }) => {
   // const { selectedChat, setTopicDescription, chats } =
   //   useContext(LearntimeContext)
 
-  const { handleNewChat } = useChatHandler()
+  const { handleNewTopic } = useChatHandler()
 
-  useHotkey("o", () => handleNewChat())
+  useHotkey("o", () => handleNewTopic())
 
   const {
     messagesStartRef,
@@ -46,12 +46,6 @@ export const ChatUI: FC<ChatUIProps> = ({ chatTitle }) => {
     scrollToBottom()
     setIsAtBottom(true)
   }, [])
-
-  // useEffect(() => {
-  //   // find selected chat in chats
-  //   const chat = chats.find(chat => chat.id === selectedChat?.id)
-  //   setTopicDescription(chat?.topic_description || "")
-  // }, [chats, selectedChat])
 
   return (
     <div

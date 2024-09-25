@@ -12,5 +12,5 @@ export default function ChatIDPage() {
     handleStartTutorial()
   }, [])
 
-  return <ChatUI chatTitle="New Chat" />
+  return <ChatUI chatTitle="New topic" />
 }

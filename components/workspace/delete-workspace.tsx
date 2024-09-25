@@ -14,7 +14,6 @@ import { deleteWorkspace } from "@/db/workspaces"
 import { Tables } from "@/supabase/types"
 import { FC, useContext, useRef, useState } from "react"
 import { Input } from "../ui/input"
-import { useRouter } from "next/navigation"
 
 interface DeleteWorkspaceProps {
   workspace: Tables<"workspaces">
@@ -26,7 +25,7 @@ export const DeleteWorkspace: FC<DeleteWorkspaceProps> = ({
   onDelete
 }) => {
   const { setWorkspaces, setSelectedWorkspace } = useContext(LearntimeContext)
-  const { handleNewChat } = useChatHandler()
+  const { handleNewTopic } = useChatHandler()
 
   const buttonRef = useRef<HTMLButtonElement>(null)
 
@@ -52,7 +51,7 @@ export const DeleteWorkspace: FC<DeleteWorkspaceProps> = ({
     setShowWorkspaceDialog(false)
     onDelete()
 
-    handleNewChat()
+    handleNewTopic()
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {

@@ -9,16 +9,17 @@ import { v4 as uuidv4 } from "uuid"
 import Loading from "@/app/[locale]/loading"
 
 export default function ChatIDPage() {
-  // console.log("Chat ID Page")
   const {
     setSelectedChat,
     setTopicDescription,
     setChatStudyState,
-    setMessages
+    setMessages,
+    setInput,
+    chats
   } = useContext(LearntimeContext)
 
   const [chatLoading, setChatLoading] = useState(true)
-  const [chatTitle, setChatTitle] = useState("Chat")
+  const [chatTitle, setChatTitle] = useState("New topic")
   const params = useParams()
 
   useEffect(() => {
@@ -33,9 +34,20 @@ export default function ChatIDPage() {
     }
   }, [])
 
+  useEffect(() => {
+    if (params.chatid && chats.length > 0) {
+      const currentChat = chats.find(chat => chat.id === params.chatid)
+      if (currentChat) {
+        setChatTitle(currentChat.name || "New topic")
+      }
+    }
+  }, [params.chatid, chats])
+
   const fetchChat = async () => {
     const chat = await getChatById(params.chatid as string)
     if (!chat) return
+
+    setSelectedChat(chat)
 
     if (chat.topic_description) {
       setTopicDescription(chat.topic_description)
@@ -50,7 +62,7 @@ export default function ChatIDPage() {
       ])
 
       setChatStudyState("topic_default_hide_input")
-    } else {
+    } else if (chat.name && chat.name !== "New topic") {
       setMessages([
         {
           id: uuidv4(),
@@ -59,11 +71,17 @@ export default function ChatIDPage() {
         }
       ])
       setChatStudyState("topic_describe_upload")
+    } else {
+      setMessages([
+        {
+          id: uuidv4(),
+          content: `Enter your topic name below to start.`,
+          role: "assistant"
+        }
+      ])
+      setChatStudyState("topic_new")
+      setInput("")
     }
-
-    setSelectedChat(chat)
-
-    setChatTitle(chat.name || "Chat")
   }
 
   if (chatLoading) {
