@@ -14,11 +14,12 @@ export default function ChatIDPage() {
     setTopicDescription,
     setChatStudyState,
     setMessages,
-    setInput
+    setInput,
+    chats
   } = useContext(LearntimeContext)
 
   const [chatLoading, setChatLoading] = useState(true)
-  const [chatTitle, setChatTitle] = useState("Chat")
+  const [chatTitle, setChatTitle] = useState("New topic")
   const params = useParams()
 
   useEffect(() => {
@@ -33,12 +34,20 @@ export default function ChatIDPage() {
     }
   }, [])
 
+  useEffect(() => {
+    if (params.chatid && chats.length > 0) {
+      const currentChat = chats.find(chat => chat.id === params.chatid)
+      if (currentChat) {
+        setChatTitle(currentChat.name || "New topic")
+      }
+    }
+  }, [params.chatid, chats])
+
   const fetchChat = async () => {
     const chat = await getChatById(params.chatid as string)
     if (!chat) return
 
     setSelectedChat(chat)
-    setChatTitle(chat.name || "Chat")
 
     if (chat.topic_description) {
       setTopicDescription(chat.topic_description)
