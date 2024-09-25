@@ -20,7 +20,8 @@ const QuickResponse: React.FC<{
     topicDescription,
     selectedChat,
     messages,
-    append
+    append,
+    setTopicDescription
   } = useContext(LearntimeContext)
 
   const { makeMessageBody } = useChatHandler()
@@ -67,7 +68,7 @@ const QuickResponse: React.FC<{
               newStudyState = "topic_describe_upload"
             } else {
               responseText = "Save successful."
-              router.refresh() // Refresh the page to reflect the changes
+              setTopicDescription(topicContent)
             }
           } else {
             responseText = "Error: No chat selected."
