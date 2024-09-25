@@ -179,7 +179,7 @@ export const ChatInput: FC<ChatInputProps> = ({ files, setFiles }) => {
             value={input}
             onChange={handleInputChange}
             onPaste={handlePaste}
-            onKeyDown={handleKeyDown} // Add this line
+            onKeyDown={handleKeyDown}
           />
 
           <div className="absolute bottom-[8px] right-3 cursor-pointer hover:opacity-50">

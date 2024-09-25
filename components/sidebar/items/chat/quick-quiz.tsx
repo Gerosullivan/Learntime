@@ -1,17 +1,16 @@
 import { LearntimeContext } from "@/context/context"
 import { cn } from "@/lib/utils"
-import { useParams, useRouter } from "next/navigation"
-import { useContext, useRef } from "react"
+import { useRouter } from "next/navigation"
+import { useContext, useEffect, useRef, useState } from "react"
+import { usePathname } from "next/navigation"
 
 export const QuickQuiz = () => {
-  const { selectedWorkspace, selectedChat } = useContext(LearntimeContext)
+  const { selectedWorkspace } = useContext(LearntimeContext)
 
   const router = useRouter()
-  const params = useParams()
+  const pathname = usePathname()
 
-  // chat id is quick-quiz
-  const isActive =
-    params.chatid === "quick-quiz" || selectedChat?.id === "quick-quiz"
+  const isActive = pathname.includes("/chat/quick-quiz")
 
   const itemRef = useRef<HTMLDivElement>(null)
 
