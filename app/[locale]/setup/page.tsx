@@ -48,7 +48,7 @@ export default function SetupPage() {
         setProfile(profile)
         setUsername(profile.username)
 
-        if (!profile.has_onboarded) {
+        if (profile.has_onboarded) {
           setLoading(false)
         } else {
           const homeWorkspaceId = await getHomeWorkspaceByUserId(
@@ -147,7 +147,7 @@ export default function SetupPage() {
   }
 
   return (
-    <div className="flex h-full items-center justify-center">
+    <div className="flex h-full items-center justify-center p-4">
       {renderStep(currentStep)}
     </div>
   )

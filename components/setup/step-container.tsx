@@ -42,7 +42,7 @@ export const StepContainer: FC<StepContainerProps> = ({
 
   return (
     <Card
-      className="max-h-[calc(100vh-60px)] w-[600px] overflow-auto"
+      className="mx-auto max-h-[calc(100vh-2rem)] w-[95%] max-w-[600px] overflow-auto"
       onKeyDown={handleKeyDown}
     >
       <CardHeader>
