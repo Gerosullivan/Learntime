@@ -1,17 +1,23 @@
 import { LearntimeContext } from "@/context/context"
 import { cn } from "@/lib/utils"
-import { useParams, useRouter } from "next/navigation"
-import { useContext, useRef } from "react"
+import { useRouter } from "next/navigation"
+import { useContext, useEffect, useRef, useState } from "react"
 
 export const QuickQuiz = () => {
-  const { selectedWorkspace, selectedChat } = useContext(LearntimeContext)
+  const { selectedWorkspace } = useContext(LearntimeContext)
+  const [isActive, setIsActive] = useState(false)
 
   const router = useRouter()
-  const params = useParams()
 
   // chat id is quick-quiz
-  const isActive =
-    params.chatid === "quick-quiz" || selectedChat?.id === "quick-quiz"
+
+  useEffect(() => {
+    if (router.isReady) {
+      // Safely access router.asPath here
+      const currentPath = router.asPath
+      setIsActive(currentPath.includes("/chat/quick-quiz"))
+    }
+  }, [router.isReady])
 
   const itemRef = useRef<HTMLDivElement>(null)
 
