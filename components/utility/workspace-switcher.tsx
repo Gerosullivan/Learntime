@@ -160,6 +160,7 @@ export const WorkspaceSwitcher: FC<WorkspaceSwitcherProps> = ({}) => {
                         width={28}
                         height={28}
                         alt={workspace.name}
+                        unoptimized
                       />
                     ) : (
                       <IconHome className="mr-3" size={28} />
@@ -199,6 +200,7 @@ export const WorkspaceSwitcher: FC<WorkspaceSwitcherProps> = ({}) => {
                         width={28}
                         height={28}
                         alt={workspace.name}
+                        unoptimized
                       />
                     ) : (
                       <IconBuilding className="mr-3" size={28} />
