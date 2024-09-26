@@ -105,6 +105,7 @@ export const WorkspaceSwitcher: FC<WorkspaceSwitcherProps> = ({}) => {
                   width={22}
                   height={22}
                   alt={selectedWorkspace.name}
+                  unoptimized
                 />
               ) : (
                 <IconComponent className="mb-0.5 mr-2" size={22} />
