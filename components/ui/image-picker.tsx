@@ -82,6 +82,7 @@ const ImagePicker: FC<ImagePickerProps> = ({
           width={width}
           src={previewSrc}
           alt={"Image"}
+          unoptimized
         />
       )}
 
