@@ -10,6 +10,16 @@ const withPWA = require("next-pwa")({
 })
 
 module.exports = withPWA({
+  images: {
+    remotePatterns: [
+      {
+        protocol: "http",
+        hostname: "127.0.0.1",
+        port: "",
+        pathname: "/**"
+      }
+    ]
+  },
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.module.rules.push({
