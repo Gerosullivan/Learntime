@@ -122,10 +122,12 @@ export const studyStates: StudyStateObject[] = [
     quickResponses: [
       {
         quickText: "Next.",
-        responseText: `Now I'll guide you on how to add a study sheet. It's quite exciting to create a new topic together!
-A study sheet typically includes 10 to 30 key facts, each with a few important details. The content and depth may vary based on the topic's complexity and your needs.
-Let's start with 'States of matter' Click on it below.`,
-        newStudyState: "tutorial_2_hide_input"
+        newStudyState: "tutorial_2_hide_input",
+        responseText: `To create a new set of notes you click on the [+ New topic] button located in the left panel.
+     
+I've already done this for you.
+    
+Now, select [States of matter] below as an example topic name I have already generated for you.`
       }
     ]
   },
@@ -134,8 +136,16 @@ Let's start with 'States of matter' Click on it below.`,
     quickResponses: [
       {
         quickText: "States of matter.",
-        responseText: `If at this stage you've only entered a topic name, like now, I'll step in to help craft a suitable study sheet for you. Alternatively, you're more than welcome to add a description yourself, whether by uploading a document or typing directly into our chat. For the moment, I'll take care of generating the description for you. Please 'View topic.' now, and afterwards, 'Save topic.'`,
-        newStudyState: "tutorial_3_hide_input"
+        newStudyState: "tutorial_3_hide_input",
+        responseText: `After entering a topic name, the next step is to create a sheet of study notes.
+You can enter this information in several ways:
+      
+- Drag and drop your own text documents or images into the input box below
+- Upload files by clicking the ⨁ button
+- Type your own notes directly into the box
+- Ask me to create a set of notes for you (Example: "Generate notes for me")
+
+For this tutorial, I have already generated a sheet of notes on "States of matter" as an example topic. Please select [View topic] below and then [Save tutorial study sheet].`
       }
     ]
   },
@@ -154,9 +164,11 @@ Let's start with 'States of matter' Click on it below.`,
     quickResponses: [
       {
         quickText: "Save tutorial study sheet.",
-        responseText: `Now comes the fun part! After taking some time to study the topic, it's time for your first recall attempt. Let's make it a good one, no peeking allowed! 👀😉
-I'll be here to assess your attempt and set up a recall session based on how you do. Give it your best shot to recall as much as you can about "States of matter" topic but leave out some facts for the purpose of this tutorial; select the chat area below (Message Mentor...) then type or hit the microphone key on your keyboard.
-After you receive feedback on your attempt, select "Next step..." to move forward.`,
+        responseText: `Now comes the fun part - it's time for your first recall attempt! 😃
+
+Type or dictate (using the microphone key on your keyboard) into the input box below what you remember from the notes above.
+
+I'll assess your attempt, help jog your memory, and set up a recall session based on your performance. Give it your best shot to recall as much as you can about the 'States of matter' topic now.`,
         newStudyState: "recall_tutorial_first_attempt"
       }
     ]
@@ -204,11 +216,14 @@ The final stage of an effective study session is reviewing the topic one last ti
     quickResponses: [
       {
         quickText: "Finish tutorial.",
-        responseText: `Amazing work! 
-On the topic list to the left, you will notice the icon next to this topic name has changed to indicat that you've successfully reviewed the topic. Return to this topic shortly and based on how much you remember, Mentor will schedule a revision in a couple of days. 
-As days go by leading up to your next review session, this icon will change, reflecting an estimate of your recall strength. Don't worry, we'll email you on that day with a gentle nudge when it's time for a refresh.
-Now, you're all set to begin creating your own topics! Just click on the "+ New topic" button located at the top left corner.
-And of course, feel free to dive back in to further solidify your mastery of States of matter!
+        responseText: `Excellent work!
+
+On the left, you'll notice the icon next to this topic name has changed to indicate that you've successfully completed a recall session. As days pass leading up to your next session, this icon will update to reflect an estimate of your recall strength. Don't worry, we'll email you with a gentle reminder when it's time for another session.
+
+You're now ready to create your own topics! Simply click the [+ New topic] button in the top left corner, create your notes, and save the study sheets. I'll schedule revision sessions based on how much you recall.
+
+Feel free to revisit "States of matter" anytime to further solidify your understanding.
+
 Enjoy your learning journey!`,
         newStudyState: "home"
       }
