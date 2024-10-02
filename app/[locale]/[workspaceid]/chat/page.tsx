@@ -43,7 +43,7 @@ export default function ChatPage() {
 
   useEffect(() => {
     const startTutorial = async () => {
-      if (profile && profile.has_onboarded && !tutorialStartedRef.current) {
+      if (profile && !profile.has_onboarded && !tutorialStartedRef.current) {
         console.log("Starting tutorial for the first time")
         tutorialStartedRef.current = true // Mark as tutorial started
         const updatedProfile = await updateProfile(profile.id, {
