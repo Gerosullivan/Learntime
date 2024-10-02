@@ -28,7 +28,7 @@ export async function POST(request: Request) {
 
     const studentMessage = messages[messages.length - 1]
 
-    const noMoreQuizQuestions = studyState === "quick_quiz_finished_hide_input"
+    const noMoreQuizQuestions = studyState === "quick_quiz_finished"
 
     let chatStreamResponse
     let newStudyState: StudyState
@@ -148,8 +148,8 @@ export async function POST(request: Request) {
         if (allRecalled) {
           newStudyState =
             studyState === "recall_tutorial_first_attempt"
-              ? "tutorial_hinting_hide_input"
-              : "recall_finished_hide_input"
+              ? "tutorial_hinting"
+              : "recall_finished"
 
           chatStreamResponse = await streamText({
             model: defaultModel,
@@ -218,7 +218,7 @@ export async function POST(request: Request) {
 
           newStudyState =
             studyState === "recall_tutorial_first_attempt"
-              ? "tutorial_hinting_hide_input"
+              ? "tutorial_hinting"
               : "recall_hinting"
 
           return chatStreamResponse.toDataStreamResponse({
@@ -364,8 +364,8 @@ export async function POST(request: Request) {
 
         newStudyState =
           studyState === "recall_tutorial_hinting"
-            ? "tutorial_final_stage_hide_input"
-            : "recall_finished_hide_input"
+            ? "tutorial_final_stage"
+            : "recall_finished"
 
         return chatStreamResponse.toDataStreamResponse({
           headers: {
@@ -373,7 +373,7 @@ export async function POST(request: Request) {
           }
         })
 
-      case "recall_finished_hide_input":
+      case "recall_finished":
       case "reviewing":
         // SHOW FULL study sheet ///////////////////////////////
 
@@ -390,7 +390,7 @@ export async function POST(request: Request) {
         })
 
         return chatStreamResponse.toDataStreamResponse()
-      case "quick_quiz_ready_hide_input":
+      case "quick_quiz_ready":
         chatStreamResponse = await streamText({
           model: defaultModel,
           temperature: 0.3,
@@ -416,7 +416,7 @@ export async function POST(request: Request) {
           }
         })
       case "quick_quiz_answer":
-      case "quick_quiz_finished_hide_input":
+      case "quick_quiz_finished":
         const previousQuizQuestion = messages[messages.length - 2].content
         const finalFeeback = noMoreQuizQuestions
           ? "Finally advise the student there are no more quiz questions available. Come back again another time."
@@ -444,9 +444,9 @@ export async function POST(request: Request) {
           ])
         })
         newStudyState =
-          studyState === "quick_quiz_finished_hide_input"
-            ? "quick_quiz_finished_hide_input"
-            : "quick_quiz_ready_hide_input"
+          studyState === "quick_quiz_finished"
+            ? "quick_quiz_finished"
+            : "quick_quiz_ready"
         return chatStreamResponse.toDataStreamResponse({
           headers: {
             "NEW-STUDY-STATE": newStudyState

@@ -3,27 +3,27 @@ export type StudyState =
   | "topic_new"
   | "topic_describe_upload"
   | "topic_generated"
-  | "topic_saved_hide_input"
-  | "topic_default_hide_input"
+  | "topic_saved"
+  | "topic_default"
   | "recall_first_attempt"
   | "recall_hinting"
-  | "recall_finished_hide_input"
+  | "recall_finished"
   | "reviewing"
-  | "tutorial_hide_input"
-  | "tutorial_2_hide_input"
-  | "tutorial_3_hide_input"
-  | "tutorial_4_hide_input"
+  | "tutorial"
+  | "tutorial_2"
+  | "tutorial_3"
+  | "tutorial_4"
   | "recall_tutorial_first_attempt"
-  | "tutorial_hinting_hide_input"
+  | "tutorial_hinting"
   | "recall_tutorial_hinting"
-  | "tutorial_final_stage_hide_input"
-  | "tutorial_final_review_hide_input"
-  | "tutorial_finished_hide_input"
-  | "tutorial_finished_hide_input_2"
-  | "final_review_hide_input"
-  | "quick_quiz_ready_hide_input"
+  | "tutorial_final_stage"
+  | "tutorial_final_review"
+  | "tutorial_finished"
+  | "tutorial_finished_2"
+  | "final_review"
+  | "quick_quiz_ready"
   | "quick_quiz_answer"
-  | "quick_quiz_finished_hide_input"
+  | "quick_quiz_finished"
 
 export interface QuickResponse {
   quickText: string
@@ -34,6 +34,7 @@ interface StudyStateObject {
   name: StudyState
   message: string
   quickResponses?: QuickResponse[]
+  hideInput?: boolean
 }
 
 export interface ChatRecallMetadata {
@@ -56,13 +57,14 @@ export const studyStates: StudyStateObject[] = [
     quickResponses: [
       {
         quickText: "Save study sheet.",
-        newStudyState: "topic_saved_hide_input"
+        newStudyState: "topic_saved"
       }
     ]
   },
   {
-    name: "topic_saved_hide_input",
+    name: "topic_saved",
     message: "{{DB}}",
+    hideInput: true,
     quickResponses: [
       {
         quickText: "Start recall now.",
@@ -75,9 +77,10 @@ export const studyStates: StudyStateObject[] = [
     ]
   },
   {
-    name: "topic_default_hide_input",
+    name: "topic_default",
     message: `Welcome back to the topic "{{chat.name}}".
 Please select from the options below.`,
+    hideInput: true,
     quickResponses: [
       {
         quickText: "Start recall now.",
@@ -98,18 +101,20 @@ Please select from the options below.`,
     message: "{{LLM}}"
   },
   {
-    name: "recall_finished_hide_input",
+    name: "recall_finished",
     message: "{{LLM}}",
+    hideInput: true,
     quickResponses: [
       {
         quickText: "Show study sheet.",
-        newStudyState: "final_review_hide_input"
+        newStudyState: "final_review"
       }
     ]
   },
   {
-    name: "final_review_hide_input",
-    message: "{{topicDescription}}"
+    name: "final_review",
+    message: "{{topicDescription}}",
+    hideInput: true
   },
   {
     name: "reviewing",
@@ -126,31 +131,33 @@ Please select from the options below.`,
     ]
   },
   {
-    name: "tutorial_hide_input",
+    name: "tutorial",
     message: "",
+    hideInput: true,
     quickResponses: [
       {
         quickText: "Next.",
-        newStudyState: "tutorial_2_hide_input"
+        newStudyState: "tutorial_2"
       }
     ]
   },
   {
-    name: "tutorial_2_hide_input",
+    name: "tutorial_2",
     message: `To create a new set of notes you click on the [+ New topic] button located in the left panel.
      
 I've already done this for you.
     
 Now, select [States of matter] below as an example topic name I have already generated for you.`,
+    hideInput: true,
     quickResponses: [
       {
         quickText: "States of matter.",
-        newStudyState: "tutorial_3_hide_input"
+        newStudyState: "tutorial_3"
       }
     ]
   },
   {
-    name: "tutorial_3_hide_input",
+    name: "tutorial_3",
     message: `After entering a topic name, the next step is to create a sheet of study notes.
 You can enter this information in several ways:
       
@@ -160,16 +167,18 @@ You can enter this information in several ways:
 - Ask me to create a set of notes for you (Example: "Generate notes for me")
 
 For this tutorial, I have already generated a sheet of notes on "States of matter" as an example topic. Please select [View topic] below and then [Save tutorial study sheet].`,
+    hideInput: true,
     quickResponses: [
       {
         quickText: "View topic.",
-        newStudyState: "tutorial_4_hide_input"
+        newStudyState: "tutorial_4"
       }
     ]
   },
   {
-    name: "tutorial_4_hide_input",
+    name: "tutorial_4",
     message: "{{topicDescription}}",
+    hideInput: true,
     quickResponses: [
       {
         quickText: "Save tutorial study sheet.",
@@ -186,8 +195,9 @@ Type or dictate (using the microphone key on your keyboard) into the input box b
 I'll assess your attempt, help jog your memory, and set up a recall session based on your performance. Give it your best shot to recall as much as you can about the 'States of matter' topic now.`
   },
   {
-    name: "tutorial_hinting_hide_input",
+    name: "tutorial_hinting",
     message: "{{LLM}}",
+    hideInput: true,
     quickResponses: [
       {
         quickText: "Next step - reply to hints.",
@@ -201,38 +211,41 @@ I'll assess your attempt, help jog your memory, and set up a recall session base
       "Great work so far! So now that some hints have been provided, try your best to recall the missing facts."
   },
   {
-    name: "tutorial_final_stage_hide_input",
+    name: "tutorial_final_stage",
     message: "{{LLM}}",
+    hideInput: true,
     quickResponses: [
       {
         quickText: "Final stage - review.",
-        newStudyState: "tutorial_final_review_hide_input"
+        newStudyState: "tutorial_final_review"
       }
     ]
   },
   {
-    name: "tutorial_final_review_hide_input",
+    name: "tutorial_final_review",
     message: `Amazing work! 
 The final stage of an effective study session is reviewing the topic one last time with an eye on what was missed. This is where you'll get a chance to solidify your understanding of the topic.`,
+    hideInput: true,
     quickResponses: [
       {
         quickText: "Show topic content for final review.",
-        newStudyState: "tutorial_finished_hide_input"
+        newStudyState: "tutorial_finished"
       }
     ]
   },
   {
-    name: "tutorial_finished_hide_input",
+    name: "tutorial_finished",
     message: "{{topicDescription}}",
+    hideInput: true,
     quickResponses: [
       {
         quickText: "Finish tutorial.",
-        newStudyState: "tutorial_finished_hide_input_2"
+        newStudyState: "tutorial_finished_2"
       }
     ]
   },
   {
-    name: "tutorial_finished_hide_input_2",
+    name: "tutorial_finished_2",
     message: `Excellent work!
 
 On the left, you'll notice the icon next to this topic name has changed to indicate that you've successfully completed a recall session. As days pass leading up to your next session, this icon will update to reflect an estimate of your recall strength. Don't worry, we'll email you with a gentle reminder when it's time for another session.
@@ -241,11 +254,13 @@ You're now ready to create your own topics! Simply click the [+ New topic] butto
 
 Feel free to revisit "States of matter" anytime to further solidify your understanding.
 
-Enjoy your learning journey!`
+Enjoy your learning journey!`,
+    hideInput: true
   },
   {
-    name: "quick_quiz_ready_hide_input",
+    name: "quick_quiz_ready",
     message: `Are you ready to start a 🔥 Quick quiz?`,
+    hideInput: true,
     quickResponses: [
       {
         quickText: "Next question.",
@@ -264,8 +279,9 @@ Enjoy your learning journey!`
     ]
   },
   {
-    name: "quick_quiz_finished_hide_input",
-    message: "{{LLM}}"
+    name: "quick_quiz_finished",
+    message: "{{LLM}}",
+    hideInput: true
   }
 ]
 

@@ -24,7 +24,7 @@ export default function ChatIDPage() {
           role: "assistant"
         }
       ])
-      setChatStudyState("quick_quiz_ready_hide_input")
+      setChatStudyState("quick_quiz_ready")
     }
   }, [allChatRecallAnalysis])
 
