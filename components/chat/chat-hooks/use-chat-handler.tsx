@@ -175,11 +175,12 @@ export const useChatHandler = () => {
           id: uuidv4(),
           role: "assistant",
           content: `👋 Hello! I'm your AI Study Mentor.
-I'm here to boost your learning by assisting with creating a topic study sheet and guiding you through optimally spaced free recall study sessions.
-This tutorial will walk you through how to craft a revision topic.
-You'll find topics listed in the panel on the left side of the chat window. 👈
-Open the panel, and you'll see "States of matter" as our example topic for this tutorial.
-Please click 'Next' below to proceed with the tutorial.`
+          
+I'm here to boost your learning by assisting with creating study notes and guiding you through optimally spaced study sessions.
+
+💡 Tip: You can always start this tutorial again by selecting the help button [?] bottom right and then the 'Tutorial' link.
+
+Please select 'Next' below 👇 to proceed with the tutorial, beginning with how to create a new set of notes.`
         }
       ])
     } catch (error) {
