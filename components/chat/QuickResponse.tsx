@@ -8,7 +8,6 @@ import { LearntimeContext } from "@/context/context"
 import { useChatHandler } from "./chat-hooks/use-chat-handler"
 import { IconSend } from "@tabler/icons-react"
 import { v4 as uuidv4 } from "uuid"
-import { useRouter } from "next/navigation"
 
 const QuickResponse: React.FC<{
   setFiles: (files: FileList | null) => void
@@ -25,8 +24,6 @@ const QuickResponse: React.FC<{
   } = useContext(LearntimeContext)
 
   const { makeMessageBody } = useChatHandler()
-
-  const router = useRouter()
 
   const handleQuickResponse = async (message: string) => {
     setFiles(null)
