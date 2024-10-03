@@ -26,6 +26,7 @@ export const useChatHandler = () => {
     setAllChatRecallAnalysis,
     chatRecallMetadata,
     setMessages,
+    messages,
     setInput
   } = useContext(LearntimeContext)
 
@@ -113,17 +114,7 @@ export const useChatHandler = () => {
       )
     )
 
-    setChatStudyState("topic_describe_upload" as StudyState)
-
-    setMessages(prevMessages => [
-      ...prevMessages,
-      {
-        id: uuidv4(),
-        role: "assistant",
-        content: `Topic name saved. Please describe your topic below.
-  You can also upload files ⨁ as source material for me to generate your study notes.`
-      }
-    ])
+    handleNewState("topic_name_saved" as StudyState)
   }
 
   const handleStartTutorial = async () => {
@@ -170,20 +161,6 @@ export const useChatHandler = () => {
         setChats,
         topic_description
       )
-
-      setMessages([
-        {
-          id: uuidv4(),
-          role: "assistant",
-          content: `👋 Hello! I'm your AI Study Mentor.
-          
-I'm here to boost your learning by assisting with creating study notes and guiding you through optimally spaced study sessions.
-
-💡 Tip: You can always start this tutorial again by selecting the help button [?] bottom right and then the 'Tutorial' link.
-
-Please select 'Next' below 👇 to proceed with the tutorial, beginning with how to create a new set of notes.`
-        }
-      ])
     } catch (error) {
       console.log({ error })
     }
@@ -199,16 +176,50 @@ Please select 'Next' below 👇 to proceed with the tutorial, beginning with how
 
   const handleNewState = (newState: StudyState) => {
     const stateObject = studyStates.find(state => state.name === newState)
-    if (stateObject) {
-      setMessages(prevMessages => [
-        ...prevMessages,
-        {
-          id: uuidv4(),
-          content: stateObject.message,
-          role: "assistant"
-        }
-      ])
-      setChatStudyState(newState)
+    if (!stateObject) {
+      console.log("No state object found for", newState)
+      return
+    }
+    const assistantMessage = stateObject.message
+    let content
+    if (assistantMessage === "{{topicDescription}}") {
+      content = topicDescription
+    } else {
+      content = assistantMessage
+    }
+    setMessages(prevMessages => [
+      ...prevMessages,
+      {
+        id: uuidv4(),
+        content,
+        role: "assistant"
+      }
+    ])
+    setChatStudyState(newState)
+  }
+
+  const handleTopicSave = async () => {
+    if (selectedChat) {
+      const topicContent = messages[messages.length - 1].content
+      const response = await fetch("/api/update-topic-content", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          chatId: selectedChat.id,
+          content: topicContent
+        })
+      })
+      const data = await response.json()
+      if (!data.success) {
+        handleNewState("topic_describe_upload_error")
+      } else {
+        handleNewState("topic_saved")
+        setTopicDescription(topicContent)
+      }
+    } else {
+      handleNewState("topic_save_error")
     }
   }
 
@@ -218,6 +229,7 @@ Please select 'Next' below 👇 to proceed with the tutorial, beginning with how
     handleCreateTopicName,
     makeMessageBody,
     handleGoToWorkspace,
-    handleNewState
+    handleNewState,
+    handleTopicSave
   }
 }

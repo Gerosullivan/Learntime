@@ -56,7 +56,7 @@ export async function POST(request: Request) {
 
     switch (studyState) {
       case "topic_describe_upload":
-      case "topic_generated":
+      case "topic_no_description_in_db":
         chatStreamResponse = await streamText({
           model: defaultModel,
           temperature: 0.2,
@@ -68,7 +68,7 @@ export async function POST(request: Request) {
                   Introduction to the Topic:
                     Provide a brief overview of the topic, including its significance and general context.
                   Key Components or Concepts:
-                    List 10 to 30 key facts or components related to the topic. Each fact should be succinct and supported by one or two important details to aid understanding.
+                    List the key facts or components related to the topic. Each fact should be succinct and supported by one or two important details to aid understanding.
                   Structure and Organization:
                     Group related facts into categories or themes to maintain logical coherence and enhance navigability.
     

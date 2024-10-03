@@ -16,6 +16,7 @@ import { getChatById } from "@/db/chats"
 import { useRouter } from "next/navigation"
 import { FC, useEffect, useState } from "react"
 import { handleCreateChat } from "../chat/chat-helpers"
+import { useChatHandler } from "../chat/chat-hooks/use-chat-handler"
 
 interface GlobalStateProps {
   children: React.ReactNode
@@ -23,6 +24,8 @@ interface GlobalStateProps {
 
 export const GlobalState: FC<GlobalStateProps> = ({ children }) => {
   const router = useRouter()
+
+  const { handleNewState } = useChatHandler()
 
   // PROFILE STORE
   const [profile, setProfile] = useState<Tables<"profiles"> | null>(null)
@@ -52,12 +55,12 @@ export const GlobalState: FC<GlobalStateProps> = ({ children }) => {
     const newStudyState = response.headers.get("NEW-STUDY-STATE") as StudyState
 
     if (newStudyState) {
-      setChatStudyState(newStudyState)
-      if (newStudyState === "topic_saved_hide_input") {
-        const newTopicContent = await getChatById(selectedChat!.id)
-        const topicDescription = newTopicContent!.topic_description || ""
-        setTopicDescription(topicDescription)
-      }
+      handleNewState(newStudyState)
+      // if (newStudyState === "topic_saved_hide_input") {
+      //   const newTopicContent = await getChatById(selectedChat!.id)
+      //   const topicDescription = newTopicContent!.topic_description || ""
+      //   setTopicDescription(topicDescription)
+      // }
     }
 
     const score = response.headers.get("SCORE")
@@ -71,7 +74,7 @@ export const GlobalState: FC<GlobalStateProps> = ({ children }) => {
     }
 
     const isQuickQuiz: boolean =
-      chatStudyState === "quick_quiz_ready_hide_input" ||
+      chatStudyState === "quick_quiz_ready" ||
       chatStudyState === "quick_quiz_answer"
 
     if (!selectedChat && !isQuickQuiz) {
@@ -116,11 +119,11 @@ export const GlobalState: FC<GlobalStateProps> = ({ children }) => {
     }
   })
 
-  useEffect(() => {
-    ;(async () => {
-      const profile = await fetchStartingData()
-    })()
-  }, [])
+  // useEffect(() => {
+  //   ;(async () => {
+  //     const profile = await fetchStartingData()
+  //   })()
+  // }, [])
 
   const fetchStartingData = async () => {
     const session = (await supabase.auth.getSession()).data.session

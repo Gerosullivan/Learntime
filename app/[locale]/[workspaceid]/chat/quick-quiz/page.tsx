@@ -7,7 +7,7 @@ import { useChatHandler } from "@/components/chat/chat-hooks/use-chat-handler"
 
 export default function ChatIDPage() {
   console.log("Quick Quiz Page")
-  const { setSelectedChat, allChatRecallAnalysis } =
+  const { setSelectedChat, allChatRecallAnalysis, setMessages } =
     useContext(LearntimeContext)
 
   const { handleNewState } = useChatHandler()
@@ -15,6 +15,7 @@ export default function ChatIDPage() {
   useEffect(() => {
     setSelectedChat(null)
     if (allChatRecallAnalysis.length > 0) {
+      setMessages([])
       handleNewState("quick_quiz_ready")
     }
   }, [allChatRecallAnalysis])

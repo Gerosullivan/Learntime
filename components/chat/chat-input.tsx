@@ -15,6 +15,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { ChangeEvent } from "react"
 import { KeyboardEvent } from "react" // Add this import
 import { cn } from "@/lib/utils" // Make sure to import the cn function
+import { isHideInput } from "@/lib/studyStates"
 
 interface ChatInputProps {
   files: FileList | null
@@ -151,7 +152,7 @@ export const ChatInput: FC<ChatInputProps> = ({ files, setFiles }) => {
         </AnimatePresence>
       </div>
 
-      {!chatStudyState.endsWith("hide_input") && (
+      {!isHideInput(chatStudyState) && (
         <form
           onSubmit={handleFormSubmit}
           className="border-input relative mt-3 flex min-h-[60px] w-full items-center justify-center rounded-xl border-2"
@@ -206,6 +207,11 @@ export const ChatInput: FC<ChatInputProps> = ({ files, setFiles }) => {
             )}
           </div>
         </form>
+      )}
+      {process.env.NODE_ENV === "development" && (
+        <div className="fixed right-2 top-2 rounded-md bg-black bg-opacity-50 p-2 text-sm text-white">
+          {chatStudyState}
+        </div>
       )}
     </>
   )

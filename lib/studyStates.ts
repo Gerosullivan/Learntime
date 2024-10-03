@@ -1,8 +1,13 @@
 export type StudyState =
   | "home"
   | "topic_new"
+  | "topic_name_saved"
   | "topic_describe_upload"
+  | "topic_describe_upload_error"
+  | "topic_no_description_in_db"
   | "topic_generated"
+  | "topic_save"
+  | "topic_save_error"
   | "topic_saved"
   | "topic_default"
   | "recall_first_attempt"
@@ -52,17 +57,39 @@ export const studyStates: StudyStateObject[] = [
     message: "What updates should we make to the topic study sheet?"
   },
   {
+    name: "topic_no_description_in_db",
+    message: "No topic description found. Please add topic description below."
+  },
+  {
+    name: "topic_describe_upload_error",
+    message: "Server error saving topic content."
+  },
+  {
+    name: "topic_name_saved",
+    message: `Topic name saved. Please describe your topic below.
+  You can also upload files ⨁ as source material for me to generate your study notes.`
+  },
+  {
+    name: "topic_save_error",
+    message: "Error: No chat selected."
+  },
+  {
     name: "topic_generated",
-    message: "{{DB}}",
+    message: "{{LLM}}",
+    hideInput: true,
     quickResponses: [
       {
         quickText: "Save study sheet.",
-        newStudyState: "topic_saved"
+        newStudyState: "topic_save"
+      },
+      {
+        quickText: "Edit topic.",
+        newStudyState: "topic_describe_upload"
       }
     ]
   },
   {
-    name: "topic_saved",
+    name: "topic_save",
     message: "{{DB}}",
     hideInput: true,
     quickResponses: [
@@ -77,8 +104,23 @@ export const studyStates: StudyStateObject[] = [
     ]
   },
   {
+    name: "topic_saved",
+    message: "Save successful.",
+    hideInput: true,
+    quickResponses: [
+      {
+        quickText: "Start recall now.",
+        newStudyState: "recall_first_attempt"
+      },
+      {
+        quickText: "Edit topic.",
+        newStudyState: "topic_describe_upload"
+      }
+    ]
+  },
+  {
     name: "topic_default",
-    message: `Welcome back to the topic "{{chat.name}}".
+    message: `Welcome back.
 Please select from the options below.`,
     hideInput: true,
     quickResponses: [
@@ -309,4 +351,17 @@ export function getQuickResponseByUserText(
     }
   }
   return undefined
+}
+
+// return the new StudyStateObject based on name
+export function getStudyStateObject(
+  name: StudyState
+): StudyStateObject | undefined {
+  return studyStates.find(state => state.name === name)
+}
+
+// StudyStateObject is hideInput true
+export function isHideInput(name: StudyState): boolean {
+  const stateObject = studyStates.find(state => state.name === name)
+  return stateObject?.hideInput ?? false
 }
