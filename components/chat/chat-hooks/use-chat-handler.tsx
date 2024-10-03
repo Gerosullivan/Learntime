@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from "uuid"
 import { Message } from "ai"
 import { StudyState } from "@/lib/studyStates"
 import { updateChat } from "@/db/chats"
+import { studyStates } from "@/lib/studyStates"
 
 export const useChatHandler = () => {
   const router = useRouter()
@@ -38,14 +39,14 @@ export const useChatHandler = () => {
     let randomRecallFact: string = ""
 
     const isQuickQuiz: boolean =
-      chatStudyState === "quick_quiz_ready_hide_input" ||
+      chatStudyState === "quick_quiz_ready" ||
       chatStudyState === "quick_quiz_answer"
 
     let studySheet = topicDescription
     let quizFinished = allChatRecallAnalysis.length === 0
     let studyState = chatStudyState
 
-    if (chatStudyState === "quick_quiz_ready_hide_input" && !quizFinished) {
+    if (chatStudyState === "quick_quiz_ready" && !quizFinished) {
       const randomIndex = Math.floor(
         Math.random() * allChatRecallAnalysis.length
       )
@@ -61,7 +62,7 @@ export const useChatHandler = () => {
       setAllChatRecallAnalysis(updated)
       console.log("randomRecallFact", randomRecallFact, updated.length)
     } else if (isQuickQuiz && quizFinished) {
-      studyState = "quick_quiz_finished_hide_input"
+      studyState = "quick_quiz_finished"
       setChatStudyState(studyState)
     }
 
@@ -126,7 +127,7 @@ export const useChatHandler = () => {
   }
 
   const handleStartTutorial = async () => {
-    setChatStudyState("tutorial_hide_input")
+    setChatStudyState("tutorial")
 
     const topic_description = `# States of Matter
 
@@ -196,11 +197,27 @@ Please select 'Next' below 👇 to proceed with the tutorial, beginning with how
     return router.push(`/${selectedWorkspace.id}/chat`)
   }
 
+  const handleNewState = (newState: StudyState) => {
+    const stateObject = studyStates.find(state => state.name === newState)
+    if (stateObject) {
+      setMessages(prevMessages => [
+        ...prevMessages,
+        {
+          id: uuidv4(),
+          content: stateObject.message,
+          role: "assistant"
+        }
+      ])
+      setChatStudyState(newState)
+    }
+  }
+
   return {
     handleNewTopic,
     handleStartTutorial,
     handleCreateTopicName,
     makeMessageBody,
-    handleGoToWorkspace
+    handleGoToWorkspace,
+    handleNewState
   }
 }
