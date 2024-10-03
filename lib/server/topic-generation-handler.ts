@@ -19,8 +19,6 @@ export async function handleTopicGeneration(
                 Provide a brief overview of the topic, including its significance and general context.
               Key Components or Concepts:
                 List the key facts or components related to the topic. Each fact should be succinct and supported by one or two important details to aid understanding.
-              Structure and Organization:
-                Group related facts into categories or themes to maintain logical coherence and enhance navigability.
 
             Formatting Instructions:
               Ensure the study sheet is clear and easy to read. Use bullet points for lists, bold headings for sections, and provide ample spacing for clarity.

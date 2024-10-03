@@ -11,6 +11,7 @@ export type StudyState =
   | "topic_saved"
   | "topic_default"
   | "recall_first_attempt"
+  | "recall_first_attempt_result"
   | "recall_hinting"
   | "recall_finished"
   | "reviewing"
@@ -140,6 +141,11 @@ Please select from the options below.`,
   {
     name: "recall_first_attempt",
     message: "Try to recall as much as you can. Good luck!"
+  },
+  {
+    name: "recall_first_attempt_result",
+    message: "Saved score and gap list. Creating feedback...",
+    hideInput: true
   },
   {
     name: "recall_hinting",

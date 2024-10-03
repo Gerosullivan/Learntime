@@ -78,8 +78,7 @@ export async function POST(request: Request) {
           studyState,
           studySheet,
           chatRecallMetadata,
-          studentMessage,
-          mentor_system_message
+          studentMessage
         )
 
       case "recall_finished":
