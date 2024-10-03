@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from "uuid"
 import { Message } from "ai"
 import { StudyState } from "@/lib/studyStates"
 import { updateChat } from "@/db/chats"
+import { studyStates } from "@/lib/studyStates"
 
 export const useChatHandler = () => {
   const router = useRouter()
@@ -25,11 +26,14 @@ export const useChatHandler = () => {
     setAllChatRecallAnalysis,
     chatRecallMetadata,
     setMessages,
-    setInput
+    messages,
+    setInput,
+    append
   } = useContext(LearntimeContext)
 
-  const makeMessageBody = () => {
-    if (chatStudyState === "topic_new") {
+  const makeMessageBody = (newStudyState?: StudyState) => {
+    const thisChatStudyState = newStudyState || chatStudyState
+    if (thisChatStudyState === "topic_new") {
       return // This case is now handled in ChatInput
     }
 
@@ -37,15 +41,13 @@ export const useChatHandler = () => {
 
     let randomRecallFact: string = ""
 
-    const isQuickQuiz: boolean =
-      chatStudyState === "quick_quiz_ready_hide_input" ||
-      chatStudyState === "quick_quiz_answer"
+    const isQuickQuiz: boolean = thisChatStudyState.startsWith("quick_quiz")
 
     let studySheet = topicDescription
     let quizFinished = allChatRecallAnalysis.length === 0
-    let studyState = chatStudyState
+    let studyState = thisChatStudyState
 
-    if (chatStudyState === "quick_quiz_ready_hide_input" && !quizFinished) {
+    if (thisChatStudyState === "quick_quiz_question" && !quizFinished) {
       const randomIndex = Math.floor(
         Math.random() * allChatRecallAnalysis.length
       )
@@ -59,9 +61,9 @@ export const useChatHandler = () => {
       const updated = [...allChatRecallAnalysis]
       updated.splice(randomIndex, 1)
       setAllChatRecallAnalysis(updated)
-      console.log("randomRecallFact", randomRecallFact, updated.length)
+      // console.log("randomRecallFact", randomRecallFact, updated.length)
     } else if (isQuickQuiz && quizFinished) {
-      studyState = "quick_quiz_finished_hide_input"
+      studyState = "quick_quiz_finished"
       setChatStudyState(studyState)
     }
 
@@ -112,21 +114,11 @@ export const useChatHandler = () => {
       )
     )
 
-    setChatStudyState("topic_describe_upload" as StudyState)
-
-    setMessages(prevMessages => [
-      ...prevMessages,
-      {
-        id: uuidv4(),
-        role: "assistant",
-        content: `Topic name saved. Please describe your topic below.
-  You can also upload files ⨁ as source material for me to generate your study notes.`
-      }
-    ])
+    handleNewState("topic_name_saved" as StudyState)
   }
 
   const handleStartTutorial = async () => {
-    setChatStudyState("tutorial_hide_input")
+    setChatStudyState("tutorial")
 
     const topic_description = `# States of Matter
 
@@ -169,20 +161,6 @@ export const useChatHandler = () => {
         setChats,
         topic_description
       )
-
-      setMessages([
-        {
-          id: uuidv4(),
-          role: "assistant",
-          content: `👋 Hello! I'm your AI Study Mentor.
-          
-I'm here to boost your learning by assisting with creating study notes and guiding you through optimally spaced study sessions.
-
-💡 Tip: You can always start this tutorial again by selecting the help button [?] bottom right and then the 'Tutorial' link.
-
-Please select 'Next' below 👇 to proceed with the tutorial, beginning with how to create a new set of notes.`
-        }
-      ])
     } catch (error) {
       console.log({ error })
     }
@@ -196,11 +174,84 @@ Please select 'Next' below 👇 to proceed with the tutorial, beginning with how
     return router.push(`/${selectedWorkspace.id}/chat`)
   }
 
+  const handleQuickResponseLLMCall = async (
+    message: string,
+    newStudyState: StudyState
+  ) => {
+    setChatStudyState(newStudyState)
+    const body = makeMessageBody(newStudyState)
+
+    append(
+      {
+        content: message,
+        role: "user",
+        id: uuidv4()
+      },
+      { body }
+    )
+  }
+
+  const handleNewState = (newState: StudyState) => {
+    const stateObject = studyStates.find(state => state.name === newState)
+    if (!stateObject) {
+      console.log("No state object found for", newState)
+      return
+    }
+    setChatStudyState(newState)
+    const assistantMessage = stateObject.message
+    if (assistantMessage === "{{LLM}}") {
+      return
+    }
+
+    let content
+    if (assistantMessage === "{{topicDescription}}") {
+      content = topicDescription
+    } else {
+      content = assistantMessage
+    }
+    setMessages(prevMessages => [
+      ...prevMessages,
+      {
+        id: uuidv4(),
+        content,
+        role: "assistant"
+      }
+    ])
+  }
+
+  const handleTopicSave = async () => {
+    if (selectedChat) {
+      const topicContent = messages[messages.length - 1].content
+      const response = await fetch("/api/update-topic-content", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          chatId: selectedChat.id,
+          content: topicContent
+        })
+      })
+      const data = await response.json()
+      if (!data.success) {
+        handleNewState("topic_describe_upload_error")
+      } else {
+        handleNewState("topic_saved")
+        setTopicDescription(topicContent)
+      }
+    } else {
+      handleNewState("topic_save_error")
+    }
+  }
+
   return {
     handleNewTopic,
     handleStartTutorial,
     handleCreateTopicName,
     makeMessageBody,
-    handleGoToWorkspace
+    handleGoToWorkspace,
+    handleNewState,
+    handleTopicSave,
+    handleQuickResponseLLMCall
   }
 }

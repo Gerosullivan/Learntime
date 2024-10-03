@@ -37,7 +37,6 @@ export default function ChatPage() {
     setSelectedChat(null)
 
     setMessages([])
-
     setChatStudyState("home")
   }, [])
 

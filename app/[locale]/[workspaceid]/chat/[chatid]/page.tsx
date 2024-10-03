@@ -5,18 +5,14 @@ import { LearntimeContext } from "@/context/context"
 import { getChatById } from "@/db/chats"
 import { useParams } from "next/navigation"
 import { useContext, useEffect, useState } from "react"
-import { v4 as uuidv4 } from "uuid"
 import Loading from "@/app/[locale]/loading"
+import { useChatHandler } from "@/components/chat/chat-hooks/use-chat-handler"
 
 export default function ChatIDPage() {
-  const {
-    setSelectedChat,
-    setTopicDescription,
-    setChatStudyState,
-    setMessages,
-    setInput,
-    chats
-  } = useContext(LearntimeContext)
+  const { setSelectedChat, setTopicDescription, setInput, chats, setMessages } =
+    useContext(LearntimeContext)
+
+  const { handleNewState } = useChatHandler()
 
   const [chatLoading, setChatLoading] = useState(true)
   const [chatTitle, setChatTitle] = useState("New topic")
@@ -48,38 +44,16 @@ export default function ChatIDPage() {
     if (!chat) return
 
     setSelectedChat(chat)
+    setMessages([])
 
     if (chat.topic_description) {
       setTopicDescription(chat.topic_description)
 
-      setMessages([
-        {
-          id: uuidv4(),
-          content: `Welcome back to the topic "${chat.name}".
-          Please select from the options below.`,
-          role: "assistant"
-        }
-      ])
-
-      setChatStudyState("topic_default_hide_input")
+      handleNewState("topic_default")
     } else if (chat.name && chat.name !== "New topic") {
-      setMessages([
-        {
-          id: uuidv4(),
-          content: `Please add topic description below for ${chat.name}.`,
-          role: "assistant"
-        }
-      ])
-      setChatStudyState("topic_describe_upload")
+      handleNewState("topic_no_description_in_db")
     } else {
-      setMessages([
-        {
-          id: uuidv4(),
-          content: `Enter your topic name below to start.`,
-          role: "assistant"
-        }
-      ])
-      setChatStudyState("topic_new")
+      handleNewState("topic_new")
       setInput("")
     }
   }

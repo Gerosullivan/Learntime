@@ -14,9 +14,6 @@ interface ChatUIProps {
 }
 
 export const ChatUI: FC<ChatUIProps> = ({ chatTitle }) => {
-  // const { selectedChat, setTopicDescription, chats } =
-  //   useContext(LearntimeContext)
-
   const { handleNewTopic } = useChatHandler()
 
   useHotkey("o", () => handleNewTopic())
