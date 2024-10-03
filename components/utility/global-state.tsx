@@ -55,7 +55,7 @@ export const GlobalState: FC<GlobalStateProps> = ({ children }) => {
     const newStudyState = response.headers.get("NEW-STUDY-STATE") as StudyState
 
     if (newStudyState) {
-      handleNewState(newStudyState)
+      setChatStudyState(newStudyState)
       // if (newStudyState === "topic_saved_hide_input") {
       //   const newTopicContent = await getChatById(selectedChat!.id)
       //   const topicDescription = newTopicContent!.topic_description || ""
@@ -73,33 +73,33 @@ export const GlobalState: FC<GlobalStateProps> = ({ children }) => {
       })
     }
 
-    const isQuickQuiz: boolean =
-      chatStudyState === "quick_quiz_ready" ||
-      chatStudyState === "quick_quiz_answer"
+    // const isQuickQuiz: boolean =
+    //   chatStudyState === "quick_quiz_ready" ||
+    //   chatStudyState === "quick_quiz_answer"
 
-    if (!selectedChat && !isQuickQuiz) {
-      const lastUserMessage = messages.find(message => message.role === "user")
-      const messageTitle = lastUserMessage?.content.substring(0, 100) || ""
-      await handleCreateChat(
-        profile!,
-        selectedWorkspace!,
-        messageTitle,
-        setSelectedChat,
-        setChats
-      )
-    } else if (!isQuickQuiz) {
-      const updatedChat = await getChatById(selectedChat!.id)
+    // if (!selectedChat && !isQuickQuiz) {
+    //   const lastUserMessage = messages.find(message => message.role === "user")
+    //   const messageTitle = lastUserMessage?.content.substring(0, 100) || ""
+    //   await handleCreateChat(
+    //     profile!,
+    //     selectedWorkspace!,
+    //     messageTitle,
+    //     setSelectedChat,
+    //     setChats
+    //   )
+    // } else if (!isQuickQuiz) {
+    //   const updatedChat = await getChatById(selectedChat!.id)
 
-      if (updatedChat) {
-        setChats(prevChats => {
-          const updatedChats = prevChats.map(prevChat =>
-            prevChat.id === updatedChat.id ? updatedChat : prevChat
-          )
+    //   if (updatedChat) {
+    //     setChats(prevChats => {
+    //       const updatedChats = prevChats.map(prevChat =>
+    //         prevChat.id === updatedChat.id ? updatedChat : prevChat
+    //       )
 
-          return updatedChats
-        })
-      }
-    }
+    //       return updatedChats
+    //     })
+    //   }
+    // }
   }
 
   const {
@@ -119,11 +119,11 @@ export const GlobalState: FC<GlobalStateProps> = ({ children }) => {
     }
   })
 
-  // useEffect(() => {
-  //   ;(async () => {
-  //     const profile = await fetchStartingData()
-  //   })()
-  // }, [])
+  useEffect(() => {
+    ;(async () => {
+      const profile = await fetchStartingData()
+    })()
+  }, [])
 
   const fetchStartingData = async () => {
     const session = (await supabase.auth.getSession()).data.session

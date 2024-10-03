@@ -14,17 +14,27 @@ const QuickResponse: React.FC<{
 }> = ({ setFiles }) => {
   const { chatStudyState, setMessages } = useContext(LearntimeContext)
 
-  const { handleNewState, handleTopicSave } = useChatHandler()
+  const { handleNewState, handleTopicSave, handleQuickResponseLLMCall } =
+    useChatHandler()
 
   const handleQuickResponse = async (
     message: string,
     newStudyState: StudyState
   ) => {
+    console.log({ newStudyState })
     setFiles(null)
+
     if (!newStudyState) return
+
     const newStudyStateObject = getStudyStateObject(newStudyState)
+
     if (!newStudyStateObject) {
       console.log("No study state object found for", newStudyState)
+      return
+    }
+
+    if (newStudyStateObject.message === "{{LLM}}") {
+      handleQuickResponseLLMCall(message, newStudyState)
       return
     }
 

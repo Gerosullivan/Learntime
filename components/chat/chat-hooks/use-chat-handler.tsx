@@ -27,11 +27,13 @@ export const useChatHandler = () => {
     chatRecallMetadata,
     setMessages,
     messages,
-    setInput
+    setInput,
+    append
   } = useContext(LearntimeContext)
 
-  const makeMessageBody = () => {
-    if (chatStudyState === "topic_new") {
+  const makeMessageBody = (newStudyState?: StudyState) => {
+    const thisChatStudyState = newStudyState || chatStudyState
+    if (thisChatStudyState === "topic_new") {
       return // This case is now handled in ChatInput
     }
 
@@ -39,15 +41,13 @@ export const useChatHandler = () => {
 
     let randomRecallFact: string = ""
 
-    const isQuickQuiz: boolean =
-      chatStudyState === "quick_quiz_ready" ||
-      chatStudyState === "quick_quiz_answer"
+    const isQuickQuiz: boolean = thisChatStudyState.startsWith("quick_quiz")
 
     let studySheet = topicDescription
     let quizFinished = allChatRecallAnalysis.length === 0
-    let studyState = chatStudyState
+    let studyState = thisChatStudyState
 
-    if (chatStudyState === "quick_quiz_ready" && !quizFinished) {
+    if (thisChatStudyState === "quick_quiz_question" && !quizFinished) {
       const randomIndex = Math.floor(
         Math.random() * allChatRecallAnalysis.length
       )
@@ -174,13 +174,36 @@ export const useChatHandler = () => {
     return router.push(`/${selectedWorkspace.id}/chat`)
   }
 
+  const handleQuickResponseLLMCall = async (
+    message: string,
+    newStudyState: StudyState
+  ) => {
+    setChatStudyState(newStudyState)
+    const body = makeMessageBody(newStudyState)
+
+    append(
+      {
+        content: message,
+        role: "user",
+        id: uuidv4()
+      },
+      { body }
+    )
+  }
+
   const handleNewState = (newState: StudyState) => {
+    console.log("handleNewState", newState, "old study state: ", chatStudyState)
     const stateObject = studyStates.find(state => state.name === newState)
     if (!stateObject) {
       console.log("No state object found for", newState)
       return
     }
+    setChatStudyState(newState)
     const assistantMessage = stateObject.message
+    if (assistantMessage === "{{LLM}}") {
+      return
+    }
+
     let content
     if (assistantMessage === "{{topicDescription}}") {
       content = topicDescription
@@ -195,7 +218,6 @@ export const useChatHandler = () => {
         role: "assistant"
       }
     ])
-    setChatStudyState(newState)
   }
 
   const handleTopicSave = async () => {
@@ -230,6 +252,7 @@ export const useChatHandler = () => {
     makeMessageBody,
     handleGoToWorkspace,
     handleNewState,
-    handleTopicSave
+    handleTopicSave,
+    handleQuickResponseLLMCall
   }
 }

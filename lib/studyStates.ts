@@ -27,7 +27,10 @@ export type StudyState =
   | "tutorial_finished_2"
   | "final_review"
   | "quick_quiz_ready"
+  | "quick_quiz_question"
+  | "quick_quiz_user_answer"
   | "quick_quiz_answer"
+  | "quick_quiz_answer_next"
   | "quick_quiz_finished"
 
 export interface QuickResponse {
@@ -312,17 +315,36 @@ Enjoy your learning journey!`,
     quickResponses: [
       {
         quickText: "Next question.",
+        newStudyState: "quick_quiz_question"
+      }
+    ]
+  },
+  {
+    name: "quick_quiz_question",
+    message: "{{LLM}}"
+  },
+  {
+    name: "quick_quiz_user_answer",
+    message: "{{LLM}}",
+    quickResponses: [
+      {
+        quickText: "I don't know.",
         newStudyState: "quick_quiz_answer"
       }
     ]
   },
   {
     name: "quick_quiz_answer",
+    message: "{{LLM}}"
+  },
+  {
+    name: "quick_quiz_answer_next",
     message: "{{LLM}}",
+    hideInput: true,
     quickResponses: [
       {
-        quickText: "I don't know.",
-        newStudyState: "quick_quiz_answer"
+        quickText: "Another question.",
+        newStudyState: "quick_quiz_question"
       }
     ]
   },

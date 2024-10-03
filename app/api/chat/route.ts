@@ -390,7 +390,7 @@ export async function POST(request: Request) {
         })
 
         return chatStreamResponse.toDataStreamResponse()
-      case "quick_quiz_ready":
+      case "quick_quiz_question":
         chatStreamResponse = await streamText({
           model: defaultModel,
           temperature: 0.3,
@@ -409,7 +409,7 @@ export async function POST(request: Request) {
             }
           ])
         })
-        newStudyState = "quick_quiz_answer"
+        newStudyState = "quick_quiz_user_answer"
         return chatStreamResponse.toDataStreamResponse({
           headers: {
             "NEW-STUDY-STATE": newStudyState
@@ -446,7 +446,7 @@ export async function POST(request: Request) {
         newStudyState =
           studyState === "quick_quiz_finished"
             ? "quick_quiz_finished"
-            : "quick_quiz_ready"
+            : "quick_quiz_answer_next"
         return chatStreamResponse.toDataStreamResponse({
           headers: {
             "NEW-STUDY-STATE": newStudyState

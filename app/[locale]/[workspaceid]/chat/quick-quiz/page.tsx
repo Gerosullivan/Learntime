@@ -6,7 +6,7 @@ import { useContext, useEffect } from "react"
 import { useChatHandler } from "@/components/chat/chat-hooks/use-chat-handler"
 
 export default function ChatIDPage() {
-  console.log("Quick Quiz Page")
+  // console.log("Quick Quiz Page")
   const { setSelectedChat, allChatRecallAnalysis, setMessages } =
     useContext(LearntimeContext)
 
@@ -14,11 +14,10 @@ export default function ChatIDPage() {
 
   useEffect(() => {
     setSelectedChat(null)
-    if (allChatRecallAnalysis.length > 0) {
-      setMessages([])
-      handleNewState("quick_quiz_ready")
-    }
-  }, [allChatRecallAnalysis])
+
+    setMessages([])
+    handleNewState("quick_quiz_ready")
+  }, [])
 
   return <ChatUI chatTitle="Quick Quiz" />
 }
