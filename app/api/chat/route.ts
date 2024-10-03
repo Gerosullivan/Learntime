@@ -55,6 +55,8 @@ export async function POST(request: Request) {
     const hintingModel = defaultModel
 
     switch (studyState) {
+      case "topic_name_saved":
+      case "topic_auto_generate":
       case "topic_describe_upload":
       case "topic_no_description_in_db":
         chatStreamResponse = await streamText({

@@ -3,6 +3,7 @@ export type StudyState =
   | "topic_new"
   | "topic_name_saved"
   | "topic_describe_upload"
+  | "topic_auto_generate"
   | "topic_describe_upload_error"
   | "topic_no_description_in_db"
   | "topic_generated"
@@ -70,7 +71,17 @@ export const studyStates: StudyStateObject[] = [
   {
     name: "topic_name_saved",
     message: `Topic name saved. Please describe your topic below.
-  You can also upload files ⨁ as source material for me to generate your study notes.`
+  You can also upload files ⨁ as source material for me to generate your study notes.`,
+    quickResponses: [
+      {
+        quickText: "Generate notes for me.",
+        newStudyState: "topic_auto_generate"
+      }
+    ]
+  },
+  {
+    name: "topic_auto_generate",
+    message: "{{LLM}}"
   },
   {
     name: "topic_save_error",
