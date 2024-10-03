@@ -8,6 +8,7 @@ import {
 } from "ai"
 import { formatDistanceToNow } from "date-fns/esm"
 import { openai } from "./registry"
+import { handleTopicGeneration } from "@/lib/server/topic-generation-handler"
 
 // export const runtime = "edge"
 export const dynamic = "force-dynamic"
@@ -59,35 +60,11 @@ export async function POST(request: Request) {
       case "topic_auto_generate":
       case "topic_describe_upload":
       case "topic_no_description_in_db":
-        chatStreamResponse = await streamText({
-          model: defaultModel,
-          temperature: 0.2,
-          messages: convertToCoreMessages([
-            {
-              role: "system",
-              content: `Objective: Create a detailed study sheet for a specified topic. The study sheet should be concise, informative, and well-organized to facilitate quick learning and retention. Important: generate the study sheet text only. Do not generate additional text like summary, notes or additional text not in study sheet text.
-                Instructions:
-                  Introduction to the Topic:
-                    Provide a brief overview of the topic, including its significance and general context.
-                  Key Components or Concepts:
-                    List the key facts or components related to the topic. Each fact should be succinct and supported by one or two important details to aid understanding.
-                  Structure and Organization:
-                    Group related facts into categories or themes to maintain logical coherence and enhance navigability.
-    
-                Formatting Instructions:
-                  Ensure the study sheet is clear and easy to read. Use bullet points for lists, bold headings for sections, and provide ample spacing for clarity.
-                  Do not generate additional text like summary, notes or additional text not in study sheet text.${studentContext}`
-            },
-            ...messages
-          ])
-        })
-
-        newStudyState = "topic_generated"
-        return chatStreamResponse.toDataStreamResponse({
-          headers: {
-            "NEW-STUDY-STATE": newStudyState
-          }
-        })
+        return await handleTopicGeneration(
+          defaultModel,
+          messages,
+          studentContext
+        )
 
       case "recall_tutorial_first_attempt":
       case "recall_first_attempt":
@@ -345,7 +322,7 @@ export async function POST(request: Request) {
               role: "assistant",
               content: `Great effort! 🌟 You got the first part right; indeed, Venus has a day that is longer than its year due to its incredibly slow rotation. That's an interesting fact not many remember! 🕒
     
-                However, about Venus's past, it was actually thought to have been a habitable ocean world similar to Earth, not a dry desert. Scientists believe it may have had large amounts of surface water which later disappeared due to a runaway greenhouse effect. 🌊➡️🔥
+                However, about Venus's past, it was actually thought to have been a habitable ocean world similar to Earth, not a dry desert. Scientists believe it may have had large amounts of surface water which later disappeared due to a runaway greenhouse effect. 🌊️🔥
     
                 You're doing well with a 50% correct recall before we went through the hints. Keep it up!
     
@@ -460,7 +437,7 @@ export async function POST(request: Request) {
         throw new Error("Invalid study state")
     }
   } catch (error: any) {
-    console.error(error)
+    console.error("Error in POST route:", error)
     const errorMessage = error.message || "An unexpected error occurred"
     const errorCode = error.status || 500
     return new Response(JSON.stringify({ message: errorMessage }), {
