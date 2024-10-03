@@ -61,7 +61,7 @@ export const useChatHandler = () => {
       const updated = [...allChatRecallAnalysis]
       updated.splice(randomIndex, 1)
       setAllChatRecallAnalysis(updated)
-      console.log("randomRecallFact", randomRecallFact, updated.length)
+      // console.log("randomRecallFact", randomRecallFact, updated.length)
     } else if (isQuickQuiz && quizFinished) {
       studyState = "quick_quiz_finished"
       setChatStudyState(studyState)
@@ -192,7 +192,6 @@ export const useChatHandler = () => {
   }
 
   const handleNewState = (newState: StudyState) => {
-    console.log("handleNewState", newState, "old study state: ", chatStudyState)
     const stateObject = studyStates.find(state => state.name === newState)
     if (!stateObject) {
       console.log("No state object found for", newState)

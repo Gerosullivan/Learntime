@@ -5,7 +5,6 @@ import { ChatUI } from "@/components/chat/chat-ui"
 import { useEffect } from "react"
 
 export default function ChatIDPage() {
-  console.log("New tutorial Page")
   const { handleStartTutorial } = useChatHandler()
 
   useEffect(() => {

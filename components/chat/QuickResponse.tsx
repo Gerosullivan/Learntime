@@ -21,7 +21,6 @@ const QuickResponse: React.FC<{
     message: string,
     newStudyState: StudyState
   ) => {
-    console.log({ newStudyState })
     setFiles(null)
 
     if (!newStudyState) return
@@ -76,7 +75,6 @@ const QuickResponse: React.FC<{
       {quickResponses.map((quickResponse: QuickResponseType, index) => (
         <div key={index} className={`${widthClass(index)} p-2`}>
           <button
-            // data-new-study-state={quickResponse.newStudyState}
             className="flex w-full items-center justify-between rounded-md border border-blue-500 px-4 py-2 text-left text-blue-500 transition-colors hover:bg-blue-500 hover:text-white"
             onClick={() =>
               handleQuickResponse(

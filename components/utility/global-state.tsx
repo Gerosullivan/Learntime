@@ -11,12 +11,8 @@ import { Tables } from "@/supabase/types"
 import { ChatRecallMetadata } from "@/lib/studyStates"
 import { WorkspaceImage } from "@/types"
 import { useChat } from "ai/react"
-import { getChatById } from "@/db/chats"
-
 import { useRouter } from "next/navigation"
 import { FC, useEffect, useState } from "react"
-import { handleCreateChat } from "../chat/chat-helpers"
-import { useChatHandler } from "../chat/chat-hooks/use-chat-handler"
 
 interface GlobalStateProps {
   children: React.ReactNode
@@ -24,8 +20,6 @@ interface GlobalStateProps {
 
 export const GlobalState: FC<GlobalStateProps> = ({ children }) => {
   const router = useRouter()
-
-  const { handleNewState } = useChatHandler()
 
   // PROFILE STORE
   const [profile, setProfile] = useState<Tables<"profiles"> | null>(null)
@@ -51,7 +45,6 @@ export const GlobalState: FC<GlobalStateProps> = ({ children }) => {
   >([])
 
   const handleResponse = async (response: Response) => {
-    // console.log("Received HTTP response from server:", response)
     const newStudyState = response.headers.get("NEW-STUDY-STATE") as StudyState
 
     if (newStudyState) {

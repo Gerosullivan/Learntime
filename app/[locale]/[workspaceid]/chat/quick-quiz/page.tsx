@@ -6,7 +6,6 @@ import { useContext, useEffect } from "react"
 import { useChatHandler } from "@/components/chat/chat-hooks/use-chat-handler"
 
 export default function ChatIDPage() {
-  // console.log("Quick Quiz Page")
   const { setSelectedChat, allChatRecallAnalysis, setMessages } =
     useContext(LearntimeContext)
 

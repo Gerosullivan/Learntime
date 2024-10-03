@@ -106,6 +106,8 @@ export const ChatInput: FC<ChatInputProps> = ({ files, setFiles }) => {
     }
   }
 
+  const showInput = !isHideInput(chatStudyState)
+
   return (
     <>
       <div className="flex flex-col flex-wrap justify-center gap-2">
@@ -152,7 +154,7 @@ export const ChatInput: FC<ChatInputProps> = ({ files, setFiles }) => {
         </AnimatePresence>
       </div>
 
-      {!isHideInput(chatStudyState) && (
+      {showInput && (
         <form
           onSubmit={handleFormSubmit}
           className="border-input relative mt-3 flex min-h-[60px] w-full items-center justify-center rounded-xl border-2"

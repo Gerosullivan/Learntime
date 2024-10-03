@@ -14,8 +14,6 @@ export async function handleHinting(
       ? messages.slice(-4, -3)[0]
       : messages.slice(-2, -1)[0]
 
-  console.log({ mentorHintsMessage }, { chatRecallMetadata })
-
   const chatStreamResponse = await streamText({
     model: hintingModel,
     temperature: 0.3,
