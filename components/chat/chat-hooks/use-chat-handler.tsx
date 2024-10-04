@@ -128,8 +128,7 @@ ${selectedWorkspace?.instructions || ""}
   }
 
   const handleStartTutorial = async () => {
-    setChatStudyState("tutorial")
-
+    setMessages([])
     const topic_description = `# States of Matter
 
 ## Overview 
@@ -176,6 +175,7 @@ ${selectedWorkspace?.instructions || ""}
     }
 
     setTopicDescription(topic_description)
+    handleNewState("tutorial")
   }
 
   const handleGoToWorkspace = () => {
