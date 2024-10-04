@@ -7,7 +7,7 @@ export async function handleQuickQuizAnswer(
   studyState: StudyState,
   studySheet: string,
   studentMessage: any,
-  studentContext: string
+  systemContext: string
 ) {
   const noMoreQuizQuestions = studyState === "quick_quiz_finished"
   const previousQuizQuestion = messages[messages.length - 2].content
@@ -15,15 +15,19 @@ export async function handleQuickQuizAnswer(
     ? "Finally advise the student there are no more quiz questions available. Come back again another time."
     : ""
 
-  const quickQuizSystemMessage = `You are helpful, friendly quiz master. Generate short answer quiz questions based on a provided fact. Never give the answer to the question when generating the question text. Do not state which step of the instructions you are on.${studentContext}`
-
   const chatStreamResponse = await streamText({
     model: defaultModel,
     temperature: 0.3,
     messages: convertToCoreMessages([
       {
         role: "system",
-        content: `${quickQuizSystemMessage}. Always provide the answer when giving feedback to the student. If the student answers "I don't know.", just give the answer.`
+        content: `You are helpful, friendly quiz master. 
+Generate short answer quiz questions based on a provided fact. 
+Never give the answer to the question when generating the question text. 
+Do not state which step of the instructions you are on.
+Always provide the answer when giving feedback to the student. 
+If the student answers "I don't know.", just give the answer.
+${systemContext}`
       },
       {
         role: "user",

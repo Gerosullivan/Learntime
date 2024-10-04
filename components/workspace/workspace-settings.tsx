@@ -206,7 +206,7 @@ export const WorkspaceSettings: FC<WorkspaceSettingsProps> = ({}) => {
 
               <div className="space-y-1">
                 <Label>
-                  How would you like the AI to respond in this workspace?
+                  How would you like the AI to respond in this MemoryStack?
                 </Label>
 
                 <TextareaAutosize

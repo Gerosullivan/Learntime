@@ -67,13 +67,23 @@ export const useChatHandler = () => {
       setChatStudyState(studyState)
     }
 
+    const systemContext = `
+User Info:
+${profile?.profile_context || ""}
+
+
+System Instructions for module ${selectedWorkspace?.name || ""}:
+${selectedWorkspace?.instructions || ""}
+
+`
+
     return {
       chatId: currentChat?.id,
       studyState,
       studySheet,
       chatRecallMetadata,
       randomRecallFact,
-      profile_context: profile?.profile_context || ""
+      systemContext
     }
   }
 

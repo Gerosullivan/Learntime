@@ -135,11 +135,11 @@ export async function updateTopicOnRecall(
 
   // map test_result to a rating
   let rating: Rating
-  if (test_result < 50) {
+  if (test_result < 40) {
     rating = Rating.Again
-  } else if (test_result < 75) {
+  } else if (test_result < 65) {
     rating = Rating.Hard
-  } else if (test_result < 90) {
+  } else if (test_result < 85) {
     rating = Rating.Good
   } else {
     rating = Rating.Easy

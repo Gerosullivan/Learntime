@@ -13,6 +13,8 @@ import { WorkspaceImage } from "@/types"
 import { useChat } from "ai/react"
 import { useRouter } from "next/navigation"
 import { FC, useEffect, useState } from "react"
+import { getChatById } from "@/db/chats"
+import { toast } from "sonner"
 
 interface GlobalStateProps {
   children: React.ReactNode
@@ -60,6 +62,22 @@ export const GlobalState: FC<GlobalStateProps> = ({ children }) => {
         dueDateFromNow: dueDateFromNow!
       })
     }
+
+    const isQuickQuiz: boolean = chatStudyState.startsWith("quick_quiz")
+
+    if (!isQuickQuiz) {
+      const updatedChat = await getChatById(selectedChat!.id)
+
+      if (updatedChat) {
+        setChats(prevChats => {
+          const updatedChats = prevChats.map(prevChat =>
+            prevChat.id === updatedChat.id ? updatedChat : prevChat
+          )
+
+          return updatedChats
+        })
+      }
+    }
   }
 
   const {
@@ -76,6 +94,9 @@ export const GlobalState: FC<GlobalStateProps> = ({ children }) => {
     keepLastMessageOnError: true,
     onResponse: response => {
       handleResponse(response)
+    },
+    onError: error => {
+      toast.error(error.message)
     }
   })
 

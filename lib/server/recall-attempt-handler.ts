@@ -11,26 +11,17 @@ import { formatDistanceToNow } from "date-fns/esm"
 export async function handleRecallAttempt(
   scoringModel: LanguageModel,
   defaultModel: LanguageModel,
-  messages: any[],
   studyState: StudyState,
   studySheet: string,
   chatId: string,
   studentMessage: any,
-  mentor_system_message: string,
-  finalFeedback: string
+  systemContext: string
 ) {
   let date_from_now = ""
   let recallScore = 0
   let forgottenOrIncorrectFacts: string[] = []
 
-  let content = `
-<TopicSource>
-${studySheet}
-</TopicSource>
-<StudentRecall>
-${studentMessage.content}
-</StudentRecall>              
-          `
+  const finalFeedback = `Finally, ask the student if they wish to revisit the topic's source material to enhance understanding or clarify any uncertainties.`
 
   const { text } = await generateText({
     model: scoringModel,
@@ -42,7 +33,13 @@ ${studentMessage.content}
       },
       {
         role: "user",
-        content
+        content: `
+<TopicSource>
+${studySheet}
+</TopicSource>
+<StudentRecall>
+${studentMessage.content}
+</StudentRecall>`
       }
     ])
   })
@@ -73,6 +70,11 @@ ${studentMessage.content}
 
   let chatStreamResponse
   let newStudyState: StudyState
+
+  const mentor_system_message = `You are helpful, friendly study mentor. 
+  ${systemContext}
+  IMPORTANT: When generating Corrections do not provide answers (additions) to ommited or forgotten facts. 
+  When generating Hints for Forgotten facts, provide hints and clues without giving away answers.`
 
   if (allRecalled) {
     newStudyState =
