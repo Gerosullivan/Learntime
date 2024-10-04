@@ -68,17 +68,14 @@ export const useChatHandler = () => {
     }
 
     const systemContext = `
-<user_instructions>
+User Info:
 ${profile?.profile_context || ""}
-</user_instructions>
 
-<module_name>${selectedWorkspace?.name || ""}</module_name>
 
-<module_instructions>
+System Instructions for module ${selectedWorkspace?.name || ""}:
 ${selectedWorkspace?.instructions || ""}
-</module_instructions>
 
-`.trim()
+`
 
     return {
       chatId: currentChat?.id,

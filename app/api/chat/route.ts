@@ -60,7 +60,8 @@ export async function POST(request: Request) {
           messages,
           studyState,
           studySheet,
-          chatRecallMetadata
+          chatRecallMetadata,
+          systemContext
         )
 
       case "recall_finished":

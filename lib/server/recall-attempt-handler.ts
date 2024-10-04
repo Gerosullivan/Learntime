@@ -15,7 +15,7 @@ export async function handleRecallAttempt(
   studySheet: string,
   chatId: string,
   studentMessage: any,
-  studentContext: string
+  systemContext: string
 ) {
   let date_from_now = ""
   let recallScore = 0
@@ -72,7 +72,7 @@ ${studentMessage.content}
   let newStudyState: StudyState
 
   const mentor_system_message = `You are helpful, friendly study mentor. 
-  ${studentContext}
+  ${systemContext}
   IMPORTANT: When generating Corrections do not provide answers (additions) to ommited or forgotten facts. 
   When generating Hints for Forgotten facts, provide hints and clues without giving away answers.`
 

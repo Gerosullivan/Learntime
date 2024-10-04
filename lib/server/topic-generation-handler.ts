@@ -4,7 +4,7 @@ import { StudyState } from "@/lib/studyStates"
 export async function handleTopicGeneration(
   defaultModel: LanguageModel,
   messages: any[],
-  studentContext: string
+  systemContext: string
 ) {
   try {
     const chatStreamResponse = await streamText({
@@ -28,7 +28,7 @@ Formatting Instructions:
     Ensure the study sheet is clear and easy to read. Use bullet points for lists, bold headings for sections, and provide ample spacing for clarity.
     Do not generate additional text like summary, notes or additional text not in study sheet text.
 
-${studentContext}
+${systemContext}
 `
         },
         ...messages

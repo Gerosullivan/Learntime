@@ -6,7 +6,8 @@ export async function handleHinting(
   messages: any[],
   studyState: StudyState,
   studySheet: string,
-  chatRecallMetadata: any
+  chatRecallMetadata: any,
+  systemContext: string
 ) {
   const chatStreamResponse = await streamText({
     model: hintingModel,
@@ -14,13 +15,14 @@ export async function handleHinting(
     messages: convertToCoreMessages([
       {
         role: "system",
-        content: `When constructing feedback for a student's attempt at answering hints on a recall test, follow these guidelines:
+        content: `${systemContext}
+When constructing feedback for a student's attempt at answering hints on a recall test, follow these guidelines:
   
-  Positive Reinforcement:
+Positive Reinforcement:
   
-  Begin with an encouraging statement that acknowledges the student's effort.
-  Use positive language and emojis to create a friendly tone.
-  Example: "Great effort! 🌟"
+Begin with an encouraging statement that acknowledges the student's effort.
+Use positive language and emojis to create a friendly tone.
+Example: "Great effort! 🌟"
   
   
   Highlight Correct Answers:
