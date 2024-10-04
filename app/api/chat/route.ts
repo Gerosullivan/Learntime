@@ -21,24 +21,10 @@ export async function POST(request: Request) {
       studySheet,
       chatRecallMetadata,
       randomRecallFact,
-      profile_context,
-      workspaceInstructions
+      systemContext
     } = json
 
     const studentMessage = messages[messages.length - 1]
-
-    const systemContext = [
-      profile_context.length > 0
-        ? `Here is how the student would like you to respond:
-      """${profile_context}"""`
-        : "",
-      workspaceInstructions.length > 0
-        ? `Here are the workspace instructions:
-      """${workspaceInstructions}"""`
-        : ""
-    ]
-      .filter(Boolean)
-      .join("\n\n")
 
     const defaultModel = openai("gpt-4o-mini") as LanguageModel
     const scoringModel = defaultModel
@@ -52,7 +38,7 @@ export async function POST(request: Request) {
         return await handleTopicGeneration(
           defaultModel,
           messages,
-          studentContext
+          systemContext
         )
 
       case "recall_tutorial_first_attempt":
@@ -64,7 +50,7 @@ export async function POST(request: Request) {
           studySheet,
           chatId,
           studentMessage,
-          studentContext
+          systemContext
         )
 
       case "recall_tutorial_hinting":
@@ -79,14 +65,14 @@ export async function POST(request: Request) {
 
       case "recall_finished":
       case "reviewing":
-        return await handleReview(defaultModel, messages, studentContext)
+        return await handleReview(defaultModel, messages, systemContext)
 
       case "quick_quiz_question":
         return await handleQuickQuizQuestion(
           defaultModel,
           studySheet,
           randomRecallFact,
-          studentContext
+          systemContext
         )
 
       case "quick_quiz_answer":
@@ -98,7 +84,7 @@ export async function POST(request: Request) {
           studyState,
           studySheet,
           studentMessage,
-          studentContext
+          systemContext
         )
 
       default:
