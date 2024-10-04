@@ -7,7 +7,7 @@ const FeedbackAndHelp = () => {
       <div className="fixed bottom-1  hidden md:block">
         <FeedbackButton />
       </div>
-      <div className="absolute bottom-2 right-2 hidden md:block lg:bottom-4 lg:right-4">
+      <div className="absolute bottom-2 right-2 md:block lg:bottom-4 lg:right-4">
         <ChatHelp />
       </div>
     </>
