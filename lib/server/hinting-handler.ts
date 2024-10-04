@@ -6,14 +6,8 @@ export async function handleHinting(
   messages: any[],
   studyState: StudyState,
   studySheet: string,
-  chatRecallMetadata: any,
-  studentMessage: any
+  chatRecallMetadata: any
 ) {
-  const mentorHintsMessage =
-    studyState === "recall_tutorial_hinting"
-      ? messages.slice(-4, -3)[0]
-      : messages.slice(-2, -1)[0]
-
   const chatStreamResponse = await streamText({
     model: hintingModel,
     temperature: 0.3,
@@ -35,9 +29,6 @@ export async function handleHinting(
   <StudySheet>
   ${studySheet}.
   <StudySheet>
-  Reinforce correct information with additional context or interesting facts.
-  Example: "You got the first part right; indeed, Venus has a day that is longer than its year due to its incredibly slow rotation."
-  
   
   Address Incorrect Answers:
   

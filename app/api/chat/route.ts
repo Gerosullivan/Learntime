@@ -1,7 +1,4 @@
-import { StudyState } from "@/lib/studyStates"
-import { updateTopicOnRecall } from "@/lib/server/server-chat-helpers"
 import { LanguageModel } from "ai"
-import { formatDistanceToNow } from "date-fns/esm"
 import { openai } from "./registry"
 import { handleTopicGeneration } from "@/lib/server/topic-generation-handler"
 import { handleRecallAttempt } from "@/lib/server/recall-attempt-handler"
@@ -24,22 +21,24 @@ export async function POST(request: Request) {
       studySheet,
       chatRecallMetadata,
       randomRecallFact,
-      profile_context
+      profile_context,
+      workspaceInstructions
     } = json
 
     const studentMessage = messages[messages.length - 1]
 
-    const studentContext =
+    const systemContext = [
       profile_context.length > 0
         ? `Here is how the student would like you to respond:
       """${profile_context}"""`
+        : "",
+      workspaceInstructions.length > 0
+        ? `Here are the workspace instructions:
+      """${workspaceInstructions}"""`
         : ""
-    const mentor_system_message = `You are helpful, friendly study mentor. 
-    ${studentContext}
-    IMPORTANT: When generating Corrections do not provide answers (additions) to ommited or forgotten facts. 
-    When generating Hints for Forgotten facts, provide hints and clues without giving away answers.`
-
-    const finalFeedback = `Finally, ask the student if they wish to revisit the topic's source material to enhance understanding or clarify any uncertainties.`
+    ]
+      .filter(Boolean)
+      .join("\n\n")
 
     const defaultModel = openai("gpt-4o-mini") as LanguageModel
     const scoringModel = defaultModel
@@ -61,13 +60,11 @@ export async function POST(request: Request) {
         return await handleRecallAttempt(
           scoringModel,
           defaultModel,
-          messages,
           studyState,
           studySheet,
           chatId,
           studentMessage,
-          mentor_system_message,
-          finalFeedback
+          studentContext
         )
 
       case "recall_tutorial_hinting":
@@ -77,8 +74,7 @@ export async function POST(request: Request) {
           messages,
           studyState,
           studySheet,
-          chatRecallMetadata,
-          studentMessage
+          chatRecallMetadata
         )
 
       case "recall_finished":
@@ -94,6 +90,7 @@ export async function POST(request: Request) {
         )
 
       case "quick_quiz_answer":
+      case "quick_quiz_user_answer":
       case "quick_quiz_finished":
         return await handleQuickQuizAnswer(
           defaultModel,

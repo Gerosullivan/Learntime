@@ -73,7 +73,8 @@ export const useChatHandler = () => {
       studySheet,
       chatRecallMetadata,
       randomRecallFact,
-      profile_context: profile?.profile_context || ""
+      profile_context: profile?.profile_context || "",
+      workspaceInstructions: selectedWorkspace?.instructions || ""
     }
   }
 
