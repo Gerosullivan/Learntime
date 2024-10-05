@@ -211,7 +211,7 @@ export const ChatInput: FC<ChatInputProps> = ({ files, setFiles }) => {
         </form>
       )}
       {process.env.NODE_ENV === "development" && (
-        <div className="fixed right-2 top-2 rounded-md bg-black bg-opacity-50 p-2 text-sm text-white">
+        <div className="fixed bottom-0 right-0 bg-black bg-opacity-20 p-1 text-sm text-white">
           {chatStudyState}
         </div>
       )}

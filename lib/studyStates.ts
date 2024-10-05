@@ -187,7 +187,7 @@ Please select from the options below.`,
           
 I'm here to boost your learning by assisting with creating study notes and guiding you through optimally spaced study sessions.
 
-💡 Tip: You can always start this tutorial again by selecting the help button [?] bottom right and then the 'Tutorial' link.
+💡 Tip: You can always start this tutorial again by selecting the help button [?] top right and then the 'Tutorial' link.
 
 Please select 'Next' below 👇 to proceed with the tutorial, beginning with how to create a new set of notes.`,
     hideInput: true,
