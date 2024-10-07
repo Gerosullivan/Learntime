@@ -98,6 +98,15 @@ export const GlobalState: FC<GlobalStateProps> = ({ children }) => {
     onError: error => {
       toast.error(error.message)
     }
+    // run client-side tools that are automatically executed:
+    // async onToolCall({ toolCall }) {
+    //   if (toolCall.toolName === "saveResultInDatabase") {
+    //     setChatRecallMetadata({
+    //       score: parseInt(score),
+    //       dueDateFromNow: dueDateFromNow!
+    //     })
+    //   }
+    // }
   })
 
   useEffect(() => {

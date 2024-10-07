@@ -4,7 +4,7 @@ import { IconMoodSmile, IconPencil, IconSparkles } from "@tabler/icons-react"
 import Image from "next/image"
 import { FC, useContext } from "react"
 import { MessageMarkdown } from "./message-markdown"
-import { Message as MessageType } from "ai"
+import { Message as MessageType, ToolInvocation } from "ai"
 import { motion } from "framer-motion"
 
 const ICON_SIZE = 32
@@ -69,6 +69,38 @@ export const Message: FC<MessageProps> = ({ message, isLast }) => {
               </div>
             )}
             <MessageMarkdown content={message.content} />
+            {message.toolInvocations?.map((toolInvocation: ToolInvocation) => {
+              const toolCallId = toolInvocation.toolCallId
+
+              // render confirmation tool (client-side tool with user interaction)
+              if (toolInvocation.toolName === "optimalFeedback") {
+                return (
+                  <div key={toolCallId} className="text-gray-500">
+                    {toolInvocation.args.message}
+                    <div className="flex gap-2">
+                      {"result" in toolInvocation ? (
+                        <b>{toolInvocation.result}</b>
+                      ) : (
+                        <b>{toolInvocation.args.score}</b>
+                      )}
+                    </div>
+                  </div>
+                )
+              }
+
+              // other tools:
+              return "result" in toolInvocation ? (
+                <div key={toolCallId} className="text-gray-500">
+                  Tool call {`${toolInvocation.toolName}: `}
+                  {toolInvocation.result}
+                </div>
+              ) : (
+                <div key={toolCallId} className="text-gray-500">
+                  Calling {toolInvocation.toolName}...
+                </div>
+              )
+            })}
+
             {message.experimental_attachments &&
               message.experimental_attachments.length > 0 && (
                 <div className="mt-2 flex flex-row gap-2">

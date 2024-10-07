@@ -27,7 +27,7 @@ export async function POST(request: Request) {
     const studentMessage = messages[messages.length - 1]
 
     const defaultModel = openai("gpt-4o-mini") as LanguageModel
-    const scoringModel = defaultModel
+    const scoringModel = openai("gpt-4o") as LanguageModel
     const hintingModel = defaultModel
 
     switch (studyState) {

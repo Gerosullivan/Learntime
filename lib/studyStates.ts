@@ -13,6 +13,7 @@ export type StudyState =
   | "recall_first_attempt"
   | "recall_first_attempt_result"
   | "recall_hinting"
+  | "recall_first_feedback"
   | "recall_finished"
   | "reviewing"
   | "tutorial"
@@ -143,6 +144,25 @@ Please select from the options below.`,
     message: "Try to recall as much as you can. Good luck!"
   },
   {
+    name: "recall_first_feedback",
+    message: "{{LLM}}",
+    hideInput: true,
+    quickResponses: [
+      {
+        quickText: "Show all hints.",
+        newStudyState: "recall_hinting"
+      },
+      {
+        quickText: "Start topic quick quiz.",
+        newStudyState: "quick_quiz_ready"
+      },
+      {
+        quickText: "Show final feedback.",
+        newStudyState: "recall_finished"
+      }
+    ]
+  },
+  {
     name: "recall_first_attempt_result",
     message: "Saved score and gap list. Creating feedback...",
     hideInput: true
@@ -151,6 +171,7 @@ Please select from the options below.`,
     name: "recall_hinting",
     message: "{{LLM}}"
   },
+
   {
     name: "recall_finished",
     message: "{{LLM}}",
