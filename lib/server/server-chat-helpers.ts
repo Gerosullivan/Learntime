@@ -115,13 +115,16 @@ export async function updateTopicOnRecall(
   test_result: number,
   recall_analysis: string
 ): Promise<
-  { success: true; due_date: Date } | { success: false; error: string }
+  | { success: true; due_date: Date; previous_test_result: number }
+  | { success: false; error: string }
 > {
   const chat = await getChatById(chatId)
 
   if (!chat) {
     return { success: false, error: "Chat not found" }
   }
+
+  const previous_test_result = chat.test_result
 
   const params = generatorParameters({ enable_fuzz: true })
   const f = fsrs(params)
@@ -161,7 +164,8 @@ export async function updateTopicOnRecall(
 
   return {
     success: true,
-    due_date: record.card.due
+    due_date: record.card.due,
+    previous_test_result
   }
 }
 

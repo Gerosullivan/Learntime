@@ -1,5 +1,4 @@
 import { Tables } from "@/supabase/types"
-import { ChatRecallMetadata } from "@/lib/studyStates"
 import { WorkspaceImage } from "@/types"
 import { Dispatch, SetStateAction, createContext } from "react"
 import { StudyState } from "@/lib/studyStates"
@@ -30,8 +29,6 @@ interface LearntimeContext {
   setTopicDescription: Dispatch<SetStateAction<string>>
   chatStudyState: StudyState
   setChatStudyState: Dispatch<SetStateAction<StudyState>>
-  chatRecallMetadata: ChatRecallMetadata | null
-  setChatRecallMetadata: Dispatch<SetStateAction<ChatRecallMetadata | null>>
   allChatRecallAnalysis: { chatId: string; recallAnalysis: any }[]
   setAllChatRecallAnalysis: Dispatch<
     SetStateAction<{ chatId: string; recallAnalysis: any }[]>
@@ -79,8 +76,6 @@ export const LearntimeContext = createContext<LearntimeContext>({
   setTopicDescription: () => {},
   chatStudyState: "home",
   setChatStudyState: () => {},
-  chatRecallMetadata: null,
-  setChatRecallMetadata: () => {},
   allChatRecallAnalysis: [],
   setAllChatRecallAnalysis: () => {},
 

@@ -48,8 +48,16 @@ export default function ChatIDPage() {
 
     if (chat.topic_description) {
       setTopicDescription(chat.topic_description)
+      const forgottenFactsArray =
+        typeof chat.recall_analysis === "string"
+          ? (JSON.parse(chat.recall_analysis) as string[])
+          : []
 
-      handleNewState("topic_default")
+      if (forgottenFactsArray.length > 0) {
+        handleNewState("topic_default_quiz")
+      } else {
+        handleNewState("topic_default")
+      }
     } else if (chat.name && chat.name !== "New topic") {
       handleNewState("topic_no_description_in_db")
     } else {

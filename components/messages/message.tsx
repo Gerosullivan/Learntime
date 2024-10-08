@@ -69,6 +69,7 @@ export const Message: FC<MessageProps> = ({ message, isLast }) => {
               </div>
             )}
             <MessageMarkdown content={message.content} />
+
             {message.experimental_attachments &&
               message.experimental_attachments.length > 0 && (
                 <div className="mt-2 flex flex-row gap-2">

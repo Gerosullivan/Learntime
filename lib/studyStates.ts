@@ -10,23 +10,27 @@ export type StudyState =
   | "topic_save_error"
   | "topic_saved"
   | "topic_default"
+  | "topic_default_quiz"
   | "recall_first_attempt"
   | "recall_first_attempt_result"
-  | "recall_hinting"
+  | "recall_final_suboptimal_feedback"
+  | "recall_answer_hints"
+  | "recall_hints_quiz_finish"
+  | "recall_show_hints"
   | "recall_finished"
   | "reviewing"
   | "tutorial"
   | "tutorial_2"
   | "tutorial_3"
   | "tutorial_4"
-  | "recall_tutorial_first_attempt"
+  | "tutorial_recall_first_attempt"
+  | "tutorial_recall_hints_quiz_finish"
   | "tutorial_hinting"
-  | "recall_tutorial_hinting"
+  | "tutorial_recall_answer_hints"
   | "tutorial_final_stage"
   | "tutorial_final_review"
   | "tutorial_finished"
   | "tutorial_finished_2"
-  | "final_review"
   | "quick_quiz_ready"
   | "quick_quiz_question"
   | "quick_quiz_user_answer"
@@ -44,11 +48,6 @@ interface StudyStateObject {
   message: string
   quickResponses?: QuickResponse[]
   hideInput?: boolean
-}
-
-export interface ChatRecallMetadata {
-  score: number
-  dueDateFromNow: string
 }
 
 export const studyStates: StudyStateObject[] = [
@@ -139,8 +138,62 @@ Please select from the options below.`,
     ]
   },
   {
+    name: "topic_default_quiz",
+    message: `Welcome back.
+Please select from the options below.`,
+    hideInput: true,
+    quickResponses: [
+      {
+        quickText: "Start recall now.",
+        newStudyState: "recall_first_attempt"
+      },
+      {
+        quickText: "Show study sheet.",
+        newStudyState: "reviewing"
+      },
+      {
+        quickText: "Start topic quick quiz.",
+        newStudyState: "quick_quiz_ready"
+      }
+    ]
+  },
+  {
     name: "recall_first_attempt",
     message: "Try to recall as much as you can. Good luck!"
+  },
+  {
+    name: "recall_hints_quiz_finish",
+    message: "{{LLM}}",
+    hideInput: true,
+    quickResponses: [
+      {
+        quickText: "Show all hints.",
+        newStudyState: "recall_show_hints"
+      },
+      {
+        quickText: "Start topic quick quiz.",
+        newStudyState: "quick_quiz_ready"
+      },
+      {
+        quickText: "Show final feedback.",
+        newStudyState: "recall_final_suboptimal_feedback"
+      }
+    ]
+  },
+  {
+    name: "recall_final_suboptimal_feedback",
+    message: "{{LLM}}",
+    hideInput: true,
+    quickResponses: [
+      {
+        quickText: "Show study sheet.",
+        newStudyState: "reviewing"
+      }
+    ]
+  },
+  {
+    name: "recall_show_hints",
+    message: "{{LLM}}"
   },
   {
     name: "recall_first_attempt_result",
@@ -148,9 +201,10 @@ Please select from the options below.`,
     hideInput: true
   },
   {
-    name: "recall_hinting",
+    name: "recall_answer_hints",
     message: "{{LLM}}"
   },
+
   {
     name: "recall_finished",
     message: "{{LLM}}",
@@ -158,14 +212,9 @@ Please select from the options below.`,
     quickResponses: [
       {
         quickText: "Show study sheet.",
-        newStudyState: "final_review"
+        newStudyState: "reviewing"
       }
     ]
-  },
-  {
-    name: "final_review",
-    message: "{{topicDescription}}",
-    hideInput: true
   },
   {
     name: "reviewing",
@@ -239,17 +288,28 @@ For this tutorial, I have already generated a sheet of notes on "States of matte
     quickResponses: [
       {
         quickText: "Save tutorial study sheet.",
-        newStudyState: "recall_tutorial_first_attempt"
+        newStudyState: "tutorial_recall_first_attempt"
       }
     ]
   },
   {
-    name: "recall_tutorial_first_attempt",
+    name: "tutorial_recall_first_attempt",
     message: `Now comes the fun part - it's time for your first recall attempt! 😃
 
 Type or dictate (using the microphone key on your keyboard) into the input box below what you remember from the notes above.
 
 I'll assess your attempt, help jog your memory, and set up a recall session based on your performance. Give it your best shot to recall as much as you can about the 'States of matter' topic now.`
+  },
+  {
+    name: "tutorial_recall_hints_quiz_finish",
+    message: "{{LLM}}",
+    hideInput: true,
+    quickResponses: [
+      {
+        quickText: "Show all hints.",
+        newStudyState: "tutorial_recall_answer_hints"
+      }
+    ]
   },
   {
     name: "tutorial_hinting",
@@ -258,12 +318,12 @@ I'll assess your attempt, help jog your memory, and set up a recall session base
     quickResponses: [
       {
         quickText: "Next step - reply to hints.",
-        newStudyState: "recall_tutorial_hinting"
+        newStudyState: "tutorial_recall_answer_hints"
       }
     ]
   },
   {
-    name: "recall_tutorial_hinting",
+    name: "tutorial_recall_answer_hints",
     message:
       "Great work so far! So now that some hints have been provided, try your best to recall the missing facts."
   },
