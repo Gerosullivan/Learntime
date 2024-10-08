@@ -49,6 +49,13 @@ export default function ChatIDPage() {
     if (chat.topic_description) {
       setTopicDescription(chat.topic_description)
 
+      if (
+        Array.isArray(chat.recall_analysis) &&
+        chat.recall_analysis.length > 0
+      ) {
+        handleNewState("topic_default_quiz")
+      }
+
       handleNewState("topic_default")
     } else if (chat.name && chat.name !== "New topic") {
       handleNewState("topic_no_description_in_db")

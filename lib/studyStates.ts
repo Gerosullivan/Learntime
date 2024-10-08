@@ -10,6 +10,7 @@ export type StudyState =
   | "topic_save_error"
   | "topic_saved"
   | "topic_default"
+  | "topic_default_quiz"
   | "recall_first_attempt"
   | "recall_first_attempt_result"
   | "recall_final_suboptimal_feedback"
@@ -139,6 +140,26 @@ Please select from the options below.`,
       {
         quickText: "Show study sheet.",
         newStudyState: "reviewing"
+      }
+    ]
+  },
+  {
+    name: "topic_default_quiz",
+    message: `Welcome back.
+Please select from the options below.`,
+    hideInput: true,
+    quickResponses: [
+      {
+        quickText: "Start recall now.",
+        newStudyState: "recall_first_attempt"
+      },
+      {
+        quickText: "Show study sheet.",
+        newStudyState: "reviewing"
+      },
+      {
+        quickText: "Start topic quick quiz.",
+        newStudyState: "quick_quiz_ready"
       }
     ]
   },
