@@ -71,10 +71,7 @@ ${systemContext}`
   let content = ""
 
   if (allRecalled) {
-    newStudyState =
-      studyState === "tutorial_recall_first_attempt"
-        ? "tutorial_hinting"
-        : "recall_finished"
+    newStudyState = "recall_finished"
 
     content = `
 Congratulate the student on their recall attempt of achieving a perfect score.
@@ -85,14 +82,11 @@ Inform the student about their next recall session based on this due date: ${dat
   Provide a specific timeframe for the next session.
   Use calendar emoji for visual reinforcement.
   Example: "Your next recall session is due in {{dueDateFromNow}}. 📅"
-  
+
 Finally, ask the student if they wish to revisit the topic's source material to enhance understanding or clarify any uncertainties.`
   } else {
     // score < 90
-    newStudyState =
-      studyState === "tutorial_recall_first_attempt"
-        ? "tutorial_recall_hints_quiz_finish"
-        : "recall_hints_quiz_finish"
+    newStudyState = "recall_hints_quiz_finish"
 
     content = `Follow the following instructions:
   1. Provide positive and encouraging feedback to the student based on their recall attempt: ${recallScore}%

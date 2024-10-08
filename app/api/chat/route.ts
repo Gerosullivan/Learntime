@@ -45,7 +45,6 @@ export async function POST(request: Request) {
         )
 
       case "recall_first_attempt":
-      case "tutorial_recall_first_attempt":
         return await handleRecallAttempt(
           scoringModel,
           defaultModel,
@@ -65,7 +64,6 @@ export async function POST(request: Request) {
         )
       case "recall_final_suboptimal_feedback":
       case "recall_answer_hints":
-      case "tutorial_recall_answer_hints":
         return await handleHinting(
           hintingModel,
           messages,

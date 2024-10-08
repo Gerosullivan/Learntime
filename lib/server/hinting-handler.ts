@@ -47,10 +47,7 @@ After providing the feedback as structured above, end your response immediately.
     ])
   })
 
-  const newStudyState =
-    studyState === "tutorial_recall_answer_hints"
-      ? "tutorial_final_stage"
-      : "recall_finished"
+  const newStudyState = "recall_finished"
 
   return chatStreamResponse.toDataStreamResponse({
     headers: {

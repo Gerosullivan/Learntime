@@ -16,8 +16,6 @@ export default function ChatPage() {
   const {
     profile,
     setProfile,
-    chats,
-    setAllChatRecallAnalysis,
     setMessages,
     setChatStudyState,
     setSelectedChat
@@ -50,7 +48,7 @@ export default function ChatPage() {
           has_onboarded: true
         })
         setProfile(updatedProfile)
-        router.push(`${pathname}/tutorial`) // Use the pathname here
+        // show video here
       }
     }
 
