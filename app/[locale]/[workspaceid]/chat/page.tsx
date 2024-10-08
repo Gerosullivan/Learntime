@@ -58,6 +58,7 @@ export default function ChatPage() {
   }, [profile, router, pathname])
 
   useEffect(() => {
+    console.log("populating recall analysis")
     const recallAnalysisInChats: { chatId: string; recallAnalysis: string }[] =
       chats.reduce(
         (acc: { chatId: string; recallAnalysis: string }[], chat) => {

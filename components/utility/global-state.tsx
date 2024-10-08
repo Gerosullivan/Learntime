@@ -43,7 +43,7 @@ export const GlobalState: FC<GlobalStateProps> = ({ children }) => {
   const [chatRecallMetadata, setChatRecallMetadata] =
     useState<ChatRecallMetadata | null>(null)
   const [allChatRecallAnalysis, setAllChatRecallAnalysis] = useState<
-    { chatId: string; recallAnalysis: any }[]
+    { chatId: string; recallAnalysis: string }[]
   >([])
 
   const handleResponse = async (response: Response) => {
