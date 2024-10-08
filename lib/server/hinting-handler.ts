@@ -46,14 +46,6 @@ Example: "Great effort! 🌟"
   Use emoji icons to make key points more engaging and memorable.
   Example: "Scientists believe it may have had large amounts of surface water which later disappeared due to a runaway greenhouse effect. 🌊➡️🔥"
   
-  
-  Quantify Performance:
-  
-  Give a clear indication of how well the student performed.
-  Use percentages or fractions to represent their success rate based this recall attempt: ${chatRecallMetadata?.score}%.
-  Example: "You're doing well with a {{score}}% correct recall before we went through the hints."
-  
-  
   Encourage Continued Effort:
   
   Include a motivational phrase to encourage further learning.
@@ -100,7 +92,7 @@ Example: "Great effort! 🌟"
   })
 
   const newStudyState =
-    studyState === "recall_tutorial_hinting"
+    studyState === "tutorial_recall_answer_hints"
       ? "tutorial_final_stage"
       : "recall_finished"
 
