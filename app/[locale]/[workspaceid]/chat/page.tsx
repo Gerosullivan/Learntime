@@ -57,36 +57,6 @@ export default function ChatPage() {
     startTutorial()
   }, [profile, router, pathname])
 
-  useEffect(() => {
-    console.log("populating recall analysis")
-    const recallAnalysisInChats: { chatId: string; recallAnalysis: string }[] =
-      chats.reduce(
-        (acc: { chatId: string; recallAnalysis: string }[], chat) => {
-          if (chat.recall_analysis != null) {
-            try {
-              const recallAnalysisList: string[] = JSON.parse(
-                chat.recall_analysis as string
-              )
-              recallAnalysisList.forEach((recallAnalysis: string) => {
-                acc.push({ chatId: chat.id, recallAnalysis })
-              })
-            } catch (e) {
-              console.error(
-                "Failed to parse recall_analysis:",
-                chat.recall_analysis
-              )
-            }
-          }
-          return acc
-        },
-        []
-      )
-
-    if (recallAnalysisInChats.length > 0) {
-      setAllChatRecallAnalysis(recallAnalysisInChats)
-    }
-  }, [chats])
-
   return (
     <div className="relative flex h-full flex-col items-center justify-center">
       <div className="top-50% left-50% -translate-x-50% -translate-y-50% absolute mb-20">

@@ -55,9 +55,9 @@ export default function ChatIDPage() {
 
       if (forgottenFactsArray.length > 0) {
         handleNewState("topic_default_quiz")
+      } else {
+        handleNewState("topic_default")
       }
-
-      handleNewState("topic_default")
     } else if (chat.name && chat.name !== "New topic") {
       handleNewState("topic_no_description_in_db")
     } else {

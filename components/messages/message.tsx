@@ -4,7 +4,7 @@ import { IconMoodSmile, IconPencil, IconSparkles } from "@tabler/icons-react"
 import Image from "next/image"
 import { FC, useContext } from "react"
 import { MessageMarkdown } from "./message-markdown"
-import { Message as MessageType, ToolInvocation } from "ai"
+import { Message as MessageType } from "ai"
 import { motion } from "framer-motion"
 
 const ICON_SIZE = 32
