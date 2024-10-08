@@ -30,7 +30,6 @@ export type StudyState =
   | "tutorial_final_review"
   | "tutorial_finished"
   | "tutorial_finished_2"
-  | "final_review"
   | "quick_quiz_ready"
   | "quick_quiz_question"
   | "quick_quiz_user_answer"
@@ -198,14 +197,9 @@ Please select from the options below.`,
     quickResponses: [
       {
         quickText: "Show study sheet.",
-        newStudyState: "final_review"
+        newStudyState: "reviewing"
       }
     ]
-  },
-  {
-    name: "final_review",
-    message: "{{topicDescription}}",
-    hideInput: true
   },
   {
     name: "reviewing",

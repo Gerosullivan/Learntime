@@ -85,7 +85,9 @@ Example: "Great effort! 🌟"
   
   Keep paragraphs short and focused for easy readability.
   Use line breaks between different sections of feedback.
-  Maintain a balance between praise, correction, and guidance.`
+  Maintain a balance between praise, correction, and guidance.
+  Only genereate feedback for the student. Do not generate any other text.
+  `
       },
       ...messages
     ])

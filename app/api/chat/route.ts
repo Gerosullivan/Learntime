@@ -6,7 +6,6 @@ import { handleHinting } from "@/lib/server/hinting-handler"
 import { handleReview } from "@/lib/server/review-handler"
 import { handleQuickQuizQuestion } from "@/lib/server/quick-quiz-question-handler"
 import { handleQuickQuizAnswer } from "@/lib/server/quick-quiz-answer-handler"
-import { handleRecallFinalSuboptimalFeedback } from "@/lib/server/recall-final-suboptimal-feedback-handler"
 import { handleRecallShowHints } from "@/lib/server/recall-show-hints-handler"
 import { StudyState } from "@/lib/studyStates"
 
@@ -57,16 +56,6 @@ export async function POST(request: Request) {
           systemContext
         )
 
-      case "recall_final_suboptimal_feedback":
-        return await handleRecallFinalSuboptimalFeedback(
-          defaultModel,
-          messages,
-          studyState,
-          studySheet,
-          chatRecallMetadata,
-          systemContext
-        )
-
       case "recall_show_hints":
         return await handleRecallShowHints(
           defaultModel,
@@ -76,7 +65,7 @@ export async function POST(request: Request) {
           chatRecallMetadata,
           systemContext
         )
-
+      case "recall_final_suboptimal_feedback":
       case "recall_answer_hints":
       case "tutorial_recall_answer_hints":
         return await handleHinting(
