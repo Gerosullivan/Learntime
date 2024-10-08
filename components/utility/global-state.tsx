@@ -8,7 +8,6 @@ import { StudyState } from "@/lib/studyStates"
 import { convertBlobToBase64 } from "@/lib/blob-to-b64"
 import { supabase } from "@/lib/supabase/browser-client"
 import { Tables } from "@/supabase/types"
-import { ChatRecallMetadata } from "@/lib/studyStates"
 import { WorkspaceImage } from "@/types"
 import { useChat } from "ai/react"
 import { useRouter } from "next/navigation"
@@ -40,8 +39,6 @@ export const GlobalState: FC<GlobalStateProps> = ({ children }) => {
   const [selectedChat, setSelectedChat] = useState<Tables<"chats"> | null>(null)
   const [topicDescription, setTopicDescription] = useState<string>("")
   const [chatStudyState, setChatStudyState] = useState<StudyState>("home")
-  const [chatRecallMetadata, setChatRecallMetadata] =
-    useState<ChatRecallMetadata | null>(null)
   const [allChatRecallAnalysis, setAllChatRecallAnalysis] = useState<
     { chatId: string; recallAnalysis: string }[]
   >([])
@@ -49,25 +46,16 @@ export const GlobalState: FC<GlobalStateProps> = ({ children }) => {
   const handleResponse = async (response: Response) => {
     const newStudyState = response.headers.get("NEW-STUDY-STATE") as StudyState
 
+    const chatUpdated = response.headers.get("CHAT-UPDATED")
     if (newStudyState) {
       setChatStudyState(newStudyState)
     }
 
-    const score = response.headers.get("SCORE")
-    if (score) {
-      const dueDateFromNow = response.headers.get("DUE-DATE-FROM-NOW")
-
-      setChatRecallMetadata({
-        score: parseInt(score),
-        dueDateFromNow: dueDateFromNow!,
-        forgottenFacts: response.headers.get("FORGOTTEN-FACTS") || ""
-      })
-    }
-
     const isQuickQuiz: boolean = chatStudyState.startsWith("quick_quiz")
 
-    if (!isQuickQuiz) {
+    if (!isQuickQuiz && chatUpdated) {
       const updatedChat = await getChatById(selectedChat!.id)
+      setSelectedChat(updatedChat)
 
       if (updatedChat) {
         setChats(prevChats => {
@@ -177,8 +165,6 @@ export const GlobalState: FC<GlobalStateProps> = ({ children }) => {
         setTopicDescription,
         chatStudyState,
         setChatStudyState,
-        chatRecallMetadata,
-        setChatRecallMetadata,
         allChatRecallAnalysis,
         setAllChatRecallAnalysis,
         input,

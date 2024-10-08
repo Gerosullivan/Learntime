@@ -1,15 +1,12 @@
 import { LanguageModel, streamText, convertToCoreMessages } from "ai"
-import { StudyState } from "@/lib/studyStates"
 
 export async function handleRecallShowHints(
   defaultModel: LanguageModel,
-  studentMessage: any,
-  studyState: StudyState,
   studySheet: string,
-  chatRecallMetadata: any,
+  chatRecallInfo: any,
   systemContext: string
 ) {
-  const forgottenFacts = JSON.parse(chatRecallMetadata.forgottenFacts || "[]")
+  const forgottenFacts = JSON.parse(chatRecallInfo.forgottenFacts || "[]")
 
   const chatStreamResponse = await streamText({
     model: defaultModel,
@@ -41,9 +38,6 @@ Examples of what NOT to do (never do this):
 Output Format:
 For each forgotten fact, provide a hint in this format:
 Hint #[number]: [Your hint here]
-
-After generating all hints, review your output and confirm:
-"I have reviewed my hints and confirm that no answers have been revealed, only clues provided."
 
 Now, generate a list of hints for the forgotten facts below. Remember: Do not provide answers, only hints and clues.`
       },

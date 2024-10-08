@@ -48,11 +48,12 @@ export default function ChatIDPage() {
 
     if (chat.topic_description) {
       setTopicDescription(chat.topic_description)
+      const forgottenFactsArray =
+        typeof chat.recall_analysis === "string"
+          ? (JSON.parse(chat.recall_analysis) as string[])
+          : []
 
-      if (
-        Array.isArray(chat.recall_analysis) &&
-        chat.recall_analysis.length > 0
-      ) {
+      if (forgottenFactsArray.length > 0) {
         handleNewState("topic_default_quiz")
       }
 

@@ -21,7 +21,7 @@ export async function POST(request: Request) {
       chatId,
       studyState,
       studySheet,
-      chatRecallMetadata,
+      chatRecallInfo,
       randomRecallFact,
       systemContext
     } = json
@@ -59,10 +59,8 @@ export async function POST(request: Request) {
       case "recall_show_hints":
         return await handleRecallShowHints(
           defaultModel,
-          studentMessage,
-          studyState,
           studySheet,
-          chatRecallMetadata,
+          chatRecallInfo,
           systemContext
         )
       case "recall_final_suboptimal_feedback":
@@ -73,7 +71,7 @@ export async function POST(request: Request) {
           messages,
           studyState,
           studySheet,
-          chatRecallMetadata,
+          chatRecallInfo,
           systemContext
         )
 

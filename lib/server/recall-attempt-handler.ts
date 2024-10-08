@@ -76,11 +76,16 @@ ${systemContext}`
         ? "tutorial_hinting"
         : "recall_finished"
 
-    content = `Congratulate the student on their recall attempt of achieving a perfect score.
+    content = `
+Congratulate the student on their recall attempt of achieving a perfect score.
 
 Generate additional feedback based on the previous test result: ${previous_test_result}%.
 
-Inform the student of their next recall session date; ${date_from_now} from now, to ensure consistent study progress.
+Inform the student about their next recall session based on this due date: ${date_from_now}.
+  Provide a specific timeframe for the next session.
+  Use calendar emoji for visual reinforcement.
+  Example: "Your next recall session is due in {{dueDateFromNow}}. 📅"
+  
 Finally, ask the student if they wish to revisit the topic's source material to enhance understanding or clarify any uncertainties.`
   } else {
     // score < 90
@@ -115,9 +120,7 @@ Finally, ask the student if they wish to revisit the topic's source material to 
   return chatStreamResponse.toDataStreamResponse({
     headers: {
       "NEW-STUDY-STATE": newStudyState,
-      SCORE: recallScore.toString(),
-      "DUE-DATE-FROM-NOW": date_from_now,
-      "FORGOTTEN-FACTS": JSON.stringify(forgottenOrIncorrectFacts)
+      "CHAT-UPDATED": "true"
     }
   })
 }

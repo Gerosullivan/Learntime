@@ -50,12 +50,6 @@ interface StudyStateObject {
   hideInput?: boolean
 }
 
-export interface ChatRecallMetadata {
-  score: number
-  dueDateFromNow: string
-  forgottenFacts: string
-}
-
 export const studyStates: StudyStateObject[] = [
   {
     name: "topic_new",

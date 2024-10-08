@@ -16,9 +16,8 @@ const QuickResponse: React.FC<{
     chatStudyState,
     setMessages,
     allChatRecallAnalysis,
-    chatRecallMetadata,
-    setAllChatRecallAnalysis,
-    selectedChat
+    selectedChat,
+    setAllChatRecallAnalysis
   } = useContext(LearntimeContext)
 
   const { handleNewState, handleTopicSave, handleQuickResponseLLMCall } =
@@ -39,22 +38,19 @@ const QuickResponse: React.FC<{
       return
     }
 
-    const isNotQuickQuiz = !!selectedChat
+    if (newStudyState === "quick_quiz_ready" && selectedChat) {
+      const forgottenFactsArray =
+        typeof selectedChat.recall_analysis === "string"
+          ? (JSON.parse(selectedChat.recall_analysis) as string[])
+          : []
 
-    if (newStudyState === "quick_quiz_ready" && isNotQuickQuiz) {
-      if (chatRecallMetadata && chatRecallMetadata.forgottenFacts) {
-        const forgottenFactsArray = JSON.parse(
-          chatRecallMetadata.forgottenFacts
-        ) as string[]
-
-        if (forgottenFactsArray.length > 0) {
-          setAllChatRecallAnalysis(
-            forgottenFactsArray.map(fact => ({
-              chatId: selectedChat?.id || "",
-              recallAnalysis: fact
-            }))
-          )
-        }
+      if (forgottenFactsArray.length > 0) {
+        setAllChatRecallAnalysis(
+          forgottenFactsArray.map(fact => ({
+            chatId: selectedChat?.id || "",
+            recallAnalysis: fact
+          }))
+        )
       }
     }
 

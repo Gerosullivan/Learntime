@@ -1,14 +1,16 @@
 import { StudyState } from "@/lib/studyStates"
 import { streamText, LanguageModel, convertToCoreMessages } from "ai"
+import { formatDistanceToNow } from "date-fns/esm"
 
 export async function handleHinting(
   hintingModel: LanguageModel,
   messages: any[],
   studyState: StudyState,
   studySheet: string,
-  chatRecallMetadata: any,
+  chatRecallInfo: any,
   systemContext: string
 ) {
+  const dueDateFromNow = formatDistanceToNow(new Date(chatRecallInfo.due_date))
   const chatStreamResponse = await streamText({
     model: hintingModel,
     temperature: 0.3,
@@ -17,77 +19,29 @@ export async function handleHinting(
         role: "system",
         content: `${systemContext}
 When constructing feedback for a student's attempt at answering hints on a recall test, follow these guidelines:
-  
-Positive Reinforcement:
-  
-Begin with an encouraging statement that acknowledges the student's effort.
-Use positive language and emojis to create a friendly tone.
-Example: "Great effort! 🌟"
-  
-  
-  Highlight Correct Answers:
-  
-  Immediately point out what the student got right using the topic source only:
+
+Use this topic source only when providing feedback:
   <StudySheet>
   ${studySheet}.
   <StudySheet>
-  
-  Address Incorrect Answers:
-  
-  Gently point out any misconceptions or errors.
-  Provide the correct information in a clear, concise manner.
-  Use transitional phrases like "However," to introduce corrections.
-  Example: "However, about Venus's past, it was actually thought to have been a habitable ocean world similar to Earth, not a dry desert."
-  
-  
-  Provide Additional Information:
-  
-  Expand on the topic with relevant facts fromt the topic source to enhance understanding.
-  Use emoji icons to make key points more engaging and memorable.
-  Example: "Scientists believe it may have had large amounts of surface water which later disappeared due to a runaway greenhouse effect. 🌊➡️🔥"
-  
-  Encourage Continued Effort:
-  
-  Include a motivational phrase to encourage further learning.
-  Example: "Keep it up!"
-  
-  
-  Next Steps and Scheduling:
-  
-  Inform the student about their next recall session based on this due date: ${chatRecallMetadata?.dueDateFromNow}.
+
+Your response should follow this exact structure:
+1. Positive reinforcement
+2. Highlight of correct answers
+3. Address of incorrect answers
+4. Additional information
+5. Encouragement for continued effort
+6. Next steps and scheduling;   Inform the student about their next recall session based on this due date: ${dueDateFromNow}.
   Provide a specific timeframe for the next session.
   Use calendar emoji for visual reinforcement.
   Example: "Your next recall session is due in {{dueDateFromNow}}. 📅"
-  
-  
-  Study Recommendations:
-  
-  Suggest review of topic study sheet to improve understanding.
-  Encourage immediate review to reinforce learning.
-  Example: "Review the topic study sheet now to help reinforce and expand your memory on Venus. 📚"
-  
-  
-  Focus Areas:
-  
-  Highlight specific areas or topics the student should concentrate on.
-  Tie these focus areas to upcoming learning objectives.
-  Example: "Take some time to go over the details, especially the parts about Venus's past climate and its atmospheric composition."
-  
-  
-  Future Outlook:
-  
-  Connect current learning to future sessions or topics.
-  Create anticipation for upcoming learning opportunities.
-  Example: "This will set us up perfectly for enhancing your understanding in our upcoming session."
-  
-  
-  Overall Structure:
-  
-  Keep paragraphs short and focused for easy readability.
-  Use line breaks between different sections of feedback.
-  Maintain a balance between praise, correction, and guidance.
-  Only genereate feedback for the student. Do not generate any other text.
-  `
+7. Study recommendations
+8. Focus areas
+9. Future outlook
+
+IMPORTANT: Do not include any meta-commentary about your response or offer additional assistance. Your response should only contain the feedback for the student as instructed above.
+
+After providing the feedback as structured above, end your response immediately. Do not add any concluding remarks or offers for further assistance`
       },
       ...messages
     ])

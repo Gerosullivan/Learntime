@@ -24,7 +24,6 @@ export const useChatHandler = () => {
     setTopicDescription,
     allChatRecallAnalysis,
     setAllChatRecallAnalysis,
-    chatRecallMetadata,
     setMessages,
     messages,
     setInput,
@@ -77,11 +76,19 @@ ${selectedWorkspace?.instructions || ""}
 
 `
 
+    const chatRecallInfo = currentChat
+      ? {
+          score: currentChat.test_result,
+          due_date: currentChat.due_date,
+          forgottenFacts: currentChat.recall_analysis
+        }
+      : null
+
     return {
       chatId: currentChat?.id,
       studyState,
       studySheet,
-      chatRecallMetadata,
+      chatRecallInfo,
       randomRecallFact,
       systemContext
     }
