@@ -1,7 +1,6 @@
-import { LearntimeContext } from "@/context/context"
 import { cn, isDateBeforeToday } from "@/lib/utils"
 import { Tables } from "@/supabase/types"
-import { FC, useContext, useEffect, useRef, useState } from "react"
+import { FC, useEffect, useRef, useState } from "react"
 import { ChatItem } from "./items/chat/chat-item"
 import {
   isToday,
@@ -24,8 +23,6 @@ interface SidebarDataListProps {
 }
 
 export const SidebarDataList: FC<SidebarDataListProps> = ({ data }) => {
-  const { allChatRecallAnalysis } = useContext(LearntimeContext)
-
   const divRef = useRef<HTMLDivElement>(null)
   const [isOverflowing, setIsOverflowing] = useState(false)
   const currentTime = new Date()
@@ -135,13 +132,11 @@ export const SidebarDataList: FC<SidebarDataListProps> = ({ data }) => {
               isOverflowing ? "w-[calc(100%-8px)]" : "w-full"
             } space-y-2 pt-2 ${isOverflowing ? "mr-2" : ""}`}
           >
-            {allChatRecallAnalysis.length > 0 && (
-              <div className="pb-2">
-                <div className={cn("flex grow flex-col")}>
-                  <QuickQuiz />
-                </div>
+            <div className="pb-2">
+              <div className={cn("flex grow flex-col")}>
+                <QuickQuiz />
               </div>
-            )}
+            </div>
 
             {[
               "Today",

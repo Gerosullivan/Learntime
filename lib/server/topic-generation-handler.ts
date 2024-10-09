@@ -4,7 +4,8 @@ import { StudyState } from "@/lib/studyStates"
 export async function handleTopicGeneration(
   defaultModel: LanguageModel,
   messages: any[],
-  systemContext: string
+  systemContext: string,
+  nextStudyState: StudyState
 ) {
   try {
     const chatStreamResponse = await streamText({
@@ -35,10 +36,9 @@ ${systemContext}
       ])
     })
 
-    const newStudyState: StudyState = "topic_generated"
     return chatStreamResponse.toDataStreamResponse({
       headers: {
-        "NEW-STUDY-STATE": newStudyState
+        "NEW-STUDY-STATE": nextStudyState
       }
     })
   } catch (error: any) {

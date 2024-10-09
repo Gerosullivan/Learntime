@@ -134,57 +134,6 @@ ${selectedWorkspace?.instructions || ""}
     handleNewState("topic_name_saved" as StudyState)
   }
 
-  const handleStartTutorial = async () => {
-    setMessages([])
-    const topic_description = `# States of Matter
-
-## Overview 
-- Matter exists in three main states: solid, liquid, and gas.
-- These states are defined by how particles are arranged and how they move.
-
-### The Three States of Matter
-- **Solid:**  
-  - Particles are tightly packed and vibrate in place.
-  - Keeps a definite shape and volume.
-  - Example: Ice.
-
-- **Liquid:**  
-  - Particles are less tightly packed and can move around each other.
-  - Has a definite volume but changes shape to fit the container.
-  - Example: Water.
-
-- **Gas:**  
-  - Particles are spread out and move freely.
-  - Takes both the shape and volume of the container.
-  - Example: Water vapour.
-
-## Transitions Between States
-  - **Melting:** Solid to liquid (Ice to water).
-  - **Freezing:** Liquid to solid (Water to ice).
-  - **Vaporisation:** Liquid to gas (Water to vapour).
-  - **Condensation:** Gas to liquid (Vapour to water).
-
-## Key Insights
-  - Changes in temperature or pressure cause these transitions.
-  - Understanding the transitions helps explain natural phenomena like ice melting, water boiling, and dew forming.`
-
-    try {
-      await handleCreateChat(
-        profile!,
-        selectedWorkspace!,
-        "States of matter",
-        setSelectedChat,
-        setChats,
-        topic_description
-      )
-    } catch (error) {
-      console.log({ error })
-    }
-
-    setTopicDescription(topic_description)
-    handleNewState("tutorial")
-  }
-
   const handleGoToWorkspace = () => {
     if (!selectedWorkspace) return
 
@@ -263,7 +212,6 @@ ${selectedWorkspace?.instructions || ""}
 
   return {
     handleNewTopic,
-    handleStartTutorial,
     handleCreateTopicName,
     makeMessageBody,
     handleGoToWorkspace,

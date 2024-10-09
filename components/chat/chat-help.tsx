@@ -1,7 +1,6 @@
 import useHotkey from "@/lib/hooks/use-hotkey"
 import {
   IconBrandGithub,
-  IconSignLeft,
   IconHelpCircle,
   IconQuestionMark
 } from "@tabler/icons-react"
@@ -25,7 +24,6 @@ export const ChatHelp: FC<ChatHelpProps> = ({}) => {
   const [isOpen, setIsOpen] = useState(false)
 
   if (!selectedWorkspace) return null
-  const tutorialLink = `/${selectedWorkspace?.id}/chat/tutorial`
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
@@ -52,14 +50,6 @@ export const ChatHelp: FC<ChatHelpProps> = ({}) => {
             rel="noopener noreferrer"
           >
             <IconHelpCircle /> <span>Help & FAQ</span>
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem>
-          <Link
-            className="flex cursor-pointer items-center gap-2 hover:opacity-50"
-            href={tutorialLink}
-          >
-            <IconSignLeft /> <span>Tutorial</span>
           </Link>
         </DropdownMenuItem>
       </DropdownMenuContent>

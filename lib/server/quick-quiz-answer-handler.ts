@@ -4,12 +4,12 @@ import { streamText, LanguageModel, convertToCoreMessages } from "ai"
 export async function handleQuickQuizAnswer(
   defaultModel: LanguageModel,
   messages: any[],
-  studyState: StudyState,
+  nextStudyState: StudyState,
   studySheet: string,
   studentMessage: any,
-  systemContext: string
+  systemContext: string,
+  noMoreQuizQuestions: boolean
 ) {
-  const noMoreQuizQuestions = studyState === "quick_quiz_finished"
   const previousQuizQuestion = messages[messages.length - 2].content
   const finalFeedback = noMoreQuizQuestions
     ? "Finally advise the student there are no more quiz questions available. Come back again another time."
@@ -43,14 +43,9 @@ ${systemContext}`
     ])
   })
 
-  const newStudyState: StudyState =
-    studyState === "quick_quiz_finished"
-      ? "quick_quiz_finished"
-      : "quick_quiz_answer_next"
-
   return chatStreamResponse.toDataStreamResponse({
     headers: {
-      "NEW-STUDY-STATE": newStudyState
+      "NEW-STUDY-STATE": nextStudyState
     }
   })
 }

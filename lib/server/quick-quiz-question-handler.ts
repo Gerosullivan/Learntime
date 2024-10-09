@@ -5,7 +5,8 @@ export async function handleQuickQuizQuestion(
   defaultModel: LanguageModel,
   studySheet: string,
   randomRecallFact: string,
-  systemContext: string
+  systemContext: string,
+  nextStudyState: StudyState
 ) {
   const chatStreamResponse = await streamText({
     model: defaultModel,
@@ -30,11 +31,9 @@ Important: Do not provide the answer when generating the question or mention the
     ])
   })
 
-  const newStudyState: StudyState = "quick_quiz_user_answer"
-
   return chatStreamResponse.toDataStreamResponse({
     headers: {
-      "NEW-STUDY-STATE": newStudyState
+      "NEW-STUDY-STATE": nextStudyState
     }
   })
 }
