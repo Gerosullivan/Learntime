@@ -54,3 +54,5 @@ workbox-*.js.map
 /playwright/.cache/
 
 playwright/.auth
+
+*.swp

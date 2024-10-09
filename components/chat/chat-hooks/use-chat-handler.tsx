@@ -170,7 +170,8 @@ ${selectedWorkspace?.instructions || ""}
     }
 
     let content
-    if (assistantMessage === "{{topicDescription}}") {
+    const isTopicDescription = assistantMessage === "{{topicDescription}}"
+    if (isTopicDescription) {
       content = topicDescription
     } else {
       content = assistantMessage
@@ -180,7 +181,8 @@ ${selectedWorkspace?.instructions || ""}
       {
         id: uuidv4(),
         content,
-        role: "assistant"
+        role: "assistant",
+        name: isTopicDescription ? "topic_description" : "Mentor"
       }
     ])
   }

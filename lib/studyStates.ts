@@ -15,7 +15,7 @@ export type StudyState =
   | "recall_first_attempt_result"
   | "recall_final_suboptimal_feedback"
   | "recall_answer_hints"
-  | "recall_hints_quiz_finish"
+  | "recall_first_attempt_feedback"
   | "recall_show_hints"
   | "recall_finished"
   | "reviewing"
@@ -89,7 +89,7 @@ export const studyStates: StudyStateObject[] = [
     hideInput: true,
     quickResponses: [
       {
-        quickText: "Start recall now.",
+        quickText: "💬 Start recall now.",
         newStudyState: "recall_first_attempt"
       },
       {
@@ -104,7 +104,7 @@ export const studyStates: StudyStateObject[] = [
     hideInput: true,
     quickResponses: [
       {
-        quickText: "Start recall now.",
+        quickText: "💬 Start recall now.",
         newStudyState: "recall_first_attempt"
       },
       {
@@ -120,11 +120,11 @@ Please select from the options below.`,
     hideInput: true,
     quickResponses: [
       {
-        quickText: "Start recall now.",
+        quickText: "💬 Start recall now.",
         newStudyState: "recall_first_attempt"
       },
       {
-        quickText: "Show study sheet.",
+        quickText: "📝 Show study sheet.",
         newStudyState: "reviewing"
       }
     ]
@@ -136,15 +136,15 @@ Please select from the options below.`,
     hideInput: true,
     quickResponses: [
       {
-        quickText: "Start recall now.",
+        quickText: "💬 Start recall now.",
         newStudyState: "recall_first_attempt"
       },
       {
-        quickText: "Show study sheet.",
+        quickText: "📝 Show study sheet.",
         newStudyState: "reviewing"
       },
       {
-        quickText: "Start topic 🔥 Quick quiz.",
+        quickText: "🔥 Start topic Quick quiz.",
         newStudyState: "quick_quiz_ready"
       }
     ]
@@ -152,23 +152,23 @@ Please select from the options below.`,
   {
     name: "recall_first_attempt",
     message: "Try to recall as much as you can. Good luck!",
-    nextStudyState: "recall_hints_quiz_finish"
+    nextStudyState: "recall_first_attempt_feedback"
   },
   {
-    name: "recall_hints_quiz_finish",
+    name: "recall_first_attempt_feedback",
     message: "{{LLM}}",
     hideInput: true,
     quickResponses: [
       {
-        quickText: "Show all hints.",
+        quickText: "💡 Show all hints.",
         newStudyState: "recall_show_hints"
       },
       {
-        quickText: "Start topic 🔥 Quick quiz.",
+        quickText: "🔥 Start topic Quick quiz.",
         newStudyState: "quick_quiz_ready"
       },
       {
-        quickText: "Show final feedback.",
+        quickText: "✅ Show final feedback.",
         newStudyState: "recall_final_suboptimal_feedback"
       }
     ]
@@ -180,7 +180,7 @@ Please select from the options below.`,
     nextStudyState: "recall_finished",
     quickResponses: [
       {
-        quickText: "Show study sheet.",
+        quickText: "📝 Show study sheet.",
         newStudyState: "reviewing"
       }
     ]
@@ -207,7 +207,7 @@ Please select from the options below.`,
     hideInput: true,
     quickResponses: [
       {
-        quickText: "Show study sheet.",
+        quickText: "📝 Show study sheet.",
         newStudyState: "reviewing"
       }
     ]
@@ -221,7 +221,7 @@ Please select from the options below.`,
         newStudyState: "topic_describe_upload"
       },
       {
-        quickText: "Start recall now.",
+        quickText: "💬 Start recall now.",
         newStudyState: "recall_first_attempt"
       }
     ]
