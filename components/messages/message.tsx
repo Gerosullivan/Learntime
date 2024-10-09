@@ -22,53 +22,66 @@ export const Message: FC<MessageProps> = ({ message, isLast }) => {
     return window.atob(base64)
   }
 
+  const isTopicDescription = message.name === "topic_description"
+
   return (
     <motion.div initial={{ y: 5, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
       <div
         className={cn(
           "flex w-full justify-center",
-          message.role === "user" ? "" : "bg-secondary"
+          message.role === "user" ? "" : "bg-secondary",
+          isTopicDescription && "bg-orange-50 p-4 shadow-md dark:bg-gray-800"
         )}
       >
         <div className="relative flex w-full flex-col p-6 sm:w-[550px] sm:px-0 md:w-[650px] lg:w-[650px] xl:w-[700px]">
           <div className="space-y-3">
-            {message.role === "system" ? (
-              <div className="flex items-center space-x-4">
-                <IconPencil
-                  className="border-primary bg-primary text-secondary rounded border-DEFAULT p-1"
-                  size={ICON_SIZE}
-                />
-
-                <div className="text-lg font-semibold">Prompt</div>
-              </div>
-            ) : (
-              <div className="flex items-center space-x-3">
-                {message.role === "assistant" ? (
-                  <IconSparkles size={ICON_SIZE} />
-                ) : profile?.image_url ? (
-                  <Image
-                    unoptimized
-                    className={`size-[32px] rounded`}
-                    src={profile?.image_url}
-                    height={32}
-                    width={32}
-                    alt="user image"
-                  />
+            {!isTopicDescription && (
+              <>
+                {message.role === "system" ? (
+                  <div className="flex items-center space-x-4">
+                    <IconPencil
+                      className="border-primary bg-primary text-secondary rounded border-DEFAULT p-1"
+                      size={ICON_SIZE}
+                    />
+                    <div className="text-lg font-semibold">Prompt</div>
+                  </div>
                 ) : (
-                  <IconMoodSmile
-                    className="bg-primary text-secondary border-primary rounded border-DEFAULT p-1"
-                    size={ICON_SIZE}
-                  />
+                  <div className="flex items-center space-x-3">
+                    {message.role === "assistant" ? (
+                      <IconSparkles size={ICON_SIZE} />
+                    ) : profile?.image_url ? (
+                      <Image
+                        unoptimized
+                        className={`size-[32px] rounded`}
+                        src={profile?.image_url}
+                        height={32}
+                        width={32}
+                        alt="user image"
+                      />
+                    ) : (
+                      <IconMoodSmile
+                        className="bg-primary text-secondary border-primary rounded border-DEFAULT p-1"
+                        size={ICON_SIZE}
+                      />
+                    )}
+                    <div className="font-semibold">
+                      {message.role === "assistant"
+                        ? "Mentor"
+                        : (profile?.display_name ?? profile?.username)}
+                    </div>
+                  </div>
                 )}
-
-                <div className="font-semibold">
-                  {message.role === "assistant"
-                    ? "Mentor"
-                    : (profile?.display_name ?? profile?.username)}
-                </div>
-              </div>
+              </>
             )}
-            <MessageMarkdown content={message.content} />
+            <div
+              className={cn(
+                "prose dark:prose-invert max-w-none",
+                isTopicDescription &&
+                  "font-serif text-orange-950 dark:text-orange-200"
+              )}
+            >
+              <MessageMarkdown content={message.content} />
+            </div>
 
             {message.experimental_attachments &&
               message.experimental_attachments.length > 0 && (

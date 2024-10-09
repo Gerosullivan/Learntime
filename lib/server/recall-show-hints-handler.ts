@@ -1,5 +1,6 @@
 import { LanguageModel, streamText, convertToCoreMessages } from "ai"
 import { StudyState } from "@/lib/studyStates"
+
 export async function handleRecallShowHints(
   defaultModel: LanguageModel,
   studySheet: string,
@@ -15,8 +16,6 @@ export async function handleRecallShowHints(
       {
         role: "system",
         content: `You are helpful, friendly study mentor. 
-  ${systemContext}
-  You are a helpful, friendly study mentor.
 ${systemContext}
 
 CRITICAL INSTRUCTION: NEVER PROVIDE ANSWERS TO FORGOTTEN FACTS. ONLY GIVE HINTS AND CLUES.
@@ -27,6 +26,7 @@ Your task is to generate hints for forgotten facts without revealing answers. Fo
 2. NEVER give away the actual answer or any part of it.
 3. Use general terms, analogies, or related concepts to create hints.
 4. If you catch yourself about to reveal an answer, STOP and rephrase as a hint.
+5. Conclude with a directive for the student to attempt answering the hints before moving on.
 
 Examples of good hints:
 - For a historical date: "This event occurred in the same decade as [another well-known event]."
@@ -64,7 +64,7 @@ Hint #1: [Your hint for forgotten fact 1]
 Hint #2: [Your hint for forgotten fact 2]
 ...
 
-Remember: Your goal is to help the student remember on their own, not to provide the information directly.`
+6. After providing all hints, conclude with a paragraph instructing the student to attempt answering the hints before moving on. Do not use encouraging or cheery language in this conclusion.`
       }
     ])
   })

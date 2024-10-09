@@ -24,18 +24,18 @@ test("topic recall demo session", async ({ page }) => {
     'Welcome back to the topic "States of matter". Please select from the options below.'
   )
   await expect(
-    page.getByRole("button", { name: "Start recall now." })
+    page.getByRole("button", { name: "💬 Start recall now." })
   ).toBeVisible()
   await expect(
-    page.getByRole("button", { name: "Show study sheet." })
+    page.getByRole("button", { name: "📝 Show study sheet." })
   ).toBeVisible()
 
-  await page.getByRole("button", { name: "Show study sheet." }).click()
+  await page.getByRole("button", { name: "📝 Show study sheet." }).click()
   await expect(page.locator("div:nth-child(4) > .relative")).toBeVisible()
   await expect(page.locator("body")).toContainText(
     "Matter exists in three main states"
   )
-  await page.getByRole("button", { name: "Start recall now." }).click()
+  await page.getByRole("button", { name: "💬 Start recall now." }).click()
   await expect(
     page
       .locator("div")
@@ -63,7 +63,7 @@ test("topic recall demo session", async ({ page }) => {
   // await page.locator(".absolute > .bg-primary").first().click()
 
   // await expect(
-  //   page.getByRole("button", { name: "Show study sheet." })
+  //   page.getByRole("button", { name: "📝 Show study sheet." })
   // ).toBeVisible()
 })
 
