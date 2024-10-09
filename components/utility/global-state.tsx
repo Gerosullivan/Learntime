@@ -14,7 +14,6 @@ import { useRouter } from "next/navigation"
 import { FC, useEffect, useState } from "react"
 import { getChatById } from "@/db/chats"
 import { toast } from "sonner"
-import { getNextStudyState } from "@/lib/studyStates"
 
 interface GlobalStateProps {
   children: React.ReactNode
@@ -43,8 +42,6 @@ export const GlobalState: FC<GlobalStateProps> = ({ children }) => {
   const [allChatRecallAnalysis, setAllChatRecallAnalysis] = useState<
     { chatId: string; recallAnalysis: string }[]
   >([])
-
-  console.log({ chatStudyState })
 
   const handleResponse = async (response: Response) => {
     const newStudyState = response.headers.get("NEW-STUDY-STATE") as StudyState
