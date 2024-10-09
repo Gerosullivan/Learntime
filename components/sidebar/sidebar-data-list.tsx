@@ -135,13 +135,11 @@ export const SidebarDataList: FC<SidebarDataListProps> = ({ data }) => {
               isOverflowing ? "w-[calc(100%-8px)]" : "w-full"
             } space-y-2 pt-2 ${isOverflowing ? "mr-2" : ""}`}
           >
-            {allChatRecallAnalysis.length > 0 && (
-              <div className="pb-2">
-                <div className={cn("flex grow flex-col")}>
-                  <QuickQuiz />
-                </div>
+            <div className="pb-2">
+              <div className={cn("flex grow flex-col")}>
+                <QuickQuiz />
               </div>
-            )}
+            </div>
 
             {[
               "Today",
