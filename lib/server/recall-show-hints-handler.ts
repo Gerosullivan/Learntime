@@ -1,10 +1,11 @@
 import { LanguageModel, streamText, convertToCoreMessages } from "ai"
-
+import { StudyState } from "@/lib/studyStates"
 export async function handleRecallShowHints(
   defaultModel: LanguageModel,
   studySheet: string,
   chatRecallInfo: any,
-  systemContext: string
+  systemContext: string,
+  nextStudyState: StudyState
 ) {
   const forgottenFacts = JSON.parse(chatRecallInfo.forgottenFacts || "[]")
 
@@ -70,7 +71,7 @@ Remember: Your goal is to help the student remember on their own, not to provide
 
   return chatStreamResponse.toDataStreamResponse({
     headers: {
-      "Content-Type": "text/event-stream"
+      "NEW-STUDY-STATE": nextStudyState
     }
   })
 }

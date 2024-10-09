@@ -1,9 +1,11 @@
 import { LanguageModel, streamText, convertToCoreMessages } from "ai"
+import { StudyState } from "@/lib/studyStates"
 
 export async function handleTopicGeneration(
   defaultModel: LanguageModel,
   messages: any[],
-  systemContext: string
+  systemContext: string,
+  nextStudyState: StudyState
 ) {
   try {
     const chatStreamResponse = await streamText({
@@ -34,7 +36,11 @@ ${systemContext}
       ])
     })
 
-    return chatStreamResponse.toDataStreamResponse()
+    return chatStreamResponse.toDataStreamResponse({
+      headers: {
+        "NEW-STUDY-STATE": nextStudyState
+      }
+    })
   } catch (error: any) {
     console.error("Error in handleTopicGeneration:", error)
     throw error // Re-throw the error to be caught in the main route

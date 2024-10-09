@@ -22,7 +22,6 @@ export type StudyState =
   | "quick_quiz_ready"
   | "quick_quiz_question"
   | "quick_quiz_user_answer"
-  | "quick_quiz_answer"
   | "quick_quiz_answer_next"
   | "quick_quiz_finished"
 
@@ -145,7 +144,7 @@ Please select from the options below.`,
         newStudyState: "reviewing"
       },
       {
-        quickText: "Start topic quick quiz.",
+        quickText: "Start topic 🔥 Quick quiz.",
         newStudyState: "quick_quiz_ready"
       }
     ]
@@ -165,7 +164,7 @@ Please select from the options below.`,
         newStudyState: "recall_show_hints"
       },
       {
-        quickText: "Start topic quick quiz.",
+        quickText: "Start topic 🔥 Quick quiz.",
         newStudyState: "quick_quiz_ready"
       },
       {
@@ -246,19 +245,15 @@ Please select from the options below.`,
   {
     name: "quick_quiz_user_answer",
     message: "{{LLM}}",
-    nextStudyState: "quick_quiz_answer",
+    nextStudyState: "quick_quiz_answer_next",
     quickResponses: [
       {
         quickText: "I don't know.",
-        newStudyState: "quick_quiz_answer"
+        newStudyState: "quick_quiz_answer_next"
       }
     ]
   },
-  {
-    name: "quick_quiz_answer",
-    message: "{{LLM}}",
-    nextStudyState: "quick_quiz_answer_next"
-  },
+
   {
     name: "quick_quiz_answer_next",
     message: "{{LLM}}",

@@ -46,19 +46,17 @@ export const GlobalState: FC<GlobalStateProps> = ({ children }) => {
 
   console.log({ chatStudyState })
 
-  const handleFinish = async () => {
-    setChatStudyState(prevState => {
-      const nextStudyState = getNextStudyState(prevState)
+  const handleResponse = async (response: Response) => {
+    const newStudyState = response.headers.get("NEW-STUDY-STATE") as StudyState
 
-      const newStudyState = nextStudyState || prevState
+    const chatUpdated = response.headers.get("CHAT-UPDATED")
+    if (newStudyState) {
+      setChatStudyState(newStudyState)
+    }
 
-      return newStudyState
-    })
-    // chatStudyState is potentially stale if not updated in this scope (e.g. use-chat-handler.tsx)
-    const chatUpdatedInDB = chatStudyState === "recall_first_attempt"
     const isQuickQuiz: boolean = chatStudyState.startsWith("quick_quiz")
 
-    if (!isQuickQuiz && chatUpdatedInDB) {
+    if (!isQuickQuiz && chatUpdated) {
       const updatedChat = await getChatById(selectedChat!.id)
       setSelectedChat(updatedChat)
 
@@ -70,9 +68,6 @@ export const GlobalState: FC<GlobalStateProps> = ({ children }) => {
 
           return updatedChats
         })
-        if ((updatedChat.test_result ?? 0) === 100) {
-          setChatStudyState("recall_finished")
-        }
       }
     }
   }
@@ -89,8 +84,8 @@ export const GlobalState: FC<GlobalStateProps> = ({ children }) => {
     setMessages
   } = useChat({
     keepLastMessageOnError: true,
-    onFinish: () => {
-      handleFinish()
+    onResponse: response => {
+      handleResponse(response)
     },
     onError: error => {
       toast.error(error.message)

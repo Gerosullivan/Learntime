@@ -7,7 +7,7 @@ import { handleReview } from "@/lib/server/review-handler"
 import { handleQuickQuizQuestion } from "@/lib/server/quick-quiz-question-handler"
 import { handleQuickQuizAnswer } from "@/lib/server/quick-quiz-answer-handler"
 import { handleRecallShowHints } from "@/lib/server/recall-show-hints-handler"
-import { StudyState } from "@/lib/studyStates"
+import { StudyState, getNextStudyState } from "@/lib/studyStates"
 
 // export const runtime = "edge"
 export const dynamic = "force-dynamic"
@@ -34,6 +34,9 @@ export async function POST(request: Request) {
     }) as LanguageModel
     const hintingModel = defaultModel
 
+    const nextStudyState: StudyState =
+      getNextStudyState(studyState) || studyState
+
     switch (studyState as StudyState) {
       case "topic_name_saved":
       case "topic_describe_upload":
@@ -41,13 +44,15 @@ export async function POST(request: Request) {
         return await handleTopicGeneration(
           defaultModel,
           messages,
-          systemContext
+          systemContext,
+          nextStudyState
         )
 
       case "recall_first_attempt":
         return await handleRecallAttempt(
           scoringModel,
           defaultModel,
+          nextStudyState,
           studySheet,
           chatId,
           studentMessage,
@@ -59,13 +64,15 @@ export async function POST(request: Request) {
           defaultModel,
           studySheet,
           chatRecallInfo,
-          systemContext
+          systemContext,
+          nextStudyState
         )
       case "recall_final_suboptimal_feedback":
       case "recall_answer_hints":
         return await handleHinting(
           hintingModel,
           messages,
+          nextStudyState,
           studySheet,
           chatRecallInfo,
           systemContext
@@ -80,19 +87,22 @@ export async function POST(request: Request) {
           defaultModel,
           studySheet,
           randomRecallFact,
-          systemContext
+          systemContext,
+          nextStudyState
         )
 
-      case "quick_quiz_answer":
+      case "quick_quiz_answer_next":
       case "quick_quiz_user_answer":
       case "quick_quiz_finished":
+        const noMoreQuizQuestions = studyState === "quick_quiz_finished"
         return await handleQuickQuizAnswer(
           defaultModel,
           messages,
-          studyState,
+          nextStudyState,
           studySheet,
           studentMessage,
-          systemContext
+          systemContext,
+          noMoreQuizQuestions
         )
 
       default:

@@ -16,6 +16,7 @@ import {
 export async function handleRecallAttempt(
   scoringModel: LanguageModel,
   defaultModel: LanguageModel,
+  nextStudyState: StudyState,
   studySheet: string,
   chatId: string,
   studentMessage: any,
@@ -62,12 +63,16 @@ ${studentMessage.content}
   date_from_now = formatDistanceToNow(due_date)
   const allRecalled = forgottenOrIncorrectFacts.length === 0
 
+  let newStudyState: StudyState = nextStudyState
+
   const mentor_system_message = `You are helpful, friendly study mentor. 
 ${systemContext}`
 
   let content = ""
 
   if (allRecalled) {
+    newStudyState = "recall_finished"
+
     content = `
 Congratulate the student on their recall attempt of achieving a perfect score.
 
@@ -77,7 +82,7 @@ Inform the student about their next recall session based on this due date: ${dat
   Provide a specific timeframe for the next session.
   Use calendar emoji for visual reinforcement.
   Example: "Your next recall session is due in {{dueDateFromNow}}. 📅"
-
+  
 Finally, ask the student if they wish to revisit the topic's source material to enhance understanding or clarify any uncertainties.`
   } else {
     // score < 90
@@ -105,5 +110,10 @@ Finally, ask the student if they wish to revisit the topic's source material to 
     ])
   })
 
-  return chatStreamResponse.toDataStreamResponse()
+  return chatStreamResponse.toDataStreamResponse({
+    headers: {
+      "NEW-STUDY-STATE": newStudyState,
+      "CHAT-UPDATED": "true"
+    }
+  })
 }
