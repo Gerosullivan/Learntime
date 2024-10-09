@@ -43,14 +43,5 @@ ${systemContext}`
     ])
   })
 
-  const newStudyState: StudyState =
-    studyState === "quick_quiz_finished"
-      ? "quick_quiz_finished"
-      : "quick_quiz_answer_next"
-
-  return chatStreamResponse.toDataStreamResponse({
-    headers: {
-      "NEW-STUDY-STATE": newStudyState
-    }
-  })
+  return chatStreamResponse.toDataStreamResponse()
 }

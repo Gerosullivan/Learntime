@@ -48,7 +48,6 @@ export async function POST(request: Request) {
         return await handleRecallAttempt(
           scoringModel,
           defaultModel,
-          studyState,
           studySheet,
           chatId,
           studentMessage,
@@ -67,7 +66,6 @@ export async function POST(request: Request) {
         return await handleHinting(
           hintingModel,
           messages,
-          studyState,
           studySheet,
           chatRecallInfo,
           systemContext

@@ -1,4 +1,3 @@
-import { StudyState } from "@/lib/studyStates"
 import { streamText, LanguageModel, convertToCoreMessages } from "ai"
 
 export async function handleQuickQuizQuestion(
@@ -30,11 +29,5 @@ Important: Do not provide the answer when generating the question or mention the
     ])
   })
 
-  const newStudyState: StudyState = "quick_quiz_user_answer"
-
-  return chatStreamResponse.toDataStreamResponse({
-    headers: {
-      "NEW-STUDY-STATE": newStudyState
-    }
-  })
+  return chatStreamResponse.toDataStreamResponse()
 }

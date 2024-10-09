@@ -36,20 +36,24 @@ interface StudyStateObject {
   message: string
   quickResponses?: QuickResponse[]
   hideInput?: boolean
+  nextStudyState?: StudyState // New property
 }
 
 export const studyStates: StudyStateObject[] = [
   {
     name: "topic_new",
-    message: "Enter your topic name below to start."
+    message: "Enter your topic name below to start.",
+    nextStudyState: "topic_name_saved"
   },
   {
     name: "topic_describe_upload",
-    message: "What updates should we make to the topic study sheet?"
+    message: "What updates should we make to the topic study sheet?",
+    nextStudyState: "topic_generated"
   },
   {
     name: "topic_no_description_in_db",
-    message: "No topic description found. Please add topic description below."
+    message: "No topic description found. Please add topic description below.",
+    nextStudyState: "topic_generated"
   },
   {
     name: "topic_describe_upload_error",
@@ -58,7 +62,8 @@ export const studyStates: StudyStateObject[] = [
   {
     name: "topic_name_saved",
     message: `Topic name saved. Please describe your topic below.
-  You can also upload files ⨁ as source material for me to generate your study notes.`
+  You can also upload files ⨁ as source material for me to generate your study notes.`,
+    nextStudyState: "topic_generated"
   },
   {
     name: "topic_save_error",
@@ -147,7 +152,8 @@ Please select from the options below.`,
   },
   {
     name: "recall_first_attempt",
-    message: "Try to recall as much as you can. Good luck!"
+    message: "Try to recall as much as you can. Good luck!",
+    nextStudyState: "recall_hints_quiz_finish"
   },
   {
     name: "recall_hints_quiz_finish",
@@ -172,6 +178,7 @@ Please select from the options below.`,
     name: "recall_final_suboptimal_feedback",
     message: "{{LLM}}",
     hideInput: true,
+    nextStudyState: "recall_finished",
     quickResponses: [
       {
         quickText: "Show study sheet.",
@@ -181,7 +188,8 @@ Please select from the options below.`,
   },
   {
     name: "recall_show_hints",
-    message: "{{LLM}}"
+    message: "{{LLM}}",
+    nextStudyState: "recall_answer_hints"
   },
   {
     name: "recall_first_attempt_result",
@@ -190,7 +198,8 @@ Please select from the options below.`,
   },
   {
     name: "recall_answer_hints",
-    message: "{{LLM}}"
+    message: "{{LLM}}",
+    nextStudyState: "recall_finished"
   },
 
   {
@@ -231,11 +240,13 @@ Please select from the options below.`,
   },
   {
     name: "quick_quiz_question",
-    message: "{{LLM}}"
+    message: "{{LLM}}",
+    nextStudyState: "quick_quiz_user_answer"
   },
   {
     name: "quick_quiz_user_answer",
     message: "{{LLM}}",
+    nextStudyState: "quick_quiz_answer",
     quickResponses: [
       {
         quickText: "I don't know.",
@@ -245,7 +256,8 @@ Please select from the options below.`,
   },
   {
     name: "quick_quiz_answer",
-    message: "{{LLM}}"
+    message: "{{LLM}}",
+    nextStudyState: "quick_quiz_answer_next"
   },
   {
     name: "quick_quiz_answer_next",
@@ -296,4 +308,12 @@ export function getStudyStateObject(
 export function isHideInput(name: StudyState): boolean {
   const stateObject = studyStates.find(state => state.name === name)
   return stateObject?.hideInput ?? false
+}
+
+// New function to get the next study state
+export function getNextStudyState(
+  currentState: StudyState
+): StudyState | undefined {
+  const stateObject = studyStates.find(state => state.name === currentState)
+  return stateObject?.nextStudyState
 }

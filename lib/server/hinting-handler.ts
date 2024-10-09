@@ -5,7 +5,6 @@ import { formatDistanceToNow } from "date-fns/esm"
 export async function handleHinting(
   hintingModel: LanguageModel,
   messages: any[],
-  studyState: StudyState,
   studySheet: string,
   chatRecallInfo: any,
   systemContext: string
@@ -47,11 +46,5 @@ After providing the feedback as structured above, end your response immediately.
     ])
   })
 
-  const newStudyState = "recall_finished"
-
-  return chatStreamResponse.toDataStreamResponse({
-    headers: {
-      "NEW-STUDY-STATE": newStudyState
-    }
-  })
+  return chatStreamResponse.toDataStreamResponse()
 }

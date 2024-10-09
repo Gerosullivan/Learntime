@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation"
 import { FC, useEffect, useState } from "react"
 import { getChatById } from "@/db/chats"
 import { toast } from "sonner"
+import { getNextStudyState } from "@/lib/studyStates"
 
 interface GlobalStateProps {
   children: React.ReactNode
@@ -43,17 +44,21 @@ export const GlobalState: FC<GlobalStateProps> = ({ children }) => {
     { chatId: string; recallAnalysis: string }[]
   >([])
 
-  const handleResponse = async (response: Response) => {
-    const newStudyState = response.headers.get("NEW-STUDY-STATE") as StudyState
+  console.log({ chatStudyState })
 
-    const chatUpdated = response.headers.get("CHAT-UPDATED")
-    if (newStudyState) {
-      setChatStudyState(newStudyState)
-    }
+  const handleFinish = async () => {
+    setChatStudyState(prevState => {
+      const nextStudyState = getNextStudyState(prevState)
 
+      const newStudyState = nextStudyState || prevState
+
+      return newStudyState
+    })
+    // chatStudyState is potentially stale if not updated in this scope (e.g. use-chat-handler.tsx)
+    const chatUpdatedInDB = chatStudyState === "recall_first_attempt"
     const isQuickQuiz: boolean = chatStudyState.startsWith("quick_quiz")
 
-    if (!isQuickQuiz && chatUpdated) {
+    if (!isQuickQuiz && chatUpdatedInDB) {
       const updatedChat = await getChatById(selectedChat!.id)
       setSelectedChat(updatedChat)
 
@@ -65,6 +70,9 @@ export const GlobalState: FC<GlobalStateProps> = ({ children }) => {
 
           return updatedChats
         })
+        if ((updatedChat.test_result ?? 0) === 100) {
+          setChatStudyState("recall_finished")
+        }
       }
     }
   }
@@ -81,8 +89,8 @@ export const GlobalState: FC<GlobalStateProps> = ({ children }) => {
     setMessages
   } = useChat({
     keepLastMessageOnError: true,
-    onResponse: response => {
-      handleResponse(response)
+    onFinish: () => {
+      handleFinish()
     },
     onError: error => {
       toast.error(error.message)

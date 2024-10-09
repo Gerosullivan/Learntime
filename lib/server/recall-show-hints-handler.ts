@@ -70,7 +70,7 @@ Remember: Your goal is to help the student remember on their own, not to provide
 
   return chatStreamResponse.toDataStreamResponse({
     headers: {
-      "NEW-STUDY-STATE": "recall_answer_hints"
+      "Content-Type": "text/event-stream"
     }
   })
 }
