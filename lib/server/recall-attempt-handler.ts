@@ -76,7 +76,11 @@ ${systemContext}`
     content = `
 Congratulate the student on their recall attempt of achieving a perfect score.
 
-Generate additional feedback based on the previous test result: ${previous_test_result}%.
+${
+  previous_test_result !== null
+    ? `Generate additional feedback based on the previous test result: ${previous_test_result}%.`
+    : ""
+}
 
 Inform the student about their next recall session based on this due date: ${date_from_now}.
   Provide a specific timeframe for the next session.
@@ -88,9 +92,13 @@ Finally, ask the student if they wish to revisit the topic's source material to 
     // score < 90
 
     content = `Follow the following instructions:
-  1. Provide positive and encouraging feedback to the student based on their recall attempt: ${recallScore}%
-  2. Compare this score to the previous test result: ${previous_test_result}%.
-  3. Finally, ask the student if they wish to:
+  * Provide positive and encouraging feedback to the student based on their recall attempt: ${recallScore}%
+${
+  previous_test_result !== null
+    ? `  * Compare this score to the previous test result: ${previous_test_result}%.`
+    : ""
+}
+  * Finally, ask the student if they wish to:
       a. receive hints for the forgotten facts.
       b. start a quick quiz on this topic based on the facts they missed.
       c. finish the session.`
