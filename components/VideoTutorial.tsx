@@ -45,7 +45,7 @@ const VideoTutorial: React.FC = () => {
         <Modal onClose={closeModal}>
           <video ref={videoRef} controls width="100%" height="auto" autoPlay>
             <source
-              src="https://6k97emvmezlndrht.public.blob.vercel-storage.com/learntime_promo-6P3JeFeVmcoFsjfHePXtGiGz9hRWWV.mp4"
+              src="https://6k97emvmezlndrht.public.blob.vercel-storage.com/learntime-quick-start-Q3txc2UihrfHuM0bYVZCMKIBOOC67t.mp4"
               type="video/mp4"
             />
             Your browser does not support the video tag.

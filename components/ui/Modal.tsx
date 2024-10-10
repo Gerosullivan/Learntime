@@ -32,7 +32,7 @@ const Modal: React.FC<ModalProps> = ({ onClose, children }) => {
 
       {/* Modal content */}
       <div className="relative z-50 mx-auto my-6 w-auto max-w-3xl">
-        <div className="relative flex w-full flex-col rounded-lg border-0 bg-white shadow-lg outline-none focus:outline-none">
+        <div className="relative flex w-full flex-col rounded-lg border-0 bg-gray-800 shadow-lg outline-none focus:outline-none">
           <div className="relative flex-auto p-6">{children}</div>
         </div>
       </div>
