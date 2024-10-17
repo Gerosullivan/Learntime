@@ -6,10 +6,10 @@ export async function handleQuickQuizAnswer(
   messages: any[],
   nextStudyState: StudyState,
   studySheet: string,
-  studentMessage: any,
   systemContext: string,
   noMoreQuizQuestions: boolean
 ) {
+  const studentMessage = messages[messages.length - 1].content
   const previousQuizQuestion = messages[messages.length - 2].content
   const finalFeedback = noMoreQuizQuestions
     ? "Finally advise the student there are no more quiz questions available. Come back again another time."
@@ -34,7 +34,7 @@ ${systemContext}`
         content: `Provide feedback and answer to the following quiz question:
           """${previousQuizQuestion}"""
           Based on the following student response:
-          """${studentMessage.content}"""
+          """${studentMessage}"""
           Given this topic study sheet as context:
           """${studySheet}"""
           ${finalFeedback}

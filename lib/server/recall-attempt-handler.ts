@@ -14,7 +14,6 @@ import {
 } from "./scoring-system-message"
 
 export async function handleRecallAttempt(
-  scoringModel: LanguageModel,
   defaultModel: LanguageModel,
   nextStudyState: StudyState,
   studySheet: string,
@@ -29,7 +28,7 @@ export async function handleRecallAttempt(
   const systemMessage = getScoringSystemMessage()
 
   const { object } = await generateObject<ScoringSchema>({
-    model: scoringModel,
+    model: defaultModel,
     schema: scoringSchema,
     messages: convertToCoreMessages([
       {

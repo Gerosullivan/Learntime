@@ -16,23 +16,12 @@ export const maxDuration = 180
 export async function POST(request: Request) {
   try {
     const json = await request.json()
-    const {
-      messages,
-      chatId,
-      studyState,
-      studySheet,
-      chatRecallInfo,
-      randomRecallFact,
-      systemContext
-    } = json
-
-    const studentMessage = messages[messages.length - 1]
 
     const defaultModel = openai("gpt-4o-mini") as LanguageModel
-    const scoringModel = openai("gpt-4o", {
-      structuredOutputs: true
-    }) as LanguageModel
-    const hintingModel = defaultModel
+    const context = {
+      ...json,
+      defaultModel
+    }
 
     const nextStudyState: StudyState =
       getNextStudyState(studyState) || studyState
@@ -50,7 +39,6 @@ export async function POST(request: Request) {
 
       case "recall_first_attempt":
         return await handleRecallAttempt(
-          scoringModel,
           defaultModel,
           nextStudyState,
           studySheet,
@@ -70,7 +58,7 @@ export async function POST(request: Request) {
       case "recall_final_suboptimal_feedback":
       case "recall_answer_hints":
         return await handleHinting(
-          hintingModel,
+          defaultModel,
           messages,
           nextStudyState,
           studySheet,
@@ -100,7 +88,6 @@ export async function POST(request: Request) {
           messages,
           nextStudyState,
           studySheet,
-          studentMessage,
           systemContext,
           noMoreQuizQuestions
         )
