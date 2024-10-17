@@ -19,30 +19,35 @@ export async function handleRecallAttempt(
   nextStudyState: StudyState,
   studySheet: string,
   chatId: string,
-  studentMessage: any,
-  systemContext: string
+  systemContext: string,
+  messages: any[]
 ) {
   let date_from_now = ""
   let recallScore = 0
   let forgottenOrIncorrectFacts: string[] = []
+  let feedback = ""
   const systemMessage = getScoringSystemMessage()
 
   const { object } = await generateObject<ScoringSchema>({
-    model: defaultModel,
+    model: scoringModel,
     schema: scoringSchema,
-    prompt: `
+    messages: convertToCoreMessages([
+      {
+        role: "system",
+        content: `
 ${systemMessage}
 <TopicSource>
 ${studySheet}
-</TopicSource>
-<StudentRecall>
-${studentMessage.content}
-</StudentRecall>`
+</TopicSource>`
+      },
+      ...messages
+    ])
   })
 
   // Now 'object' is typed as ScoringSchema
   recallScore = Math.round(object.score)
   forgottenOrIncorrectFacts = object.forgotten_facts
+  feedback = object.feedback
 
   const DB_response = await updateTopicOnRecall(
     chatId,
@@ -76,6 +81,8 @@ ${systemContext}`
     content = `
 Congratulate the student on their recall attempt of achieving a perfect score.
 
+Provide the following feedback to the student: "${feedback}"
+
 ${
   previous_test_result !== null
     ? `Generate additional feedback based on the previous test result: ${previous_test_result}%.`
@@ -92,7 +99,8 @@ Finally, ask the student if they wish to revisit the topic's source material to 
     // score < 90
 
     content = `Follow the following instructions:
-  * Provide positive and encouraging feedback to the student based on their recall attempt: ${recallScore}%
+  * Provide the following feedback to the student: "${feedback}"
+  * Provide additional positive and encouraging feedback to the student based on their recall attempt: ${recallScore}%
 ${
   previous_test_result !== null
     ? `  * Compare this score to the previous test result: ${previous_test_result}%.`

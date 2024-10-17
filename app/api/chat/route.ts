@@ -55,8 +55,8 @@ export async function POST(request: Request) {
           nextStudyState,
           studySheet,
           chatId,
-          studentMessage,
-          systemContext
+          systemContext,
+          messages
         )
 
       case "recall_show_hints":

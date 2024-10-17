@@ -11,6 +11,7 @@ export async function handleHinting(
   systemContext: string
 ) {
   const dueDateFromNow = formatDistanceToNow(new Date(chatRecallInfo.due_date))
+
   const chatStreamResponse = await streamText({
     model: hintingModel,
     temperature: 0.3,
@@ -18,30 +19,23 @@ export async function handleHinting(
       {
         role: "system",
         content: `${systemContext}
-When constructing feedback for a student's attempt at answering hints on a recall test, follow these guidelines:
+        When providing feedback on a student's recall attempt, use only the information from this topic source:
+        
+        <StudySheet>
+        ${studySheet}
+        </StudySheet>
 
-Use this topic source only when providing feedback:
-  <StudySheet>
-  ${studySheet}.
-  <StudySheet>
+        Respond in a conversational tone, as if you're chatting with a friend. Avoid sounding like a teacher giving formal feedback. Instead of using a structured format, blend your feedback into a natural conversation. Here are some points to cover in your response:
 
-Your response should follow this exact structure:
-1. Positive reinforcement
-2. Highlight of correct answers
-3. Address of incorrect answers
-4. Additional information
-5. Encouragement for continued effort
-6. Next steps and scheduling;   Inform the student about their next recall session based on this due date: ${dueDateFromNow}.
-  Provide a specific timeframe for the next session.
-  Use calendar emoji for visual reinforcement.
-  Example: "Your next recall session is due in {{dueDateFromNow}}. 📅"
-7. Study recommendations
-8. Focus areas
-9. Future outlook
+        - Start with a friendly, encouraging comment about their effort.
+        - Mention what they got right, but do it casually.
+        - If they missed anything, bring it up gently without making a big deal of it.
+        - Add a bit of extra info if it's relevant, but keep it light.
+        - Throw in some encouragement for their next study session.
+        - Let them know when their next recall is due, like this: "By the way, your next recall is coming up in ${dueDateFromNow}. 📅"
+        - Suggest a quick study tip if you think it'll help.
 
-IMPORTANT: Do not include any meta-commentary about your response or offer additional assistance. Your response should only contain the feedback for the student as instructed above.
-
-After providing the feedback as structured above, end your response immediately. Do not add any concluding remarks or offers for further assistance`
+        Keep your tone upbeat and supportive throughout. Wrap up your response naturally, as if you're ending a chat with a friend. Don't offer additional help or add any closing remarks – just end it when you've covered these points.`
       },
       ...messages
     ])
