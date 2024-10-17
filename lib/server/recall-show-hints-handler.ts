@@ -1,22 +1,24 @@
 import { LanguageModel, streamText, convertToCoreMessages } from "ai"
 import { StudyState } from "@/lib/studyStates"
 
-export async function handleRecallShowHints(
-  defaultModel: LanguageModel,
-  studySheet: string,
-  chatRecallInfo: any,
-  systemContext: string,
+export async function handleRecallShowHints(context: {
+  defaultModel: LanguageModel
+  studySheet: string
+  chatRecallInfo: any
+  systemContext: string
   nextStudyState: StudyState
-) {
-  const forgottenFacts = JSON.parse(chatRecallInfo.forgottenFacts || "[]")
+}) {
+  const forgottenFacts = JSON.parse(
+    context.chatRecallInfo.forgottenFacts || "[]"
+  )
 
   const chatStreamResponse = await streamText({
-    model: defaultModel,
+    model: context.defaultModel,
     messages: convertToCoreMessages([
       {
         role: "system",
         content: `You are helpful, friendly study mentor. 
-${systemContext}
+${context.systemContext}
 
 CRITICAL INSTRUCTION: NEVER PROVIDE ANSWERS TO FORGOTTEN FACTS. ONLY GIVE HINTS AND CLUES.
 
@@ -46,7 +48,7 @@ Now, generate a list of hints for the forgotten facts below. Remember: Do not pr
         role: "user",
         content: `
 <TopicSource>
-${studySheet}
+${context.studySheet}
 </TopicSource>
 
 <ForgottenFacts>
@@ -71,7 +73,7 @@ Hint #2: [Your hint for forgotten fact 2]
 
   return chatStreamResponse.toDataStreamResponse({
     headers: {
-      "NEW-STUDY-STATE": nextStudyState
+      "NEW-STUDY-STATE": context.nextStudyState
     }
   })
 }

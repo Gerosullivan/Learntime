@@ -29,10 +29,10 @@ export const scoringSchema = z.object({
       )
   }),
 
-  confidence: z
-    .number()
+  feedback: z
+    .string()
     .describe(
-      "A numerical value between 0 and 1 indicating the model's confidence in its assessment"
+      "A concise summary of how well the student did on recalling the topic, outlining any incorrectly recalled facts (if any) but not forgotten ones."
     )
 })
 
@@ -44,12 +44,13 @@ You are a study mentor. You assess student recall performance and list incorrect
 3. Compare each key fact or concept with the Student's recall:
    a. Mark as "recalled" if present and correct.
    b. Mark as "forgotten" if missing or incorrect.
+   c. Note any incorrectly recalled facts.
 4. Calculate the score:
    a. Count the total number of key facts/concepts.
    b. Count the number of "recalled" items.
    c. Calculate the percentage: (recalled items / total items) * 100.
 5. Compile the list of forgotten facts.
-6. Assess your confidence in the evaluation (0 to 1).
+6. Create a concise feedback summary of the student's performance, focusing on incorrectly recalled facts (if any).
 7. Double-check your calculations and lists for accuracy.
 8. Provide the output in the requested JSON format.
 
@@ -66,7 +67,7 @@ Provide the following fields in a JSON dict:
     "recalled_facts": 0, // Number of facts correctly recalled by the student
     "calculation": "" // A string showing the calculation, e.g., "(7 / 10) * 100 = 70%"
   },
-  "confidence": 0 // A numerical value between 0 and 1 indicating the model's confidence in its assessment
+  "feedback": "" // A concise summary of how well the student did on recalling the topic, outlining any incorrectly recalled facts (if any) but not forgotten ones.
 }
 
 Ensure that the scoring_breakdown matches the final score.

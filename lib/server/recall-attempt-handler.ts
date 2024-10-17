@@ -13,39 +13,43 @@ import {
   ScoringSchema
 } from "./scoring-system-message"
 
-export async function handleRecallAttempt(
-  scoringModel: LanguageModel,
-  defaultModel: LanguageModel,
-  nextStudyState: StudyState,
-  studySheet: string,
-  chatId: string,
-  studentMessage: any,
+export async function handleRecallAttempt(context: {
+  defaultModel: LanguageModel
+  studySheet: string
+  chatId: string
   systemContext: string
-) {
+  messages: any[]
+  nextStudyState: StudyState
+}) {
   let date_from_now = ""
   let recallScore = 0
   let forgottenOrIncorrectFacts: string[] = []
+  let feedback = ""
   const systemMessage = getScoringSystemMessage()
 
   const { object } = await generateObject<ScoringSchema>({
-    model: defaultModel,
+    model: context.defaultModel,
     schema: scoringSchema,
-    prompt: `
+    messages: convertToCoreMessages([
+      {
+        role: "system",
+        content: `
 ${systemMessage}
 <TopicSource>
-${studySheet}
-</TopicSource>
-<StudentRecall>
-${studentMessage.content}
-</StudentRecall>`
+${context.studySheet}
+</TopicSource>`
+      },
+      ...context.messages
+    ])
   })
 
   // Now 'object' is typed as ScoringSchema
   recallScore = Math.round(object.score)
   forgottenOrIncorrectFacts = object.forgotten_facts
+  feedback = object.feedback
 
   const DB_response = await updateTopicOnRecall(
-    chatId,
+    context.chatId,
     recallScore,
     JSON.stringify(forgottenOrIncorrectFacts)
   )
@@ -63,10 +67,10 @@ ${studentMessage.content}
   date_from_now = formatDistanceToNow(due_date)
   const allRecalled = forgottenOrIncorrectFacts.length === 0
 
-  let newStudyState: StudyState = nextStudyState
+  let newStudyState: StudyState = context.nextStudyState
 
   const mentor_system_message = `You are helpful, friendly study mentor. 
-${systemContext}`
+${context.systemContext}`
 
   let content = ""
 
@@ -75,6 +79,8 @@ ${systemContext}`
 
     content = `
 Congratulate the student on their recall attempt of achieving a perfect score.
+
+Provide the following feedback to the student: "${feedback}"
 
 ${
   previous_test_result !== null
@@ -92,7 +98,8 @@ Finally, ask the student if they wish to revisit the topic's source material to 
     // score < 90
 
     content = `Follow the following instructions:
-  * Provide positive and encouraging feedback to the student based on their recall attempt: ${recallScore}%
+  * Provide the following feedback to the student: "${feedback}"
+  * Provide additional positive and encouraging feedback to the student based on their recall attempt: ${recallScore}%
 ${
   previous_test_result !== null
     ? `  * Compare this score to the previous test result: ${previous_test_result}%.`
@@ -105,7 +112,7 @@ ${
   }
 
   const chatStreamResponse = await streamText({
-    model: defaultModel,
+    model: context.defaultModel,
     messages: convertToCoreMessages([
       {
         role: "system",
