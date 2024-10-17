@@ -1,15 +1,15 @@
 import { StudyState } from "@/lib/studyStates"
 import { streamText, LanguageModel, convertToCoreMessages } from "ai"
 
-export async function handleQuickQuizQuestion(
-  defaultModel: LanguageModel,
-  studySheet: string,
-  randomRecallFact: string,
-  systemContext: string,
+export async function handleQuickQuizQuestion(context: {
+  defaultModel: LanguageModel
+  studySheet: string
+  randomRecallFact: string
+  systemContext: string
   nextStudyState: StudyState
-) {
+}) {
   const chatStreamResponse = await streamText({
-    model: defaultModel,
+    model: context.defaultModel,
     temperature: 0.3,
     messages: convertToCoreMessages([
       {
@@ -18,14 +18,14 @@ export async function handleQuickQuizQuestion(
 Generate short answer quiz questions based on a provided fact. 
 Never give the answer to the question when generating the question text. 
 Do not state which step of the instructions you are on.
-${systemContext}`
+${context.systemContext}`
       },
       {
         role: "user",
         content: `Given this topic study sheet as context:
-<StudySheet>${studySheet}</StudySheet>
+<StudySheet>${context.studySheet}</StudySheet>
 Generate a short answer quiz question based on the following fact the student previously got incorrect:
-<Fact>${randomRecallFact}</Fact>
+<Fact>${context.randomRecallFact}</Fact>
 Important: Do not provide the answer when generating the question or mention the fact used to generate quiz question.`
       }
     ])
@@ -33,7 +33,7 @@ Important: Do not provide the answer when generating the question or mention the
 
   return chatStreamResponse.toDataStreamResponse({
     headers: {
-      "NEW-STUDY-STATE": nextStudyState
+      "NEW-STUDY-STATE": context.nextStudyState
     }
   })
 }

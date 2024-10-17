@@ -1,15 +1,15 @@
 import { LanguageModel, streamText, convertToCoreMessages } from "ai"
 import { StudyState } from "@/lib/studyStates"
 
-export async function handleTopicGeneration(
-  defaultModel: LanguageModel,
-  messages: any[],
-  systemContext: string,
+export async function handleTopicGeneration(context: {
+  defaultModel: LanguageModel
+  messages: any[]
+  systemContext: string
   nextStudyState: StudyState
-) {
+}) {
   try {
     const chatStreamResponse = await streamText({
-      model: defaultModel,
+      model: context.defaultModel,
       temperature: 0.2,
       messages: convertToCoreMessages([
         {
@@ -29,20 +29,20 @@ Formatting Instructions:
     Ensure the study sheet is clear and easy to read. Use bullet points for lists, bold headings for sections, and provide ample spacing for clarity.
     Do not generate additional text like summary, notes or additional text not in study sheet text.
 
-${systemContext}
+${context.systemContext}
 `
         },
-        ...messages
+        ...context.messages
       ])
     })
 
     return chatStreamResponse.toDataStreamResponse({
       headers: {
-        "NEW-STUDY-STATE": nextStudyState
+        "NEW-STUDY-STATE": context.nextStudyState
       }
     })
   } catch (error: any) {
     console.error("Error in handleTopicGeneration:", error)
-    throw error // Re-throw the error to be caught in the main route
+    throw error
   }
 }

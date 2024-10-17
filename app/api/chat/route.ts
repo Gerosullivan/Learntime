@@ -18,79 +18,42 @@ export async function POST(request: Request) {
     const json = await request.json()
 
     const defaultModel = openai("gpt-4o-mini") as LanguageModel
+    const nextStudyState: StudyState =
+      getNextStudyState(json.studyState) || json.studyState
+
     const context = {
       ...json,
-      defaultModel
+      defaultModel,
+      nextStudyState
     }
 
-    const nextStudyState: StudyState =
-      getNextStudyState(studyState) || studyState
-
-    switch (studyState as StudyState) {
+    switch (context.studyState as StudyState) {
       case "topic_name_saved":
       case "topic_describe_upload":
       case "topic_no_description_in_db":
-        return await handleTopicGeneration(
-          defaultModel,
-          messages,
-          systemContext,
-          nextStudyState
-        )
+        return await handleTopicGeneration(context)
 
       case "recall_first_attempt":
-        return await handleRecallAttempt(
-          defaultModel,
-          nextStudyState,
-          studySheet,
-          chatId,
-          systemContext,
-          messages
-        )
+        return await handleRecallAttempt(context)
 
       case "recall_show_hints":
-        return await handleRecallShowHints(
-          defaultModel,
-          studySheet,
-          chatRecallInfo,
-          systemContext,
-          nextStudyState
-        )
+        return await handleRecallShowHints(context)
+
       case "recall_final_suboptimal_feedback":
       case "recall_answer_hints":
-        return await handleHinting(
-          defaultModel,
-          messages,
-          nextStudyState,
-          studySheet,
-          chatRecallInfo,
-          systemContext
-        )
+        return await handleHinting(context)
 
       case "recall_finished":
       case "reviewing":
-        return await handleReview(defaultModel, messages, systemContext)
+        return await handleReview(context)
 
       case "quick_quiz_question":
-        return await handleQuickQuizQuestion(
-          defaultModel,
-          studySheet,
-          randomRecallFact,
-          systemContext,
-          nextStudyState
-        )
+        return await handleQuickQuizQuestion(context)
 
       case "quick_quiz_answer_next":
       case "quick_quiz_user_answer":
       case "quick_quiz_finished":
-        const noMoreQuizQuestions = studyState === "quick_quiz_finished"
-        return await handleQuickQuizAnswer(
-          defaultModel,
-          messages,
-          nextStudyState,
-          studySheet,
-          systemContext,
-          noMoreQuizQuestions
-        )
+        return await handleQuickQuizAnswer(context)
 
       default:
         // Handle other states or error

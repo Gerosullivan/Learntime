@@ -13,14 +13,14 @@ import {
   ScoringSchema
 } from "./scoring-system-message"
 
-export async function handleRecallAttempt(
-  defaultModel: LanguageModel,
-  nextStudyState: StudyState,
-  studySheet: string,
-  chatId: string,
-  systemContext: string,
+export async function handleRecallAttempt(context: {
+  defaultModel: LanguageModel
+  studySheet: string
+  chatId: string
+  systemContext: string
   messages: any[]
-) {
+  nextStudyState: StudyState
+}) {
   let date_from_now = ""
   let recallScore = 0
   let forgottenOrIncorrectFacts: string[] = []
@@ -28,7 +28,7 @@ export async function handleRecallAttempt(
   const systemMessage = getScoringSystemMessage()
 
   const { object } = await generateObject<ScoringSchema>({
-    model: defaultModel,
+    model: context.defaultModel,
     schema: scoringSchema,
     messages: convertToCoreMessages([
       {
@@ -36,10 +36,10 @@ export async function handleRecallAttempt(
         content: `
 ${systemMessage}
 <TopicSource>
-${studySheet}
+${context.studySheet}
 </TopicSource>`
       },
-      ...messages
+      ...context.messages
     ])
   })
 
@@ -49,7 +49,7 @@ ${studySheet}
   feedback = object.feedback
 
   const DB_response = await updateTopicOnRecall(
-    chatId,
+    context.chatId,
     recallScore,
     JSON.stringify(forgottenOrIncorrectFacts)
   )
@@ -67,10 +67,10 @@ ${studySheet}
   date_from_now = formatDistanceToNow(due_date)
   const allRecalled = forgottenOrIncorrectFacts.length === 0
 
-  let newStudyState: StudyState = nextStudyState
+  let newStudyState: StudyState = context.nextStudyState
 
   const mentor_system_message = `You are helpful, friendly study mentor. 
-${systemContext}`
+${context.systemContext}`
 
   let content = ""
 
@@ -112,7 +112,7 @@ ${
   }
 
   const chatStreamResponse = await streamText({
-    model: defaultModel,
+    model: context.defaultModel,
     messages: convertToCoreMessages([
       {
         role: "system",
