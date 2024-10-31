@@ -83,6 +83,7 @@ export default function SetupPage() {
 
     const updateProfilePayload: TablesUpdate<"profiles"> = {
       ...profile,
+      has_onboarded: true,
       display_name: displayName,
       username,
       profile_context: profileInstructions
