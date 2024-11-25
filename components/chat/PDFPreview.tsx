@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react"
 import { toast } from "sonner"
 
+// Static cache to store processed PDFs and track processing state
+const processedPDFs = new Map<string, string>()
+const processingFiles = new Set<string>()
+
 interface PDFPreviewProps {
   file: File
   onParsed?: (content: string) => void
@@ -10,7 +14,24 @@ export default function PDFPreview({ file, onParsed }: PDFPreviewProps) {
   const [content, setContent] = useState<string>("")
 
   useEffect(() => {
+    const fileId = `${file.name}-${file.size}-${file.lastModified}`
+
     const parsePDF = async () => {
+      // If already processing or processed, don't start another process
+      if (processingFiles.has(fileId)) {
+        return
+      }
+
+      if (processedPDFs.has(fileId)) {
+        const cachedText = processedPDFs.get(fileId)!
+        setContent(cachedText.slice(0, 100))
+        onParsed?.(cachedText)
+        return
+      }
+
+      // Mark as processing before starting
+      processingFiles.add(fileId)
+
       try {
         // Step 1: Upload the file
         const uploadFormData = new FormData()
@@ -42,6 +63,9 @@ export default function PDFPreview({ file, onParsed }: PDFPreviewProps) {
 
         const { text } = await parseResponse.json()
 
+        // Cache the result
+        processedPDFs.set(fileId, text)
+
         const previewText = text.slice(0, 100)
         setContent(previewText)
         onParsed?.(text)
@@ -51,13 +75,21 @@ export default function PDFPreview({ file, onParsed }: PDFPreviewProps) {
         toast.error(
           error instanceof Error ? error.message : "Failed to process PDF"
         )
+      } finally {
+        // Always remove from processing set when done
+        processingFiles.delete(fileId)
       }
     }
 
-    if (file) {
-      parsePDF()
+    parsePDF()
+
+    return () => {
+      setTimeout(() => {
+        processedPDFs.delete(fileId)
+        processingFiles.delete(fileId)
+      }, 1000)
     }
-  }, [file, onParsed])
+  }, [file.name, file.size, file.lastModified])
 
   return (
     <div>
