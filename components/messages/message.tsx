@@ -10,7 +10,7 @@ import { motion } from "framer-motion"
 const ICON_SIZE = 32
 
 interface MessageProps {
-  message: MessageType
+  message: MessageType & { name?: string }
   isLast: boolean
 }
 

@@ -6,8 +6,19 @@ export async function handleTopicGeneration(context: {
   messages: any[]
   systemContext: string
   nextStudyState: StudyState
+  pdfContent?: string
 }) {
   try {
+    const lastMessage = context.messages[context.messages.length - 1]
+    const userMessage = context.pdfContent
+      ? `Source Material:\n${context.pdfContent}\n\nUser Query:\n${lastMessage.content}`
+      : lastMessage.content
+
+    const messages = [
+      ...context.messages.slice(0, -1),
+      { ...lastMessage, content: userMessage }
+    ]
+
     const chatStreamResponse = await streamText({
       model: context.defaultModel,
       temperature: 0.2,
@@ -32,7 +43,7 @@ Formatting Instructions:
 ${context.systemContext}
 `
         },
-        ...context.messages
+        ...messages
       ])
     })
 

@@ -16,6 +16,7 @@ import { ChangeEvent } from "react"
 import { KeyboardEvent } from "react" // Add this import
 import { cn } from "@/lib/utils" // Make sure to import the cn function
 import { isHideInput } from "@/lib/studyStates"
+import PDFPreview from "./PDFPreview"
 
 interface ChatInputProps {
   files: FileList | null
@@ -55,6 +56,7 @@ export const ChatInput: FC<ChatInputProps> = ({ files, setFiles }) => {
   const { makeMessageBody, handleCreateTopicName } = useChatHandler()
 
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [pdfContent, setPdfContent] = useState<string>("")
 
   const handlePaste = (event: React.ClipboardEvent) => {
     const items = event.clipboardData?.items
@@ -67,7 +69,9 @@ export const ChatInput: FC<ChatInputProps> = ({ files, setFiles }) => {
       if (pastedFiles.length > 0) {
         const validFiles = pastedFiles.filter(
           file =>
-            file.type.startsWith("image/") || file.type.startsWith("text/")
+            file.type.startsWith("image/") ||
+            file.type.startsWith("text/") ||
+            file.type === "application/pdf"
         )
 
         if (validFiles.length === pastedFiles.length) {
@@ -75,7 +79,7 @@ export const ChatInput: FC<ChatInputProps> = ({ files, setFiles }) => {
           validFiles.forEach(file => dataTransfer.items.add(file))
           setFiles(dataTransfer.files)
         } else {
-          toast.error("Only image and text files are allowed")
+          toast.error("Only image, text and PDF files are allowed")
         }
       }
     }
@@ -87,15 +91,42 @@ export const ChatInput: FC<ChatInputProps> = ({ files, setFiles }) => {
     }
   }
 
+  const handlePDFParsed = (content: string) => {
+    setPdfContent(content)
+  }
+
   const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (chatStudyState === "topic_new") {
       handleCreateTopicName(input)
     } else {
       const body = makeMessageBody()
-      const options = files ? { experimental_attachments: files } : {}
-      handleSubmit(event, { body, ...options })
+
+      // Only pass image files to experimental_attachments
+      const imageFiles = files
+        ? Array.from(files).filter(file => file.type.startsWith("image/"))
+        : null
+
+      const dataTransfer = new DataTransfer()
+      imageFiles?.forEach(file => dataTransfer.items.add(file))
+
+      const options = imageFiles?.length
+        ? {
+            experimental_attachments: dataTransfer.files
+          }
+        : {}
+
+      // Submit with the PDF content in the body
+      handleSubmit(event, {
+        ...options,
+        body: {
+          ...body,
+          pdfContent: pdfContent || undefined // Only include if we have PDF content
+        }
+      })
+
       setFiles(null)
+      setPdfContent("")
     }
   }
 
@@ -116,7 +147,7 @@ export const ChatInput: FC<ChatInputProps> = ({ files, setFiles }) => {
           {files && files.length > 0 && (
             <div className="flex w-full flex-row flex-wrap gap-2">
               {Array.from(files).map(file =>
-                file.type.startsWith("image") ? (
+                file.type.startsWith("image/") ? (
                   <div key={file.name}>
                     <motion.img
                       src={URL.createObjectURL(file)}
@@ -132,7 +163,7 @@ export const ChatInput: FC<ChatInputProps> = ({ files, setFiles }) => {
                       }}
                     />
                   </div>
-                ) : file.type.startsWith("text") ? (
+                ) : file.type.startsWith("text/") ? (
                   <motion.div
                     key={file.name}
                     className="leading-1 h-16 w-28 overflow-hidden rounded-lg border bg-white p-2 text-[8px] text-zinc-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400"
@@ -146,6 +177,21 @@ export const ChatInput: FC<ChatInputProps> = ({ files, setFiles }) => {
                     }}
                   >
                     <TextFilePreview file={file} />
+                  </motion.div>
+                ) : file.type === "application/pdf" ? (
+                  <motion.div
+                    key={file.name}
+                    className="leading-1 h-16 w-28 overflow-hidden rounded-lg border bg-white p-2 text-[8px] text-zinc-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400"
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{
+                      y: -10,
+                      scale: 1.1,
+                      opacity: 0,
+                      transition: { duration: 0.2 }
+                    }}
+                  >
+                    <PDFPreview file={file} onParsed={handlePDFParsed} />
                   </motion.div>
                 ) : null
               )}
@@ -171,7 +217,7 @@ export const ChatInput: FC<ChatInputProps> = ({ files, setFiles }) => {
             type="file"
             onChange={handleFileChange}
             multiple
-            accept="image/*,text/*"
+            accept="image/*,text/*,application/pdf"
           />
 
           <ReactTextareaAutosize

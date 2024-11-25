@@ -1,5 +1,5 @@
 import { useChatHandler } from "@/components/chat/chat-hooks/use-chat-handler"
-import { FC, useEffect } from "react"
+import { FC, useEffect, useState } from "react"
 import { useScroll } from "./chat-hooks/use-scroll"
 import { ChatInput } from "./chat-input"
 import { ChatMessages } from "./chat-messages"
@@ -15,6 +15,7 @@ interface ChatUIProps {
 
 export const ChatUI: FC<ChatUIProps> = ({ chatTitle }) => {
   const { handleNewTopic } = useChatHandler()
+  const [files, setFiles] = useState<FileList | null>(null)
 
   useHotkey("o", () => handleNewTopic())
 
@@ -30,14 +31,8 @@ export const ChatUI: FC<ChatUIProps> = ({ chatTitle }) => {
     scrollToTop
   } = useScroll()
 
-  const {
-    files,
-    setFiles,
-    isDragging,
-    handleDragOver,
-    handleDragLeave,
-    handleDrop
-  } = useDragHandlers()
+  const { isDragging, handleDragOver, handleDragLeave, handleDrop } =
+    useDragHandlers(setFiles)
 
   useEffect(() => {
     scrollToBottom()

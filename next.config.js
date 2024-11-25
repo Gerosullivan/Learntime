@@ -9,6 +9,13 @@ const withPWA = require("next-pwa")({
   skipWaiting: true
 })
 
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  experimental: {
+    serverComponentsExternalPackages: ["pdf2json"]
+  }
+}
+
 module.exports = withPWA({
   images: {
     remotePatterns: [
@@ -34,5 +41,6 @@ module.exports = withPWA({
       })
     }
     return config
-  }
+  },
+  ...nextConfig
 })
