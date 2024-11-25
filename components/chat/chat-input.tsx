@@ -103,12 +103,6 @@ export const ChatInput: FC<ChatInputProps> = ({ files, setFiles }) => {
     } else {
       const body = makeMessageBody()
 
-      // If we have PDF content, prepend it to the message
-      let messageContent = input
-      if (pdfContent) {
-        messageContent = `PDF Content for context:\n${pdfContent}\n\nUser message:\n${input}`
-      }
-
       // Only pass image files to experimental_attachments
       const imageFiles = files
         ? Array.from(files).filter(file => file.type.startsWith("image/"))
@@ -123,9 +117,14 @@ export const ChatInput: FC<ChatInputProps> = ({ files, setFiles }) => {
           }
         : {}
 
-      // Use setInput instead of handleInputChange
-      setInput(messageContent)
-      handleSubmit(event, { body, ...options })
+      // Submit with the PDF content in the body
+      handleSubmit(event, {
+        ...options,
+        body: {
+          ...body,
+          pdfContent: pdfContent || undefined // Only include if we have PDF content
+        }
+      })
 
       setFiles(null)
       setPdfContent("")
