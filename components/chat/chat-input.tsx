@@ -51,8 +51,7 @@ export const ChatInput: FC<ChatInputProps> = ({ files, setFiles }) => {
     isLoading,
     handleInputChange,
     handleSubmit,
-    stop,
-    setInput
+    stop
   } = useContext(LearntimeContext)
   const { makeMessageBody, handleCreateTopicName } = useChatHandler()
 
