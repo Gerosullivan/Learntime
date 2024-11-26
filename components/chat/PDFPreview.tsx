@@ -83,13 +83,12 @@ export default function PDFPreview({ file, onParsed }: PDFPreviewProps) {
 
     parsePDF()
 
+    // Cleanup function to remove from cache when component unmounts
     return () => {
-      setTimeout(() => {
-        processedPDFs.delete(fileId)
-        processingFiles.delete(fileId)
-      }, 1000)
+      processedPDFs.delete(fileId)
+      processingFiles.delete(fileId)
     }
-  }, [file.name, file.size, file.lastModified])
+  }, [file, onParsed])
 
   return (
     <div>
