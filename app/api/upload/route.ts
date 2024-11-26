@@ -1,6 +1,5 @@
-import { writeFile, unlink } from "fs/promises"
 import { NextResponse } from "next/server"
-import path from "path"
+import { uploadToStorage } from "@/lib/server/storage-utils"
 
 export async function POST(request: Request) {
   try {
@@ -24,23 +23,11 @@ export async function POST(request: Request) {
     const buffer = Buffer.from(bytes)
 
     const fileName = `${Date.now()}-${file.name}`
-    const tempFilePath = path.join("/tmp", fileName)
-
-    await writeFile(tempFilePath, buffer)
-
-    // Schedule cleanup after 1 minute
-    setTimeout(async () => {
-      try {
-        await unlink(tempFilePath)
-        console.log(`Cleaned up temporary file: ${tempFilePath}`)
-      } catch (error) {
-        console.error(`Failed to cleanup file: ${tempFilePath}`, error)
-      }
-    }, 60000)
+    const filePath = await uploadToStorage(buffer, fileName)
 
     return NextResponse.json({
       success: true,
-      filePath: tempFilePath
+      filePath
     })
   } catch (error) {
     console.error("Error uploading file:", error)

@@ -1,12 +1,18 @@
-import { readFile, unlink } from "fs/promises"
 import PDFParser from "pdf2json"
+import {
+  downloadFromStorage,
+  deleteFromStorage
+} from "@/lib/server/storage-utils"
 
 export const dynamic = "force-dynamic"
 export const maxDuration = 30
 
 export async function POST(request: Request) {
+  let filePath: string | null = null
+
   try {
-    const { filePath } = await request.json()
+    const { filePath: requestFilePath } = await request.json()
+    filePath = requestFilePath
 
     if (!filePath) {
       return new Response(JSON.stringify({ error: "No file path provided" }), {
@@ -15,7 +21,8 @@ export async function POST(request: Request) {
       })
     }
 
-    const buffer = await readFile(filePath)
+    const arrayBuffer = await downloadFromStorage(filePath)
+    const buffer = Buffer.from(arrayBuffer)
 
     const text = await new Promise((resolve, reject) => {
       const pdfParser = new (PDFParser as any)(null, 1)
@@ -31,13 +38,9 @@ export async function POST(request: Request) {
       pdfParser.parseBuffer(buffer)
     })
 
-    // Clean up the temporary file immediately after parsing
-    try {
-      await unlink(filePath)
-      console.log(`Cleaned up file: ${filePath}`)
-    } catch (cleanupError) {
-      console.error(`Failed to cleanup file: ${filePath}`, cleanupError)
-    }
+    // Clean up the file from storage immediately after parsing
+    await deleteFromStorage(filePath)
+    console.log(`Cleaned up file from storage: ${filePath}`)
 
     return new Response(JSON.stringify({ success: true, text }), {
       status: 200,
@@ -47,12 +50,9 @@ export async function POST(request: Request) {
     console.error("Error parsing PDF:", error)
 
     // Attempt cleanup even on error
-    if (request.json) {
+    if (filePath) {
       try {
-        const { filePath } = await request.json()
-        if (filePath) {
-          await unlink(filePath).catch(console.error)
-        }
+        await deleteFromStorage(filePath)
       } catch (cleanupError) {
         console.error("Error during cleanup:", cleanupError)
       }
